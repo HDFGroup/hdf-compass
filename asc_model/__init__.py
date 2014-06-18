@@ -43,6 +43,7 @@ Give it a shot and let me know if you run into problems.
 '''
 
 class Filesystem(compass_model.Store):
+	
 	"""
 		A "data store" represented by the file system.
 
@@ -87,3 +88,43 @@ class Filesystem(compass_model.Store):
 		if key == '/':
 			return None
 		return self[op.dirname(key)]
+
+class Directory(compass_model.Container):
+
+	"""
+		Represents a directory in the file system.
+	"""
+
+	classkind = "Directory"
+
+	@staticmethod
+	def canhandle(store, key):
+		return op.isdir(key)
+
+	def __init__(self, store, key):
+		self._store = store
+		self._key = key
+		try:
+			self._names = os.listdir(key)
+		except OSError: 
+			self._names = []
+
+	@property
+	def key(self):
+		return self._key
+
+	@property
+	def store(self):
+		return self._store
+
+	@property
+	def description(self):
+		return 'folder "%s" (%d members)' % (self.displayname, len(self))
+
+	def __len__(self):
+		return len(self._names)
+
+	def __iter__(self):
+		for name in self._names:
+			key = op.join(self.key, name)
+			yield self._store[key]
