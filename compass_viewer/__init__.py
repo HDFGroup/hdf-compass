@@ -151,6 +151,7 @@ def run():
     import filesystem_model
     import array_model
     import hdf5_model
+    import asc_model
 
     import sys
     import os.path as op
