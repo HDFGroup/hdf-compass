@@ -72,12 +72,10 @@ class Directory(compass_model.Container):
 	def canhandle(store, key):
 		return op.isdir(key)
 
-		#LIST COMPREHENSION for self._names
 	def __init__(self, store, key):
 		self._store = store
 		self._key = key
 		try:
-			#self._names = os.listdir(key)
 			self._names = [s for s in os.listdir(key) if s.endswith('.asc') or op.isdir(op.join(key, s))]
 		except OSError: 
 			self._names = []
@@ -173,8 +171,6 @@ class Attributes(compass_model.KeyValue):
 		self.data = {'NODATA Value': float(linecache.getline(self._key, 5).lstrip("NODATA_value")),
 			'yllcorner': float(linecache.getline(self._key, 4).lstrip("yllcorner")),
 			'xllcorner': float(linecache.getline(self._key, 3).lstrip("xllcorner"))}
-
-#'a': np.array((1,2)), 'b': np.array("Hello"), 'c': np.array('\x01', dtype='|V1')
 
 	@property
 	def key(self):
