@@ -8,6 +8,7 @@ directories and the ASCII grid data respectively.
 import os
 import os.path as op
 import numpy as np
+import linecache
 
 import compass_model
 
@@ -71,11 +72,13 @@ class Directory(compass_model.Container):
 	def canhandle(store, key):
 		return op.isdir(key)
 
+		#LIST COMPREHENSION for self._names
 	def __init__(self, store, key):
 		self._store = store
 		self._key = key
 		try:
-			self._names = os.listdir(key)
+			#self._names = os.listdir(key)
+			self._names = [s for s in os.listdir(key) if s.endswith('.asc') or op.isdir(op.join(key, s))]
 		except OSError: 
 			self._names = []
 
@@ -126,7 +129,7 @@ class ASCFile(compass_model.Array):
 	def __init__(self, store, key):
 		self._store = store
 		self._key = key
-		self.data = np.loadtxt(self._key, skiprows=5).transpose()
+		self.data = np.loadtxt(self._key, skiprows=5, unpack=True)
 
 	@property
 	def key(self):
@@ -156,7 +159,49 @@ class ASCFile(compass_model.Array):
 		return self.data[args]
 
 
-Filesystem.push(ASCFile)
+class Attributes(compass_model.KeyValue):
+
+	classkind = "Attributes of ASC Grid File" 
+
+	@staticmethod
+	def canhandle(store, key):
+		return op.isfile(key) and key.endswith('.asc')
+
+	def __init__(self, store, key):
+		self._store = store
+		self._key = key 
+		self.data = {'NODATA Value': float(linecache.getline(self._key, 5).lstrip("NODATA_value")),
+			'yllcorner': float(linecache.getline(self._key, 4).lstrip("yllcorner")),
+			'xllcorner': float(linecache.getline(self._key, 3).lstrip("xllcorner"))}
+
+#'a': np.array((1,2)), 'b': np.array("Hello"), 'c': np.array('\x01', dtype='|V1')
+
+	@property
+	def key(self):
+		return self._key
+
+	@property
+	def store(self):
+		self._store
+
+	@property
+	def displayname(self):
+		return self.key
+
+	@property
+	def description(self):
+		return self.displayname
+
+	@property
+	def keys(self):
+		return self.data.keys()
+
+	def __getitem__(self, args):
+		return self.data[args]
+
+
+Filesystem.push(Attributes)
 Filesystem.push(Directory)
+Filesystem.push(ASCFile)
 
 compass_model.push(Filesystem)
