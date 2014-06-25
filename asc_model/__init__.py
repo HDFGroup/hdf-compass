@@ -127,7 +127,7 @@ class ASCFile(compass_model.Array):
 	def __init__(self, store, key):
 		self._store = store
 		self._key = key
-		self.data = np.loadtxt(self._key, skiprows=5, unpack=True)
+		self.data = np.loadtxt(self._key, skiprows=6, unpack=True)
 
 	@property
 	def key(self):
@@ -168,9 +168,10 @@ class Attributes(compass_model.KeyValue):
 	def __init__(self, store, key):
 		self._store = store
 		self._key = key 
-		self.data = {'NODATA Value': float(linecache.getline(self._key, 5).lstrip("NODATA_value")),
-			'yllcorner': float(linecache.getline(self._key, 4).lstrip("yllcorner")),
-			'xllcorner': float(linecache.getline(self._key, 3).lstrip("xllcorner"))}
+		self.data = {'NODATA Value': float(linecache.getline(self._key, 6).lstrip("NODATA_value")),
+		  'cellsize': float(linecache.getline(self._key, 5).lstrip("cellsize")),
+		  'yllcorner': float(linecache.getline(self._key, 4).lstrip("yllcorner")),
+		  'xllcorner': float(linecache.getline(self._key, 3).lstrip("xllcorner"))}
 
 	@property
 	def key(self):
