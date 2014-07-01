@@ -58,6 +58,10 @@ class ArrayStore(compass_model.Store):
     def root(self):
         return ArrayContainer(self, None)
 
+    @property
+    def valid(self):
+        return True
+        
     @staticmethod
     def canhandle(url):
         if url == "array://localhost":
