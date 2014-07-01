@@ -32,6 +32,7 @@ DATA = {'a_0d': np.array(1),
         's_0d': np.array("Hello"),
         's_1d': np.array(("Hello",)),
         'v_0d': np.array('\x01', dtype='|V1'),
+        'nonsquare': np.arange(5*10).reshape((5,10)),
         }
 
 class ArrayStore(compass_model.Store):
@@ -57,6 +58,10 @@ class ArrayStore(compass_model.Store):
     def root(self):
         return ArrayContainer(self, None)
 
+    @property
+    def valid(self):
+        return True
+        
     @staticmethod
     def canhandle(url):
         if url == "array://localhost":
