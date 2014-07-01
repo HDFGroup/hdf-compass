@@ -77,7 +77,7 @@ class ContourPlotFrame(PlotFrame):
 
     def draw_figure(self):
         import pylab
-        xx = np.arange(self.data.shape[0])
-        yy = np.arange(self.data.shape[1])
+        xx = np.arange(self.data.shape[1])
+        yy = np.arange(self.data.shape[0])
         out = self.axes.contourf(xx, yy, self.data, 25)
         pylab.colorbar(out)
