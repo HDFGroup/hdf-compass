@@ -21,7 +21,7 @@ class Filesystem(compass_model.Store):
 	"""
 
 	def __contains__(self, key):
-		return op.exists(key)
+	    return op.exists(key)
 
 	@property
 	def url(self):
@@ -127,7 +127,9 @@ class ASCFile(compass_model.Array):
 	def __init__(self, store, key):
 		self._store = store
 		self._key = key
-		self._data = np.arange(0, dtype=float)
+		self._nrows = int(linecache.getline(self._key, 1).lstrip("ncols"))
+		self._ncols = int(linecache.getline(self._key, 2).lstrip("nrows"))
+		self._data = None
 
 	@property
 	def key(self):
@@ -147,17 +149,15 @@ class ASCFile(compass_model.Array):
 
 	@property
 	def shape(self):
-		nrows = int(linecache.getline(self._key, 1).lstrip("ncols"))
-		ncols = int(linecache.getline(self._key, 2).lstrip("nrows"))
-		return (nrows, ncols)
+		return (self._nrows, self._ncols)
 
 	@property
 	def dtype(self):
-		return self._data.dtype
+		return np.dtype('float')
 
 	def __getitem__(self, args):
-		if self._data.size is 0:
-			self._data = np.loadtxt(self._key, skiprows=6, unpack=True, dtype=float)
+		if self._data is None:
+		    self._data = np.loadtxt(self._key, skiprows=6, unpack=True)
 		return self._data[args]
 
 
