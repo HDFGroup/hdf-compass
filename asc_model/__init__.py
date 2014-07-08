@@ -127,10 +127,7 @@ class ASCFile(compass_model.Array):
 	def __init__(self, store, key):
 		self._store = store
 		self._key = key
-		# Need to load nrows and ncols
-		nrows = int(linecache.getline(self._key, 1).lstrip("ncols"))
-		ncols = int(linecache.getline(self._key, 2).lstrip("nrows"))
-		self.data = np.zeros((nrows, ncols), dtype=float)
+		self._data = np.arange(0, dtype=float)
 
 	@property
 	def key(self):
@@ -142,7 +139,7 @@ class ASCFile(compass_model.Array):
 
 	@property
 	def displayname(self):
-		return op.basename(self.key)
+		return op.basename(self._key)
 
 	@property
 	def description(self):
@@ -150,15 +147,18 @@ class ASCFile(compass_model.Array):
 
 	@property
 	def shape(self):
-		return self.data.shape
+		nrows = int(linecache.getline(self._key, 1).lstrip("ncols"))
+		ncols = int(linecache.getline(self._key, 2).lstrip("nrows"))
+		return (nrows, ncols)
 
 	@property
 	def dtype(self):
-		return self.data.dtype
+		return self._data.dtype
 
 	def __getitem__(self, args):
-		self.data = np.loadtxt(self._key, skiprows=6, unpack=True)
-		return self.data[args]
+		if self._data.size is 0:
+			self._data = np.loadtxt(self._key, skiprows=6, unpack=True, dtype=float)
+		return self._data[args]
 
 
 class Attributes(compass_model.KeyValue):
