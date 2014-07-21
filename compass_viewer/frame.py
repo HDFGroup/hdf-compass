@@ -112,7 +112,7 @@ class BaseFrame(wx.Frame):
         wc_string = "|".join([make_filter_string(x) for x in wc_string])
         
         from . import open_store
-        dlg = wx.FileDialog(self, "Open Local File", wildcard=wc_string)#, style=wx.FD_OPEN|wx.FD_FILE_MUST_EXIST)
+        dlg = wx.FileDialog(self, "Open Local File", wildcard=wc_string, style=wx.FD_OPEN|wx.FD_FILE_MUST_EXIST)
         if dlg.ShowModal() != wx.ID_OK:
             return
         path = dlg.GetPath()
