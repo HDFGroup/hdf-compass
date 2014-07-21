@@ -100,7 +100,10 @@ class BaseFrame(wx.Frame):
             """ Make a wxPython dialog filter string segment from dict """
             filter_string = []
             for key, value in dct.iteritems():
-                s = "{name} ({pattern})|{pattern}".format(name=key, pattern="".join(value))
+                s = "{name} ({pattern_c})|{pattern_sc}".format(
+                    name=key, 
+                    pattern_c=",".join(value),
+                    pattern_sc=";".join(value) )
                 filter_string.append(s)
             return "|".join(filter_string)
             
