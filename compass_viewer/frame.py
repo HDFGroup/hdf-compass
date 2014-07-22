@@ -109,6 +109,7 @@ class BaseFrame(wx.Frame):
             
         # The wxPython wildcard string is a bunch of filter strings pasted together
         wc_string = [s.file_extensions for s in compass_model.getstores() if len(s.file_extensions) != 0]
+        wc_string.append({"All Files": ["*"]})
         wc_string = "|".join([make_filter_string(x) for x in wc_string])
         
         from . import open_store
