@@ -134,6 +134,11 @@ class Store(object):
     # -------------------------------------------------------------------------
 
 
+    # For plugins which support local files, this is a dictionary mapping
+    # file kinds to lists of extensions, e.g. {'HDF5 File': ['*.hdf5', '*.h5']}
+    file_extensions = {}
+    
+    
     @property
     def url(self):
         """ Identifies the file or Web resource (string).

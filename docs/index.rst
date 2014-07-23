@@ -148,7 +148,13 @@ Other methods & properties
     For hierarchical formats, this would be the root container.  For scalar
     formats (FITS, for example), this could be e.g. an Array or Image instance.
 
+.. attribute:: Store.file_extensions
 
+    For plugins that support local file access, this is a dictionary mapping
+    file kinds to lists of extensions in "glob" format, e.g. 
+    ``{'HDF5 File': ['.h5', '.hdf5']}``.  This will be used to populate the
+    filter in the file-open dialog, among other things.
+    
 Nodes
 -----
 

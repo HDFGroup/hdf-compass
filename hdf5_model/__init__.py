@@ -38,6 +38,8 @@ class HDF5Store(compass_model.Store):
     Keys are the full names of objects in the file.
     """
 
+    file_extensions = {'HDF5 File': ['*.hdf5', '*.h5']}
+    
     def __contains__(self, key):
         return key in self.f
 

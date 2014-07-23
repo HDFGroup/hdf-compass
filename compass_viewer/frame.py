@@ -94,8 +94,26 @@ class BaseFrame(wx.Frame):
 
     def on_file_open(self, evt):
         """ Request to open a file via the Open entry in the File menu """
+        import compass_model
+        
+        def make_filter_string(dct):
+            """ Make a wxPython dialog filter string segment from dict """
+            filter_string = []
+            for key, value in dct.iteritems():
+                s = "{name} ({pattern_c})|{pattern_sc}".format(
+                    name=key, 
+                    pattern_c=",".join(value),
+                    pattern_sc=";".join(value) )
+                filter_string.append(s)
+            return "|".join(filter_string)
+            
+        # The wxPython wildcard string is a bunch of filter strings pasted together
+        wc_string = [s.file_extensions for s in compass_model.getstores() if len(s.file_extensions) != 0]
+        wc_string.append({"All Files": ["*"]})
+        wc_string = "|".join([make_filter_string(x) for x in wc_string])
+        
         from . import open_store
-        dlg = wx.FileDialog(self, "Open Local File", style=wx.FD_OPEN|wx.FD_FILE_MUST_EXIST)
+        dlg = wx.FileDialog(self, "Open Local File", wildcard=wc_string, style=wx.FD_OPEN|wx.FD_FILE_MUST_EXIST)
         if dlg.ShowModal() != wx.ID_OK:
             return
         path = dlg.GetPath()
