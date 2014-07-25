@@ -68,57 +68,6 @@ class AsciiGrid(compass_model.Store):
         prefixLen = len('file://')
         return self._url[prefixLen:]
 
-
-class Root(compass_model.Container):
-
-    """
-        Represents the root (and only) group for ASCII Grid
-    """
-
-    classkind = "Root"
-
-    @staticmethod
-    def canhandle(store, key):
-        print "container can handle, ", key
-        if key == '/':
-            return True
-        return False
-
-    def __init__(self, store, key):
-        self._store = store
-        self._key = key
-
-    @property
-    def key(self):
-        return "/"
-
-    @property
-    def store(self):
-        return self._store
-
-    @property
-    def displayname(self):
-        return self._store.displayname
-
-    @property
-    def displaytitle(self):
-        return "%s %s" % (self.store.displayname, self.key)
-
-    @property
-    def description(self):
-        return 'folder "%s" (%d members)' % (self.displayname, len(self))
-
-    def __len__(self):
-        return 0
-
-    def __iter__(self):
-        names = []
-        return iter(names)
-
-    def __getitem__(self, idx):
-        return None
-
-
 class ASCFile(compass_model.Array):
 
     """
@@ -216,10 +165,6 @@ class Attributes(compass_model.KeyValue):
     def __getitem__(self, args):
         return self.data[args]
 
-
-
-AsciiGrid.push(ASCFile)      # array
-AsciiGrid.push(Root)         # container
 AsciiGrid.push(Attributes)   # attribute data
 AsciiGrid.push(ASCFile)      # array
 
