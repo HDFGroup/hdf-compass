@@ -85,7 +85,8 @@ class Root(compass_model.Container):
         return False
 
     def __init__(self, store, key):
-        pass
+        self._store = store
+        self._key = key
 
     @property
     def key(self):
@@ -97,7 +98,7 @@ class Root(compass_model.Container):
 
     @property
     def displayname(self):
-        return self_store.displayname
+        return self._store.displayname
 
     @property
     def displaytitle(self):
@@ -204,6 +205,9 @@ class Attributes(compass_model.KeyValue):
     @property
     def description(self):
         return self.displayname
+        
+    def close(self):
+        self._valid = False
 
     @property
     def keys(self):
@@ -213,8 +217,10 @@ class Attributes(compass_model.KeyValue):
         return self.data[args]
 
 
-AsciiGrid.push(Attributes)   # attribute data
+
+AsciiGrid.push(ASCFile)      # array
 AsciiGrid.push(Root)         # container
+AsciiGrid.push(Attributes)   # attribute data
 AsciiGrid.push(ASCFile)      # array
 
 compass_model.push(AsciiGrid)
