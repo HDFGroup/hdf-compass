@@ -96,21 +96,35 @@ class BaseFrame(wx.Frame):
         """ Request to open a file via the Open entry in the File menu """
         import compass_model
         
-        def make_filter_string(dct):
+        def make_filter_string():
             """ Make a wxPython dialog filter string segment from dict """
             filter_string = []
-            for key, value in dct.iteritems():
-                s = "{name} ({pattern_c})|{pattern_sc}".format(
-                    name=key, 
-                    pattern_c=",".join(value),
-                    pattern_sc=";".join(value) )
-                filter_string.append(s)
-            return "|".join(filter_string)
+            hdf_filter_string = []  # put HDF filters in the front
+            for store in compass_model.getstores():
+                if len(store.file_extensions) == 0:
+                    continue
+                for key in store.file_extensions:
+                    s = "{name} ({pattern_c})|{pattern_sc}".format(
+                        name=key, 
+                        pattern_c=",".join(store.file_extensions[key]),
+                        pattern_sc=";".join(store.file_extensions[key]) )
+                    if s.startswith("HDF"):
+                        hdf_filter_string.append(s)
+                    else:
+                	    filter_string.append(s)
+            filter_string = hdf_filter_string + filter_string
+            filter_string.append('All Files (*.*)|*.*');
+            pipe = "|"
+            return pipe.join(filter_string)
             
         # The wxPython wildcard string is a bunch of filter strings pasted together
-        wc_string = [s.file_extensions for s in compass_model.getstores() if len(s.file_extensions) != 0]
-        wc_string.append({"All Files": ["*"]})
-        wc_string = "|".join([make_filter_string(x) for x in wc_string])
+        # wc_string = [s.file_extensions for s in compass_model.getstores() if len(s.file_extensions) != 0]
+        # print "jlr -- wc_string: " , wc_string
+        # wc_string.append({"All Files": ["*"]})
+        # wc_string = "|".join([make_filter_string(x) for x in wc_string])
+        #wc_string.append("|")
+        #wc_string.append(make_filter_string(wc_string))
+        wc_string = make_filter_string()
         
         from . import open_store
         dlg = wx.FileDialog(self, "Open Local File", wildcard=wc_string, style=wx.FD_OPEN|wx.FD_FILE_MUST_EXIST)
