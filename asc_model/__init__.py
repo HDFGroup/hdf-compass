@@ -167,5 +167,4 @@ class Attributes(compass_model.KeyValue):
 
 AsciiGrid.push(Attributes)   # attribute data
 AsciiGrid.push(ASCFile)      # array
-
 compass_model.push(AsciiGrid)
