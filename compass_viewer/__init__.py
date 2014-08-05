@@ -152,6 +152,7 @@ def run():
     import array_model
     import hdf5_model
     import asc_model
+    import opendap_model
 
     import sys
     import os.path as op
