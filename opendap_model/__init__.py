@@ -3,8 +3,8 @@ HDF Compass plugin for accessing an OpENDAP server.
 """
 import numpy as np
 from pydap.client import open_url
-import pydap as dap
 from pydap.model import *
+import posixpath as pp
 
 import compass_model
 
@@ -39,7 +39,6 @@ class Server(compass_model.Store):
         if key == '/':
             return True
         return False
-        #pass
 
     # Other methods & properties
     @staticmethod
@@ -51,7 +50,6 @@ class Server(compass_model.Store):
         #    return False
         return True
         # Return True if this class can make sense of "url". False otherwise.
-        #pass
 
     def __init__(self, url):
         #Create a new store instance from the data at "url". False otherwise.
@@ -66,27 +64,23 @@ class Server(compass_model.Store):
         # Discontinue access to the data store
         self._valid = False
         print 5
-        #pass
 
     def getparent(self, key):
         # Return the object which contains "key", or None if no object exists
         print 6
         return None
-        #pass
 
     @property
     def url(self):
         # The "URL" used to open the store
         print 7
         return self._url
-        #pass
 
     @property
     def displayname(self):
         # A short name used for the store
         print 8
-        return "OpENDAP Test Dataset"
-        #pass
+        return self._dataset.name
 
     @property
     def root(self):
@@ -94,13 +88,11 @@ class Server(compass_model.Store):
         # For hierarchiacal formats, this would be the root container.
         print 9
         return self['/']
-        #pass
 
     @property
     def valid(self):
         print 10
         return self._valid
-        #pass
 
 
 class Structure(compass_model.Container):
@@ -116,26 +108,19 @@ class Structure(compass_model.Container):
     def __len__(self):
         # Get the number of ojects directly attached to the Container
         print 11
-        #print "the length is ", len(self._dset.data)
         return len(self._dset.data)
-        #pass
-    
 
     def __getitem__(self, index):
         # Retrieve the node at index.
         # Returns a NODE INSTANCE, not a key
-        item = self._dset.get(self._dset.keys()[index])
+        print "index is", index
         print 12
-        return item
-        #return self._dset.get(self._dset.keys()[index])
-        #return open_url(self._url)
-        #pass
+        #self._dset.get(self._dset.keys()[index]).attributes['displayname'] = self._dset.keys()[index]
+        return self._dset.get(self._dset.keys()[index])
 
     def __iter__(self):
         print 13
-        for name in self._names:
-            yield self.store[pp.join(self.key, name)]
-        #pass
+        pass
 
     # General Node class implementations
 
@@ -144,10 +129,7 @@ class Structure(compass_model.Container):
         # Determine whether this class can usefully represent the object.
         # Keys are not technically required to be strings
         print 14
-        print "key is", key, " store is ", store
-        return key in store
         if type(store._dataset) == DatasetType or type(store._dataset) == StructureType:
-        #if type(self._dest) == DatasetType or type(self._dset) == StructureType:
             return True
         return False
 
@@ -159,43 +141,34 @@ class Structure(compass_model.Container):
         self._url = store.url
         self._dset = open_url(self._url)
 
-        print "self._dset.name is ", self._dset.name
-        #pass
-
     @property
     def key(self):
         # Unique key which identifies this object in the store
         # Keys may be any hashable object, although strings are the most common
         print 16
-        print "self._key is ", self._key
+        #print "self._key is ", self._key
         return self._key
-        #pass
 
     @property
     def store(self):
         # The data store to which the object belongs
         print 17
-        print "self._store is ", self._store
         return self._store
-        #pass
 
     @property
     def displayname(self):
         # A short name for display purposes 
         print 18
-        return "test"
-        #return self._dset.name
-        #pass
+        return self._dset.name
 
     @property
     def description(self):
         # Descriptive string
         print 19
         return "Testing Structure Implementation"
-        #pass
 
 
-class BaseType(compass_model.Array):
+class Base(compass_model.Array):
 
     """
     Represents Array/BaseType Object in OpENDAP/Pydap
@@ -213,21 +186,30 @@ class BaseType(compass_model.Array):
         # Shape of the array, as a Python tuple
         print 20
         return self._dset.shape
-        #pass
 
     @property
     def dtype(self):
         # NumPy data type object representing the type of the array
         print 21
         return self._dset.dtype
-        #pass
+
+    '''
+    @property
+    def type(self):
+        print "type"
+        return type(self)
+    
+    @property
+    def classkind(self):
+        print "classkind"
+        return "BASETYPE"
+    '''
 
     def __getitem__(self, indices):
         # Retrieve data from the array, using the standard array-slicing syntax.
         # "indices" are slicing arguments
         print 22
         return self._dset[indices]
-        #pass
 
     # General Node class implementations
 
@@ -242,7 +224,6 @@ class BaseType(compass_model.Array):
         if type(store._dataset) == BaseType:
             return True
         return False
-        #pass
 
     def __init__(self, store, key):
         # Create a new instance representing the object pointed to by "key" in "store"
@@ -253,7 +234,6 @@ class BaseType(compass_model.Array):
         self._url = store.url
         self._shape = self.shape
         self._dset = ArrayProxy(self._id, self._url, self._shape)#[:]
-        #pass
 
     @property
     def key(self):
@@ -261,14 +241,12 @@ class BaseType(compass_model.Array):
         # Keys may be any hashable object
         print 25
         return self._key
-        #pass
 
     @property
     def store(self):
         # The data store to which the object belongs
         print 26
         return self._store
-        #pass
 
     @property
     def displayname(self):
@@ -276,24 +254,21 @@ class BaseType(compass_model.Array):
         print 27
         return "test"
         #return self._dset.name
-        #pass
 
     @property
     def description(self):
         # A descriptive string
         print 28
         return "A Descriptive String"
-        #pass
 
     @property
     def id(self):
         print 29
         return self._id
-        #pass
 
 
 # Register Handlers
 Server.push(Structure)
-Server.push(BaseType)
+Server.push(Base)
 
 compass_model.push(Server)
