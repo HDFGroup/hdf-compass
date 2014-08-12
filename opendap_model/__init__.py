@@ -2,30 +2,29 @@
 HDF Compass plugin for accessing an OpENDAP server. 
 """
 
-import numpy as np
-import posixpath as pp
-from pydap.client import open_url
 from pydap.model import *
+from pydap.client import open_url
 from pydap.proxy import ArrayProxy
 
 import compass_model
+import numpy as np
+import posixpath as pp
 
 class Server(compass_model.Store):
 
     """
-        #Represents the remote OpENDAP derver to be accessed
+        Represents the remote OpENDAP derver to be accessed
     """
 
     def __contains__(self, key):
-        if key == '/':
-            return True
-        return False
+        return key in self._dataset
 
     @staticmethod
     def canhandle(url):
-        if not url.startswith('http://'):
+        try:
+            return isinstance(open_url(url), DatasetType)
+        except Exception:
             return False
-        return True
 
     def __init__(self, url):
         if not self.canhandle(url):
@@ -33,10 +32,10 @@ class Server(compass_model.Store):
         self._url = url
         self._valid = True
         self._dataset = open_url(self._url)
+        self._dataset.setdefault('')
 
     def close(self):
         self._valid = False
-        print 5
 
     def getparent(self, key):
         return None
@@ -51,7 +50,7 @@ class Server(compass_model.Store):
 
     @property
     def root(self):
-        return self['/']
+        return self['']
 
     @property
     def valid(self):
@@ -65,27 +64,28 @@ class Structure(compass_model.Container):
     """
 
     classkind = "Structure"
-
+    
     def __len__(self):
         return len(self._dset.data)
 
     def __getitem__(self, index):
-        return self._dset.get(self._dset.keys()[index])
+        name = self._dset.keys()[index]
+        return self.store[pp.join(self.key, name)]
 
     def __iter__(self):
-        pass
+        for name in self._dset.keys():
+            yield self.store[pp.join(self.key, name)]
+        #pass
 
     @staticmethod
     def canhandle(store, key):
-        if type(store._dataset) == DatasetType or type(store._dataset) == StructureType:
-            return True
-        return False
+        return key in store._dataset and isinstance(store._dataset, StructureType)
 
     def __init__(self, store, key):
         self._store = store
         self._key = key 
         self._url = store.url
-        self._dset = open_url(self._url)
+        self._dset = open_url(store.url)
 
     @property
     def key(self):
@@ -107,35 +107,38 @@ class Structure(compass_model.Container):
 class Base(compass_model.Array):
 
     """
-    #Represents Array/BaseType Object in OpENDAP/Pydap
+        Represents Array/BaseType Object in OpENDAP/Pydap
     """
 
-    classkind = "Base"
+    classkind = "BaseType - NumPy Array"
 
     @property
     def shape(self):
-        return self._dset.shape
+        return self._shape
 
     @property
     def dtype(self):
-        return self._dset.dtype
+        return np.dtype(self._dtype)
 
-    def __getitem__(self, indices):
-        return self._dset[indices]
+    def __getitem__(self, index):
+        if self._data is None:
+            self._data = ArrayProxy(self._id, self._url, self._shape)[:]
+        return self._data[index]
 
     @staticmethod
     def canhandle(store, key):
-        if type(store._dataset) == BaseType:
-            return True
-        return False
+        return key in store._dataset and isinstance(store._dataset[key], BaseType)
 
     def __init__(self, store, key):
         self._store = store
         self._key = key
-        self._id = self.id
         self._url = store.url
-        self._shape = self.shape
-        self._dset = ArrayProxy(self._id, self._url, self._shape)#[:]
+        self._data = None
+        
+        self._id = store._dataset[key].id
+        self._shape = store._dataset[key].shape
+        self._dtype = store._dataset[key].type
+        self._name = store._dataset[key].name
 
     @property
     def key(self):
@@ -147,15 +150,11 @@ class Base(compass_model.Array):
 
     @property
     def displayname(self):
-        return self._dset.name
+        return self._name
 
     @property
     def description(self):
-        return self._dset.id
-
-    @property
-    def id(self):
-        return self._id
+        return "A Descriptive String"
 
 # Register Handlers
 Server.push(Structure)
