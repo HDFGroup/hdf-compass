@@ -122,7 +122,7 @@ class Base(compass_model.Array):
 
     @property
     def dtype(self):
-        return np.dtype(self._dtype)
+        return np.dtype(self._dtype.typecode)
 
     def __getitem__(self, index):
         if self._data is None:
