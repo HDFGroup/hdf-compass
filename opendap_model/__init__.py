@@ -1,14 +1,15 @@
 """
-HDF Compass plugin for accessing an OpENDAP server. 
+    HDF Compass plugin for accessing an OpENDAP server.
 """
 
+import numpy as np
+import posixpath as pp
 from pydap.model import *
 from pydap.client import open_url
 from pydap.proxy import ArrayProxy
 
 import compass_model
-import numpy as np
-import posixpath as pp
+
 
 class Server(compass_model.Store):
 
@@ -56,6 +57,10 @@ class Server(compass_model.Store):
     def valid(self):
         return self._valid
 
+    @property
+    def dataset(self):
+        return self._dataset
+
 
 class Structure(compass_model.Container):
 
@@ -64,7 +69,7 @@ class Structure(compass_model.Container):
     """
 
     classkind = "Structure"
-    
+
     def __len__(self):
         return len(self._dset.data)
 
@@ -75,15 +80,14 @@ class Structure(compass_model.Container):
     def __iter__(self):
         for name in self._dset.keys():
             yield self.store[pp.join(self.key, name)]
-        #pass
 
     @staticmethod
     def canhandle(store, key):
-        return key in store._dataset and isinstance(store._dataset, StructureType)
+        return key in store.dataset and isinstance(store.dataset, StructureType)
 
     def __init__(self, store, key):
         self._store = store
-        self._key = key 
+        self._key = key
         self._url = store.url
         self._dset = open_url(store.url)
 
@@ -127,18 +131,18 @@ class Base(compass_model.Array):
 
     @staticmethod
     def canhandle(store, key):
-        return key in store._dataset and isinstance(store._dataset[key], BaseType)
+        return key in store.dataset and isinstance(store.dataset[key], BaseType)
 
     def __init__(self, store, key):
         self._store = store
         self._key = key
         self._url = store.url
         self._data = None
-        
-        self._id = store._dataset[key].id
-        self._shape = store._dataset[key].shape
-        self._dtype = store._dataset[key].type
-        self._name = store._dataset[key].name
+
+        self._id = store.dataset[key].id
+        self._shape = store.dataset[key].shape
+        self._dtype = store.dataset[key].type
+        self._name = store.dataset[key].name
 
     @property
     def key(self):
