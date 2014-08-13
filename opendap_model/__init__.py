@@ -4,7 +4,7 @@
 
 import numpy as np
 import posixpath as pp
-from pydap.model import *
+import pydap as dap
 from pydap.client import open_url
 from pydap.proxy import ArrayProxy
 
@@ -23,7 +23,7 @@ class Server(compass_model.Store):
     @staticmethod
     def canhandle(url):
         try:
-            return isinstance(open_url(url), DatasetType)
+            return isinstance(open_url(url), dap.model.DatasetType)
         except Exception:
             return False
 
@@ -83,7 +83,7 @@ class Structure(compass_model.Container):
 
     @staticmethod
     def canhandle(store, key):
-        return key in store.dataset and isinstance(store.dataset, StructureType)
+        return key in store.dataset and isinstance(store.dataset, dap.model.StructureType)
 
     def __init__(self, store, key):
         self._store = store
@@ -131,7 +131,7 @@ class Base(compass_model.Array):
 
     @staticmethod
     def canhandle(store, key):
-        return key in store.dataset and isinstance(store.dataset[key], BaseType)
+        return key in store.dataset and isinstance(store.dataset[key], dap.model.BaseType)
 
     def __init__(self, store, key):
         self._store = store
