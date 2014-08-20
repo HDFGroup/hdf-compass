@@ -24,9 +24,6 @@ class Server(compass_model.Store):
         Represents the remote OpENDAP derver to be accessed
     """
     def __contains__(self, key):
-        if key.count('/') not in (0, 1):
-            return False
-
         if '/' not in key:
             return key in self.dataset
 
@@ -152,10 +149,12 @@ class Grid(compass_model.Container):
         return new_key in new_dset and isinstance(new_dset[new_key], dap.model.GridType)
 
     def __init__(self, store, key):
+        new_key, new_dset = check_key(key, store.dataset)
+
         self._store = store
-        self._key = key
+        self._key = new_key
         self._url = store.url
-        self._dset = store.dataset[key]
+        self._dset = new_dset[new_key]
 
     @property
     def key(self):
