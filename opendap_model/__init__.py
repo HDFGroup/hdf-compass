@@ -1,7 +1,3 @@
-"""
-HDF Compass plugin for accessing an OpENDAP server.
-"""
-
 import numpy as np
 import posixpath as pp
 import pydap as dap
@@ -12,7 +8,7 @@ import compass_model
 
 
 def check_key(key, dataset):
-    if not '/' in key:
+    if '/' not in key:
         return key, dataset
     new_dataset = dataset[key.split('/')[0]]
     return key.split('/')[1], new_dataset
@@ -21,7 +17,7 @@ def check_key(key, dataset):
 class Server(compass_model.Store):
 
     """
-        Represents the remote OpENDAP derver to be accessed
+        Represents the remote OpENDAP server to be accessed
     """
     def __contains__(self, key):
         if '/' not in key:
@@ -45,8 +41,8 @@ class Server(compass_model.Store):
         self._url = url
         self._valid = True
         self._dataset = open_url(self.url)
-
-        self.dataset.setdefault('')
+        self._datalength = len(self._dataset.data)
+        self._dataset.setdefault('')
 
     def close(self):
         self._valid = False
@@ -74,6 +70,10 @@ class Server(compass_model.Store):
     def dataset(self):
         return self._dataset
 
+    @property
+    def datalength(self):
+        return self._datalength
+
 
 class Dataset(compass_model.Container):
 
@@ -84,11 +84,10 @@ class Dataset(compass_model.Container):
     classkind = "Dataset"
 
     def __len__(self):
-        return len(self._dset.data)
+        return self._store.datalength
 
     def __getitem__(self, index):
         name = self._dset.keys()[index]
-
         return self.store[pp.join(self.key, name)]
 
     def __iter__(self):
@@ -96,13 +95,15 @@ class Dataset(compass_model.Container):
 
     @staticmethod
     def canhandle(store, key):
-        return isinstance(store.dataset, dap.model.DatasetType)
+        return key == ''
 
     def __init__(self, store, key):
+        if not key == '':
+            raise ValueError("A Dataset object may only represent the root group")
         self._store = store
         self._key = key
         self._url = store.url
-        self._dset = open_url(store.url)
+        self._dset = store.dataset
 
     @property
     def key(self):
@@ -114,7 +115,7 @@ class Dataset(compass_model.Container):
 
     @property
     def displayname(self):
-        return self.dset.name
+        return self._dset.name
 
     @property
     def description(self):
@@ -179,7 +180,7 @@ class Base(compass_model.Array):
         Represents Array/BaseType Object in OpENDAP/Pydap.
     """
 
-    classkind = "NumPy Array"
+    classkind = "Array"
 
     @property
     def shape(self):
