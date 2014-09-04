@@ -126,13 +126,13 @@ class Dataset(compass_model.Container):
         return self._dset
 
 
-class Grid(compass_model.Container):
+class Structure(compass_model.Container):
 
     """
         Represents Structure/StructureType Object in OpENDAP/Pydap.
     """
 
-    classkind = "Grid"
+    classkind = "Structure/Grid/Sequence"
 
     def __len__(self):
         return len(self._dset.data)
@@ -147,7 +147,10 @@ class Grid(compass_model.Container):
     @staticmethod
     def canhandle(store, key):
         new_key, new_dset = check_key(key, store.dataset)
-        return new_key in new_dset and isinstance(new_dset[new_key], dap.model.GridType)
+        try:
+            return new_key in new_dset and isinstance(new_dset[new_key], dap.model.StructureType)
+        except isinstance(new_dset[new_key], dap.model.DatasetType):
+            return False
 
     def __init__(self, store, key):
         new_key, new_dset = check_key(key, store.dataset)
@@ -171,7 +174,7 @@ class Grid(compass_model.Container):
 
     @property
     def description(self):
-        return "A Pydap GridType Object."
+        return "A Pydap StructureType Object."
 
 
 class Base(compass_model.Array):
@@ -230,9 +233,54 @@ class Base(compass_model.Array):
     def description(self):
         return "A Pydap BaseType Object."
 
+
+class Attributes(compass_model.KeyValue):
+    """
+        Represents the Attributes member of Pydap Objects.
+    """
+
+    classkind = "Attributes"
+
+    @property
+    def keys(self):
+        return self._keys.keys()
+
+    def __getitem__(self, name):
+        return self._keys[name]
+
+    @staticmethod
+    def canhandle(store, key):
+        new_key = check_key(key, store.dataset)
+        return new_key != ''
+
+    def __init__(self, store, key):
+        new_key, new_dset = check_key(key, store.dataset)
+
+        self._store = store
+        self._key = new_key
+        self._keys = new_dset[self._key].attributes
+
+    @property
+    def key(self):
+        return self._key
+
+    @property
+    def store(self):
+        return self._store
+
+    @property
+    def displayname(self):
+        return "%s Attributes" % self._key
+
+    @property
+    def description(self):
+        return "Attributes of %s" % self._key
+
+
 # Register Handlers
+Server.push(Attributes)
 Server.push(Dataset)
-Server.push(Grid)
+Server.push(Structure)
 Server.push(Base)
 
 compass_model.push(Server)
