@@ -23,6 +23,8 @@ from . import platform
 ID_OPEN_RESOURCE = wx.NewId()
 ID_CLOSE_FILE = wx.NewId()
 
+import compass_model
+from .events import CompassOpenEvent
 
 class BaseFrame(wx.Frame):
 
@@ -303,6 +305,27 @@ class NodeFrame(BaseFrame):
         fm = self.GetMenuBar().GetMenu(0)
         fm.Enable(ID_CLOSE_FILE, True)
 
+        # Create the "window" menu to hold "Reopen As" items.
+        wm = wx.Menu()
+
+        # Determine a list of handlers which can understand this object.
+        # We exclude the default handler, "Unknown", as it can't do anything.
+        # See also container/list.py.
+        handlers = [x for x in node.store.gethandlers(node.key) if x != compass_model.Unknown]
+
+        # This will map menu IDs -> Node subclass handlers
+        self._menu_handlers = {}
+
+        # Note there's guaranteed to be at least one entry: the class
+        # being used for the current frame!
+        for h in handlers:
+            id_ = wx.NewId()
+            self._menu_handlers[id_] = h
+            wm.Append(id_, "Reopen as " + h.classkind)
+            self.Bind(wx.EVT_MENU, self.on_menu_reopen, id=id_)
+            
+        self.GetMenuBar().Insert(1, wm, "&Window")
+        
         self.__node = node
         self.__view = None
         self.__info = InfoPanel(self)
@@ -339,3 +362,21 @@ class NodeFrame(BaseFrame):
         """
         self._close(self.node.store)
 
+    def on_menu_reopen(self, evt):
+        """ Called when one of the "Reopen As" menu items is clicked """
+        
+        # The "Reopen As" submenu ID
+        id_ = evt.GetId()               
+
+        # Present node
+        node_being_opened = self.__node
+
+        # The requested Node subclass to instantiate.
+        h = self._menu_handlers[id_]
+
+        # Brand new Node instance of the requested type
+        node_new = h(node_being_opened.store, node_being_opened.key)
+
+        # Send off a request for it to be opened in the appropriate viewer
+        # Post it directly to the App, or Container will intercept it!
+        wx.PostEvent(wx.GetApp(), CompassOpenEvent(node_new))
