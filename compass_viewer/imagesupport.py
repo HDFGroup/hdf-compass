@@ -1,9 +1,14 @@
-# This file is part of HDFCompass, a viewer for HDF5 and other formats.
-#
-# Copyright 2013-2014 Heliosphere Research LLC
-# All rights reserved.
-#
-# This software product comes with ABSOLUTELY NO WARRANTY.
+##############################################################################
+# Copyright by The HDF Group.                                                #
+# All rights reserved.                                                       #
+#                                                                            #
+# This file is part of the HDF Compass Viewer. The full HDF Compass          #
+# copyright notice, including terms governing use, modification, and         #
+# terms governing use, modification, and redistribution, is contained in     #
+# the file COPYING, which can be found at the root of the source code        #
+# distribution tree.  If you do not have access to this file, you may        #
+# request a copy from help@hdfgroup.org.                                     #
+##############################################################################
 
 """
 Small module to handle common image operations.
