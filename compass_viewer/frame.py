@@ -91,11 +91,8 @@ class BaseFrame(wx.Frame):
         """ Display an "About" dialog """
         info = wx.AboutDialogInfo()
         info.Name = "HDFCompass"
-        if platform.MAC:
-            info.Version = "release"
-        else:
-            info.Version = platform.VERSION
-        info.Copyright = "(c) 2014-2014 The HDF Group"
+        info.Version = platform.VERSION
+        info.Copyright = "(c) 2014-2015 The HDF Group"
         wx.AboutBox(info)
     
 
