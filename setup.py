@@ -28,12 +28,12 @@ DATA_FILES = []
 PLIST = {   "CFBundleDocumentTypes": [ { "CFBundleTypeExtensions": ["hdf5","h5"],
                                       "CFBundleTypeName": "HDF5 Data File",
                                       "CFBundleTypeRole": "Viewer"} ],
-            "CFBundleIdentifer": "org.alfven.hdfcompass",
+            "CFBundleIdentifer": "org.hdfgroup.compass",
             "CFBundleDisplayName": "HDFCompass",
-            "CFBundleVersion": "0.4.0" }
+            "CFBundleVersion": "0.5.0" }
 
 OPTIONS = { 'argv_emulation': True,
-            'excludes': ['scipy'],
+            'excludes': ['scipy', 'PyQt4', 'mpi4py'],
             'matplotlib_backends': ['wxagg'],
             'iconfile': 'compass.icns',
             'plist': PLIST }
