@@ -70,7 +70,8 @@ class ContainerList(wx.ListCtrl):
 
         idx = evt.GetIndex()
         newnode = self.node[idx]
-        evt = CompassOpenEvent(newnode)
+        pos = wx.GetTopLevelParent(self).GetPosition()
+        evt = CompassOpenEvent(newnode, pos=pos)
         wx.PostEvent(self, evt)
 
     # ---------------------------------------------------------
@@ -132,7 +133,8 @@ class ContainerList(wx.ListCtrl):
 
         Posts an event requesting that the node be opened as-is.
         """
-        wx.PostEvent(self, CompassOpenEvent(self._menu_node))
+        pos = wx.GetTopLevelParent(self).GetPosition()
+        wx.PostEvent(self, CompassOpenEvent(self._menu_node), pos=pos)
 
 
     def on_context_openwindow(self, evt):
@@ -161,7 +163,8 @@ class ContainerList(wx.ListCtrl):
         node_new = h(node_being_opened.store, node_being_opened.key)
 
         # Send off a request for it to be opened in the appropriate viewer
-        wx.PostEvent(self, CompassOpenEvent(node_new))
+        pos = wx.GetTopLevelParent(self).GetPosition()
+        wx.PostEvent(self, CompassOpenEvent(node_new, pos=pos))
 
 
     # End context menu support

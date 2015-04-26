@@ -192,6 +192,12 @@ class InitFrame(BaseFrame):
         data = imagesupport.getbitmap('logo')
         bmp = wx.StaticBitmap(self, wx.ID_ANY, data)
 
+        # The init frame isn't visible on Mac, so there shouldn't be an
+        # option to close it.  "Quit" does the same thing.
+        if platform.MAC:
+            mb = self.GetMenuBar()
+            mu = mb.GetMenu(0)
+            mu.Enable(wx.ID_CLOSE, False)
         self.Center()
             
             
@@ -371,14 +377,16 @@ class NodeFrame(BaseFrame):
         id_ = evt.GetId()               
 
         # Present node
-        node_being_opened = self.__node
+        node_being_opened = self.node
 
         # The requested Node subclass to instantiate.
         h = self._menu_handlers[id_]
 
+        print 'opening', node_being_opened.store, node_being_opened.key
         # Brand new Node instance of the requested type
         node_new = h(node_being_opened.store, node_being_opened.key)
 
         # Send off a request for it to be opened in the appropriate viewer
         # Post it directly to the App, or Container will intercept it!
-        wx.PostEvent(wx.GetApp(), CompassOpenEvent(node_new))
+        pos = wx.GetTopLevelParent(self).GetPosition()
+        wx.PostEvent(wx.GetApp(), CompassOpenEvent(node_new, pos=pos))
