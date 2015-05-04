@@ -110,7 +110,7 @@ def open_node(node, pos=None):
     if pos is not None:
         # The thing we get from GetPosition isn't really a tuple, so
         # you have to manually cast entries to int or it silently fails.
-        newpos =(int(pos[0])+80, int(pos[1])+80)
+        newpos =(int(pos[0])+40, int(pos[1])+40)
     else:
         newpos = None
 
@@ -166,7 +166,7 @@ def run():
     app = CompassApp(False)
 
     urls = sys.argv[1:]
-
+    
     for url in sys.argv[1:]:
         if "://" not in url:
             # assumed to be file path

@@ -42,9 +42,9 @@ class ArrayFrame(NodeFrame):
     3. An ArrayGrid, which displays the data in a spreadsheet-like view.
     """
 
-    def __init__(self, node, **kwds):
+    def __init__(self, node, pos=None):
         """ Create a new array viewer, to display *node*. """
-        NodeFrame.__init__(self, node, title=node.displayname, **kwds)
+        NodeFrame.__init__(self, node, size=(800,400), title=node.displayname, pos=pos)
 
         self.node = node
 

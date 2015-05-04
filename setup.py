@@ -36,7 +36,9 @@ PLIST = {   "CFBundleDocumentTypes": [ { "CFBundleTypeExtensions": ["hdf5","h5"]
             "CFBundleDisplayName": "HDFCompass",
             "CFBundleVersion": "0.5.0" }
 
-OPTIONS = { 'argv_emulation': True,
+# ARGV emulation interacts badly with wxPython on Mac... it "eats" events
+# when the program starts up and causes windows not to be displayed.
+OPTIONS = { 'argv_emulation': False,
             'excludes': ['scipy', 'PyQt4', 'mpi4py'],
             'matplotlib_backends': ['wxagg'],
             'iconfile': 'compass.icns',
