@@ -1,10 +1,10 @@
 {
   "title": "HDFCompass",
-   "background": "compass_viewer/icons/background.png",
+   "background": "dmg.png",
    "icon-size": 80,
    "contents": [
-    { "x": 92, "y": 100, "type": "file", "path": "dist/HDFCompass.app" },
-    { "x": 348, "y": 100, "type": "link", "path": "/Applications" }
+    { "x": 128, "y": 110, "type": "file", "path": "dist/HDFCompass.app" },
+    { "x": 370, "y": 110, "type": "link", "path": "/Applications" }
   ]
    
 }
