@@ -188,6 +188,7 @@ class HDF5Dataset(compass_model.Array):
 
     classkind = "HDF5 Dataset"
     
+    # this determines the size of cache blocks (this value ^2)
     cache_element_size = 100
     
     @staticmethod
@@ -230,7 +231,11 @@ class HDF5Dataset(compass_model.Array):
     @property
     def dtype(self):
         return self._dset.dtype
-        
+    
+    #
+    # get a block from cache, or if not present, load from disk
+    # and add to cache
+    #    
     def getBlock(self, args):
            
         if type(args) not in (list, tuple):
@@ -244,11 +249,13 @@ class HDF5Dataset(compass_model.Array):
         block = None
         for i in range(rank):
             if i < rank - 2:
+                # all but the last two dimensions of block have extent of 1
                 key += str(index[i])
                 s = slice(index[i], index[i]+1)
             else:
                 block_start = (index[i]/HDF5Dataset.cache_element_size) * HDF5Dataset.cache_element_size
                 block_end = block_start + HDF5Dataset.cache_element_size
+                # check that we didn't step out of bounds
                 if (block_end > self._dset.shape[i]):
                     block_end = self._dset.shape[i]
                 s = slice(block_start, block_end)
@@ -258,10 +265,12 @@ class HDF5Dataset(compass_model.Array):
  
             slices.append(s)
         if key in self._cache:
-            # block is already loaded
+            # block is already loaded!  Return it
             block = self._cache[key]
         else:
+            # Read block from disk
             block = self._dset[tuple(slices)]
+            # save to cache
             self._cache[key] = block
             
         return block
