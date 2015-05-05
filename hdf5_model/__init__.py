@@ -187,8 +187,9 @@ class HDF5Dataset(compass_model.Array):
     """
 
     classkind = "HDF5 Dataset"
-
-
+    
+    cache_element_size = 100
+    
     @staticmethod
     def canhandle(store, key):
         return key in store and isinstance(store.f[key], h5py.Dataset)
@@ -198,6 +199,7 @@ class HDF5Dataset(compass_model.Array):
         self._store = store
         self._key = key
         self._dset = store.f[key]
+        self._cache = {}
 
 
     @property
@@ -228,10 +230,60 @@ class HDF5Dataset(compass_model.Array):
     @property
     def dtype(self):
         return self._dset.dtype
+        
+    def getBlock(self, args):
+           
+        if type(args) not in (list, tuple):
+            index = (args,)
+        else:
+            index = args
+        key = "_"
+        rank = len(index)
+     
+        slices = []
+        block = None
+        for i in range(rank):
+            if i < rank - 2:
+                key += str(index[i])
+                s = slice(index[i], index[i]+1)
+            else:
+                block_start = (index[i]/HDF5Dataset.cache_element_size) * HDF5Dataset.cache_element_size
+                block_end = block_start + HDF5Dataset.cache_element_size
+                if (block_end > self._dset.shape[i]):
+                    block_end = self._dset.shape[i]
+                s = slice(block_start, block_end)
+                
+                key += str(block_start)
+            key += "_"
+ 
+            slices.append(s)
+        if key in self._cache:
+            # block is already loaded
+            block = self._cache[key]
+        else:
+            block = self._dset[tuple(slices)]
+            self._cache[key] = block
+            
+        return block
 
-
-    def __getitem__(self, args):
-        return self._dset[args]
+    def __getitem__(self, args):  
+        if type(args) not in (list, tuple):
+            arglist = (args,)
+        else:
+            arglist = args
+            
+        block = self.getBlock(args)
+        index = []
+        rank = len(arglist)
+                
+        for i in range(rank):
+            if i < rank - 2:
+                # block is n-dimensional, but extent of first rank-2 dimensions is 1
+                index.append(0) 
+            else:
+                index.append(arglist[i] % HDF5Dataset.cache_element_size)
+        value = block[tuple(index)]         
+        return value
 
 
 class HDF5KV(compass_model.KeyValue):
