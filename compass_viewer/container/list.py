@@ -134,7 +134,7 @@ class ContainerList(wx.ListCtrl):
         Posts an event requesting that the node be opened as-is.
         """
         pos = wx.GetTopLevelParent(self).GetPosition()
-        wx.PostEvent(self, CompassOpenEvent(self._menu_node), pos=pos)
+        wx.PostEvent(self, CompassOpenEvent(self._menu_node, pos=pos))
 
 
     def on_context_openwindow(self, evt):
