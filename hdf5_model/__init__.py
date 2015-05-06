@@ -45,6 +45,9 @@ class HDF5Store(compass_model.Store):
 
     file_extensions = {'HDF5 File': ['*.hdf5', '*.h5']}
     
+    CACHE_NCHUNKS = 100         # Cache at most this many chunks per dataset
+    CACHE_NBYTES = int(25e6)    # Cache at most this many bytes per dataset
+    
     def __contains__(self, key):
         return key in self.f
 
@@ -84,8 +87,13 @@ class HDF5Store(compass_model.Store):
             raise ValueError(url)
         self._url = url
         path = url.replace('file://','')
-        self.f = h5py.File(path, 'r')
-
+        
+        fapl = h5py.h5p.create(h5py.h5p.FILE_ACCESS)
+        # First argument is ignored by HDF5.
+        # Last argument adjusts the preemption policy (0.0 = simple LRU)
+        fapl.set_cache(0, self.CACHE_NCHUNKS, self.CACHE_NBYTES, 0.0)
+        fid = h5py.h5f.open(path, h5py.h5f.ACC_RDONLY, fapl=fapl)
+        self.f = h5py.File(fid)
 
     def close(self):
         self.f.close()
