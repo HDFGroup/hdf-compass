@@ -263,6 +263,65 @@ class ArrayGrid(wx.grid.Grid):
         self.SetSelectionMode(selmode)
 
 
+class LRUTileCache(object):
+
+    """
+        Simple tile-based LRU cache which goes between the Grid and
+        the Array object.  Caches tiles along the last 1 or 2 dimensions
+        of a dataset.
+        
+        Access is via __getitem__.  Because this class exists specifically
+        to support point-based callbacks for the Grid, arguments may
+        only be indices, not slices.
+    """
+    
+    TILESIZE = 100  # Tiles will have shape (100,) or (100, 100)
+    MAXTILES = 50   # Max number of tiles to retain in the cache
+    
+    def __init__(self, arr):
+        """ *arr* is anything implementing compass_model.Array """
+        import collections
+        self.cache = collections.OrderedDict()
+        self.arr = arr
+        
+    def __getitem__(self, args):
+        """ Restricted to an index or tuple of indices. """
+        
+        if not isinstance(args, tuple):
+            args = (args,)
+            
+        # Split off the last 1 or 2 dimensions
+        coarse_position, fine_position = args[0:-2], args[-2:]
+        
+        def clip(x):
+            """ Round down to nearest TILESIZE; takes e.g. 181 -> 100 """
+            return (x//self.TILESIZE)*self.TILESIZE
+            
+        # Tuple with index of tile corner
+        tile_key = coarse_position + tuple(clip(x) for x in fine_position)
+        
+        # Slice which will be applied to dataset to retrieve tile
+        tile_slice = coarse_position + tuple(slice(clip(x), clip(x)+self.TILESIZE) for x in fine_position)
+        
+        # Index applied to tile to retrieve the desired data point
+        tile_data_index = tuple(x%self.TILESIZE for x in fine_position)
+        
+        # Case 1: Add tile to cache, ejecting oldest tile if needed
+        if not tile_key in self.cache:
+        
+            if len(self.cache) >= self.MAXTILES:
+                self.cache.popitem(last=False)
+                
+            tile = self.arr[tile_slice]
+            self.cache[tile_key] = tile
+
+        # Case 2: Mark the tile as recently accessed            
+        else:
+            tile = self.cache.pop(tile_key)
+            self.cache[tile_key] = tile
+            
+        return tile[tile_data_index]
+        
 
 class ArrayTable(wx.grid.PyGridTableBase):
 
@@ -288,7 +347,8 @@ class ArrayTable(wx.grid.PyGridTableBase):
         self.rank = len(node.shape)
         self.names = node.dtype.names
 
-
+        self.cache = LRUTileCache(self.node)
+        
     def GetNumberRows(self):
         """ Callback for number of rows displayed by the grid control """
         if self.rank == 0:
@@ -322,7 +382,7 @@ class ArrayTable(wx.grid.PyGridTableBase):
 
         # 1D case
         if self.rank == 1:
-            data = self.node[row]
+            data = self.cache[row]
             if self.names is None:
                 return data
             return data[self.names[col]]
@@ -333,7 +393,7 @@ class ArrayTable(wx.grid.PyGridTableBase):
         else:
             args = self.slicer.indices + (row,)
 
-        data = self.node[args]
+        data = self.cache[args]
         if self.names is None:
             return data
         return data[self.names[col]]
