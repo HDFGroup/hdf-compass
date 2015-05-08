@@ -33,11 +33,12 @@ class PlotFrame(BaseFrame):
     Override draw_figure() to plot your figure on the provided axes.
     """
 
-    def __init__(self, data):
+    def __init__(self, data, title="a title"):
         """ Create a new Matplotlib plotting window for a 1D line plot
         """
 
-        BaseFrame.__init__(self, id=wx.ID_ANY, title="Line plot", size=(800,400))
+        print self.__class__.__name__
+        BaseFrame.__init__(self, id=wx.ID_ANY, title=title, size=(800,400))
         
         self.data = data
 
@@ -65,9 +66,9 @@ class PlotFrame(BaseFrame):
 
 class LinePlotFrame(PlotFrame):
 
-    def __init__(self, data, names=None):
+    def __init__(self, data, names=None, title="Line Plot"):
         self.names = names
-        PlotFrame.__init__(self, data)
+        PlotFrame.__init__(self, data, title)
 
 
     def draw_figure(self):
@@ -80,6 +81,9 @@ class LinePlotFrame(PlotFrame):
 
 class ContourPlotFrame(PlotFrame):
 
+    def __init__(self, data, names=None, title="Contour Plot"):
+        PlotFrame.__init__(self, data, title)
+        
     def draw_figure(self):
         import pylab
         xx = np.arange(self.data.shape[1])
