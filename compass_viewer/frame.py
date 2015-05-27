@@ -158,6 +158,7 @@ class BaseFrame(wx.Frame):
             return
 
         url = dlg.GetValue()
+        url = url.strip()  #remove any new lines
         dlg.Destroy()
 
         if not open_store(url):
