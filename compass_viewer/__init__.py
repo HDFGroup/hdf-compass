@@ -157,8 +157,7 @@ def run():
     import array_model
     import hdf5_model
     import asc_model
-    # Disable opendap for now (build issues on windows)
-    #import opendap_model
+    import opendap_model
 
     import sys
     import os.path as op
