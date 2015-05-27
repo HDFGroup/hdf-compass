@@ -86,7 +86,14 @@ class ContourPlotFrame(PlotFrame):
         
     def draw_figure(self):
         import pylab
-        xx = np.arange(self.data.shape[1])
-        yy = np.arange(self.data.shape[0])
-        out = self.axes.contourf(xx, yy, self.data, 25)
+        
+        maxElements = 500  # don't attempt plot more than 500x500 elements
+        rows = self.data.shape[0]
+        cols = self.data.shape[1]
+        row_stride = rows/maxElements + 1
+        col_stride = cols/maxElements + 1
+        data = self.data[::row_stride, ::col_stride]
+        xx = np.arange(0, self.data.shape[1], col_stride)
+        yy = np.arange(0, self.data.shape[0], row_stride)
+        out = self.axes.contourf(xx, yy, data, 25)
         pylab.colorbar(out)
