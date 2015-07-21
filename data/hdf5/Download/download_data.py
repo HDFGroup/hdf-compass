@@ -1,7 +1,10 @@
-import wget
 """
 Download additional data files from AWS
 """
+
+from __future__ import absolute_import, division, print_function
+
+import wget
 
 files = [
    'ami_hdf.h5',
@@ -27,5 +30,3 @@ for filename in files:
     print("downloading: " + uri)
     wget.download(uri, bar=wget.bar_thermometer)
 print("done!")
-    
-    

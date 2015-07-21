@@ -27,6 +27,8 @@ To create dmg install file.  The appdmg utility can be installed from npm:
 PyInstaller, for Windows and Linux distribution, does not use setup.py2app.py.
 """
 
+from __future__ import absolute_import, division, print_function
+
 from setuptools import setup
 from glob import glob
 import os
