@@ -46,5 +46,6 @@ Packaging on Windows
 Other info
 ----------
 
-* Homepage: http://github.com/HDFGroup/hdf-compass
+* Github: http://github.com/HDFGroup/hdf-compass
+* Project page: https://www.hdfgroup.org/projects/compass/
 * License: BSD-like HDF Group license (See COPYING)
