@@ -9,8 +9,13 @@ and maximum extensibility through a plugin system for new formats.
 HDF Compass is written in Python, but ships as a native application on
 Windows, OS X, and Linux, by using PyInstaller and Py2App to package the app.
 
+Binary executables are available for Windows and Mac OS X (Yosemite or later) at
+the Project Page listed below.
+
 Bug reports and pull requests are welcome!  For non-trivial PRs please
 open an issue first, so the core developers can give feedback on your idea.
+
+
 
 Development Environment
 -----------------------
@@ -28,10 +33,20 @@ For packaging the app:
 * Py2App (OS X)
 * PyInstaller (Linux & Windows)
 
-Running the Program
--------------------
+Running the Program  
+--------------------
 
     $ python HDFCompass.py
+      
+      
+Note: If you are using the Anaconda distribution on the Mac, you will see the
+message: "This program needs access to the screen.  Please run with a Framework
+build of python...".  In this case use the pythonw command:
+
+    $ pythonw HDFCompass.py
+           
+Note: on Mac, HDF Compass doesn't create an initial window, use the system Application
+menu to open a file or remote resource.
     
 Packaging on OS X
 -----------------
