@@ -18,6 +18,7 @@ Much of the common functionality (e.g. "Open File..." menu item) is implemented
 here.
 """
 
+import os
 import wx
 from wx.lib.pubsub import pub
 
@@ -50,6 +51,22 @@ class BaseFrame(wx.Frame):
         """
 
         wx.Frame.__init__(self, None, **kwds)
+
+        # Frame icon
+        ib = wx.IconBundle()
+        icon_32 = wx.EmptyIcon()
+        icon_32.CopyFromBitmap(imagesupport.getbitmap('compass_32'))
+        ib.AddIcon(icon_32)
+        icon_48 = wx.EmptyIcon()
+        icon_48.CopyFromBitmap(imagesupport.getbitmap('compass_48'))
+        ib.AddIcon(icon_48)
+        self.SetIcons(ib)
+
+        # This is needed to display the app icon on the taskbar on Windows 7
+        if os.name == 'nt':
+            import ctypes
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('HDFCompass')
+
         menubar = wx.MenuBar()
 
         # File menu
@@ -93,6 +110,9 @@ class BaseFrame(wx.Frame):
         info.Name = "HDFCompass"
         info.Version = platform.VERSION
         info.Copyright = "(c) 2014-2015 The HDF Group"
+        icon_48 = wx.EmptyIcon()
+        icon_48.CopyFromBitmap(imagesupport.getbitmap('compass_48'))
+        info.SetIcon(icon_48)
         wx.AboutBox(info)
     
 
