@@ -30,6 +30,7 @@ from .list import ContainerReportList, ContainerIconList
 ID_GO_MENU_BACK = wx.NewId()
 ID_GO_MENU_NEXT = wx.NewId()
 ID_GO_MENU_UP = wx.NewId()
+ID_GO_MENU_TOP = wx.NewId()
 
 ID_VIEW_MENU_LIST = wx.NewId()
 ID_VIEW_MENU_ICON = wx.NewId()
@@ -59,6 +60,7 @@ class ContainerFrame(NodeFrame):
         go_menu.Append(ID_GO_MENU_BACK, "Back\tCtrl-[")
         go_menu.Append(ID_GO_MENU_NEXT, "Next\tCtrl-]")
         go_menu.Append(ID_GO_MENU_UP, "Up\tCtrl-Up")
+        go_menu.Append(ID_GO_MENU_TOP, "Top\tCtrl-/")
         self.add_menu(go_menu, "Go")
         self.go_menu = go_menu
 
@@ -68,6 +70,7 @@ class ContainerFrame(NodeFrame):
         self.Bind(wx.EVT_MENU, lambda evt: self.go_back(), id=ID_GO_MENU_BACK)
         self.Bind(wx.EVT_MENU, lambda evt: self.go_next(), id=ID_GO_MENU_NEXT)
         self.Bind(wx.EVT_MENU, lambda evt: self.go_up(), id=ID_GO_MENU_UP)
+        self.Bind(wx.EVT_MENU, lambda evt: self.go_top(), id=ID_GO_MENU_TOP)
         self.Bind(wx.EVT_MENU, lambda evt: self.list_view(), id=ID_VIEW_MENU_LIST)
         self.Bind(wx.EVT_MENU, lambda evt: self.icon_view(), id=ID_VIEW_MENU_ICON)
 
@@ -77,6 +80,7 @@ class ContainerFrame(NodeFrame):
         back_bmp =  imagesupport.getbitmap('go_back_24')
         next_bmp = imagesupport.getbitmap('go_next_24')
         up_bmp = imagesupport.getbitmap('go_up_24')
+        top_bmp = imagesupport.getbitmap('go_top_24')
         icon_bmp = imagesupport.getbitmap('view_icon_24')
         list_bmp = imagesupport.getbitmap('view_list_24')
 
@@ -85,6 +89,7 @@ class ContainerFrame(NodeFrame):
         self.toolbar.AddLabelTool(ID_GO_MENU_NEXT, "Next", next_bmp, shortHelp="New", longHelp="Long help for 'New'")
         self.toolbar.AddSeparator()
         self.toolbar.AddLabelTool(ID_GO_MENU_UP, "Up", up_bmp, shortHelp="New", longHelp="Long help for 'New'")
+        self.toolbar.AddLabelTool(ID_GO_MENU_TOP, "Top", top_bmp, shortHelp="New", longHelp="Long help for 'New'")
         self.toolbar.AddStretchableSpace()
         self.toolbar.AddLabelTool(ID_VIEW_MENU_LIST, "List View", list_bmp, shortHelp="New", longHelp="Long help for 'New'")
         self.toolbar.AddLabelTool(ID_VIEW_MENU_ICON, "Icon View", icon_bmp, shortHelp="New", longHelp="Long help for 'New'")
@@ -136,6 +141,13 @@ class ContainerFrame(NodeFrame):
         parent = node.store.getparent(node.key)
         if parent.key != node.key:  # at the root item
             self.go(parent)
+            
+    def go_top(self):
+        """ Go to the root node """
+        node = self.history[self.history_ptr]
+        parent = node.store.root
+        if parent.key != node.key:  # at the root item
+            self.go(parent)
 
 
     def go(self, newnode):
@@ -161,12 +173,15 @@ class ContainerFrame(NodeFrame):
         can_go_back = self.history_ptr > 0
         can_go_next = self.history_ptr < (len(self.history)-1)
         can_go_up = self.node.store.getparent(self.node.key) is not None
+        can_go_top = self.node.key != self.node.store.root.key
         self.go_menu.Enable(ID_GO_MENU_BACK, can_go_back)
         self.go_menu.Enable(ID_GO_MENU_NEXT, can_go_next)
         self.go_menu.Enable(ID_GO_MENU_UP, can_go_up)
+        self.go_menu.Enable(ID_GO_MENU_TOP, can_go_top)
         self.toolbar.EnableTool(ID_GO_MENU_BACK, can_go_back)
         self.toolbar.EnableTool(ID_GO_MENU_NEXT, can_go_next)
         self.toolbar.EnableTool(ID_GO_MENU_UP, can_go_up)
+        self.toolbar.EnableTool(ID_GO_MENU_TOP, can_go_top)
 
         icon_view_allowed = len(self.node) <= 1000
         self.view_menu.Enable(ID_VIEW_MENU_ICON, icon_view_allowed)
