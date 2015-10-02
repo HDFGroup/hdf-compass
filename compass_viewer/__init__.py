@@ -170,7 +170,10 @@ def run():
     for url in sys.argv[1:]:
         if "://" not in url:
             # assumed to be file path
-            url = 'file://'+op.abspath(url)
+            if sys.platform == 'win32':
+                url = 'file:///'+op.abspath(url)
+            else:
+                url = 'file://'+op.abspath(url)
         if not open_store(url):
             print 'Failed to open "%s"; no handlers'%url
 

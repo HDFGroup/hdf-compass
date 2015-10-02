@@ -18,7 +18,7 @@ See: http://en.wikipedia.org/wiki/Esri_grid for a description of
 the file format
 """
 
-import os
+import sys
 import os.path as op
 import numpy as np
 import linecache
@@ -76,7 +76,10 @@ class AsciiGrid(compass_model.Store):
         return None
 
     def getFilePath(self):
-        prefixLen = len('file://')
+        if sys.platform == 'win32':
+            prefixLen = len('file:///')
+        else:
+            prefixLen = len('file://')
         return self._url[prefixLen:]
 
 class ASCFile(compass_model.Array):
