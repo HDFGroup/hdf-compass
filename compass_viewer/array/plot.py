@@ -17,6 +17,7 @@ Matplotlib window with toolbar.
 import numpy as np
 import wx
 
+import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_wxagg import \
     FigureCanvasWxAgg as FigCanvas, \
@@ -85,8 +86,6 @@ class ContourPlotFrame(PlotFrame):
         PlotFrame.__init__(self, data, title)
         
     def draw_figure(self):
-        import pylab
-        
         maxElements = 500  # don't attempt plot more than 500x500 elements
         rows = self.data.shape[0]
         cols = self.data.shape[1]
@@ -96,4 +95,4 @@ class ContourPlotFrame(PlotFrame):
         xx = np.arange(0, self.data.shape[1], col_stride)
         yy = np.arange(0, self.data.shape[0], row_stride)
         out = self.axes.contourf(xx, yy, data, 25)
-        pylab.colorbar(out)
+        plt.colorbar(out)
