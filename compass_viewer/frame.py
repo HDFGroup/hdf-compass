@@ -18,7 +18,9 @@ Much of the common functionality (e.g. "Open File..." menu item) is implemented
 here.
 """
 
+
 import os
+import sys
 import wx
 from wx.lib.pubsub import pub
 
@@ -155,7 +157,10 @@ class BaseFrame(wx.Frame):
         if dlg.ShowModal() != wx.ID_OK:
             return
         path = dlg.GetPath()
-        url = 'file://'+path
+        if sys.platform == 'win32':
+            url = 'file:///' + path
+        else:
+            url = 'file://' + path
         if not open_store(url):
             dlg = wx.MessageDialog(self, 'The following file could not be opened:\n\n%s' % path,
                                'No handler for file', wx.OK | wx.ICON_INFORMATION)

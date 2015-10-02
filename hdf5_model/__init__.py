@@ -15,7 +15,7 @@ Implementation of compass_model classes for HDF5 files.
 """
 
 from itertools import groupby
-import os
+import sys
 import os.path as op
 import posixpath as pp
 import numpy as np
@@ -74,7 +74,10 @@ class HDF5Store(compass_model.Store):
     def canhandle(url):
         if not url.startswith('file://'):
             return False
-        path = url.replace('file://','')
+        if sys.platform == 'win32':
+            path = url.replace('file:///', '')
+        else:
+            path = url.replace('file://', '')
         if not h5py.is_hdf5(path):
             return False
         return True
@@ -84,7 +87,10 @@ class HDF5Store(compass_model.Store):
         if not self.canhandle(url):
             raise ValueError(url)
         self._url = url
-        path = url.replace('file://','')
+        if sys.platform == 'win32':
+            path = url.replace('file:///', '')
+        else:
+            path = url.replace('file://', '')
         self.f = h5py.File(path, 'r')
         
     def close(self):
