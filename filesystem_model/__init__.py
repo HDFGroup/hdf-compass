@@ -167,7 +167,7 @@ class File(compass_model.Array):
         try:
             with open(self.key, 'rb') as f:
                 data = np.fromstring(f.read(), dtype='u1')
-        except OSError, IOError:
+        except (OSError, IOError):
             data = np.zeros((len(self),), dtype='u1')
 
         return data[args]
