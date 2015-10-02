@@ -33,6 +33,8 @@ ID_GO_MENU_UP = wx.NewId()
 
 ID_VIEW_MENU_LIST = wx.NewId()
 ID_VIEW_MENU_ICON = wx.NewId()
+ID_VIEW_MENU_TREE = wx.NewId()
+ID_VIEW_MENU_GRAPH = wx.NewId()
 
 
 class ContainerFrame(NodeFrame):
@@ -50,8 +52,11 @@ class ContainerFrame(NodeFrame):
         NodeFrame.__init__(self, node, size=(800, 400), title=node.displaytitle, pos=pos)
 
         view_menu = wx.Menu()
+        view_menu.Append(ID_VIEW_MENU_GRAPH, "Graph view")                
+        view_menu.Append(ID_VIEW_MENU_TREE, "Tree view")        
         view_menu.Append(ID_VIEW_MENU_LIST, "List view")
         view_menu.Append(ID_VIEW_MENU_ICON, "Icon view")
+
         self.add_menu(view_menu, "View")
         self.view_menu = view_menu
 
@@ -77,6 +82,8 @@ class ContainerFrame(NodeFrame):
         back_bmp =  imagesupport.getbitmap('go_back_24')
         next_bmp = imagesupport.getbitmap('go_next_24')
         up_bmp = imagesupport.getbitmap('go_up_24')
+        
+        tree_bmp = imagesupport.getbitmap('view_tree_24')        
         icon_bmp = imagesupport.getbitmap('view_icon_24')
         list_bmp = imagesupport.getbitmap('view_list_24')
 
@@ -86,8 +93,9 @@ class ContainerFrame(NodeFrame):
         self.toolbar.AddSeparator()
         self.toolbar.AddLabelTool(ID_GO_MENU_UP, "Up", up_bmp, shortHelp="New", longHelp="Long help for 'New'")
         self.toolbar.AddStretchableSpace()
-        self.toolbar.AddLabelTool(ID_VIEW_MENU_LIST, "List View", list_bmp, shortHelp="New", longHelp="Long help for 'New'")
-        self.toolbar.AddLabelTool(ID_VIEW_MENU_ICON, "Icon View", icon_bmp, shortHelp="New", longHelp="Long help for 'New'")
+        self.toolbar.AddLabelTool(ID_VIEW_MENU_LIST, "Tree View", tree_bmp, shortHelp="Tree", longHelp="View in Tree")        
+        self.toolbar.AddLabelTool(ID_VIEW_MENU_LIST, "List View", list_bmp, shortHelp="List", longHelp="View in List")
+        self.toolbar.AddLabelTool(ID_VIEW_MENU_ICON, "Icon View", icon_bmp, shortHelp="Icon", longHelp="View in Icons")
 
         self.toolbar.Realize()
 
