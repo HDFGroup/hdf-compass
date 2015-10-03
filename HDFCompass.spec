@@ -43,4 +43,4 @@ exe = EXE(pyz,
           debug=False,
           strip=None,
           upx=False,
-          console=False , icon='compass.ico')
+          console=False, icon='compass.ico')

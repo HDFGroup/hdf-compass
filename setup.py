@@ -20,7 +20,9 @@ The output is HDFCompass.app, in the dist/ folder.
 
 After running setp.py and verifying the install image, run:
     appdmg spec.json HDFCompass.dmg
-To create dmg install file.  The appdmg utility can be installed from npm.
+To create dmg install file.  The appdmg utility can be installed from npm: 
+    npm install -g appdmg
+
 
 PyInstaller, for Windows and Linux distribution, does not use setup.py.
 """
