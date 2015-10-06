@@ -32,6 +32,8 @@ from . import platform
 ID_OPEN_RESOURCE = wx.NewId()
 ID_CLOSE_FILE = wx.NewId()
 
+MAX_RECENT_FILES = 8
+
 from hdf_compass import compass_model
 from .events import CompassOpenEvent
 
@@ -54,8 +56,8 @@ class BaseFrame(wx.Frame):
         """ Constructor; any keywords are passed on to wx.Frame.
         """
 
-        wx.Frame.__init__(self, None, **kwds)
-
+        wx.Frame.__init__(self, None, **kwds) 
+        
         # Frame icon
         ib = wx.IconBundle()
         icon_32 = wx.EmptyIcon()
@@ -70,14 +72,22 @@ class BaseFrame(wx.Frame):
         if os.name == 'nt':
             import ctypes
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('HDFCompass')
-
+        self.filehistory = wx.FileHistory(MAX_RECENT_FILES)
+        self.config = wx.Config("HDFCompass", style=wx.CONFIG_USE_LOCAL_FILE)
+        self.filehistory.Load(self.config) 
         menubar = wx.MenuBar()
 
         # File menu
         fm = wx.Menu()
+        
+        # Open Recent Menu
+        recent = wx.Menu()
+        self.filehistory.UseMenu(recent)
+        self.filehistory.AddFilesToMenu()
 
         fm.Append(wx.ID_OPEN, "&Open...\tCtrl-O")
         fm.Append(ID_OPEN_RESOURCE, "Open &Resource...\tCtrl-R")
+        fm.AppendMenu(wx.ID_ANY, "O&pen Recent", recent)
 
         fm.AppendSeparator()
  
@@ -101,6 +111,7 @@ class BaseFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_resource_open, id=ID_OPEN_RESOURCE)
         self.Bind(wx.EVT_MENU, self.on_about, id=wx.ID_ABOUT)
         self.Bind(wx.EVT_MENU, self.on_exit, id=wx.ID_EXIT)
+        self.Bind(wx.EVT_MENU_RANGE, self.on_file_history, id=wx.ID_FILE1, id2=wx.ID_FILE9)
 
     def on_exit(self, evt):
         """ Called on "exit" event from the menu """
@@ -155,16 +166,47 @@ class BaseFrame(wx.Frame):
         if dlg.ShowModal() != wx.ID_OK:
             return
         path = dlg.GetPath()
+
         if sys.platform == 'win32':
             url = 'file:///' + path
         else:
             url = 'file://' + path
+            
+        self.filehistory.AddFileToHistory(path)
+        self.filehistory.Save(self.config)
+        self.config.Flush()
+            
+        url = 'file://'+path
+
         if not open_store(url):
+            self.filehistory.RemoveFileToHistory(path)
+            self.filehistory.Save(self.config)
+            self.config.Flush()
+            dlg = wx.MessageDialog(self, 'The following file could not be opened:\n\n%s' % path,
+                               'No handler for file', wx.OK | wx.ICON_INFORMATION)
+            dlg.ShowModal()
+            dlg.Destroy()
+    
+    def on_file_history(self, event):
+        """ Opens file from history """
+        fileNum = event.GetId() - wx.ID_FILE1
+        path = self.filehistory.GetHistoryFile(fileNum)
+        self.filehistory.AddFileToHistory(path)  # move up the list
+        self.filehistory.Save(self.config)
+        self.config.Flush()
+        
+        # open the file
+        from . import open_store
+        url = 'file://'+path
+        if not open_store(url):
+            self.filehistory.RemoveFileToHistory(path)
+            self.filehistory.Save(self.config)
+            self.config.Flush()
             dlg = wx.MessageDialog(self, 'The following file could not be opened:\n\n%s' % path,
                                    'No handler for file', wx.OK | wx.ICON_INFORMATION)
             dlg.ShowModal()
-            dlg.Destroy()
-
+            dlg.Destroy() 
+            
     def on_window_close(self, evt):
         """ Close Window file event, or cmd-W """
         self.Destroy()
