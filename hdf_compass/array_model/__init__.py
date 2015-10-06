@@ -13,12 +13,17 @@
 """
 Testing model for array types.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import numpy as np
 
+import logging
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
+
 from hdf_compass import compass_model
 
-DT_CMP = np.dtype([('a', 'i'), ('b', 'f')])
+DT_CMP = np.dtype([(b'a', b'i'), (b'b', b'f')])
 
 DATA = {'a_0d': np.array(1),
         'a_1d': np.arange(10),

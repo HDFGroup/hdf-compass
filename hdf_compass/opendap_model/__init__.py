@@ -9,12 +9,18 @@
 # distribution tree.  If you do not have access to this file, you may        #
 # request a copy from help@hdfgroup.org.                                     #
 ##############################################################################
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import posixpath as pp
 
 import numpy as np
 import pydap as dap
 from pydap.client import open_url
 from pydap.proxy import ArrayProxy
+
+import logging
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
 
 from hdf_compass import compass_model
 

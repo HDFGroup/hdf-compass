@@ -17,13 +17,16 @@ displayed by HDFCompass.
 Much of the common functionality (e.g. "Open File..." menu item) is implemented
 here.
 """
-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
 import sys
 from datetime import date
 import wx
 from wx.lib.pubsub import pub
+
+import logging
+log = logging.getLogger(__name__)
 
 from . import imagesupport
 from .info import InfoPanel
@@ -390,7 +393,7 @@ class NodeFrame(BaseFrame):
         # The requested Node subclass to instantiate.
         h = self._menu_handlers[id_]
 
-        print 'opening', node_being_opened.store, node_being_opened.key
+        log.debug('opening: %s %s' % (node_being_opened.store, node_being_opened.key))
         # Brand new Node instance of the requested type
         node_new = h(node_being_opened.store, node_being_opened.key)
 

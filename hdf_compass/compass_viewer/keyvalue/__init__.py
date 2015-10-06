@@ -16,8 +16,12 @@ Implements a viewer for key-value stores (instances of compass_model.KeyValue).
 Keys are strings, values are any data type HDFCompass can understand.
 Presently this means all NumPy types, plus Python str/unicode.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import wx
+
+import logging
+log = logging.getLogger(__name__)
 
 from ..frame import NodeFrame
 

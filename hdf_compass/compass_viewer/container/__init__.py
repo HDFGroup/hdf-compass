@@ -17,8 +17,12 @@ This frame is a simple browser view with back/forward/up controls.
 
 Currently list and icon views are supported.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import wx
+
+import logging
+log = logging.getLogger(__name__)
 
 from hdf_compass import compass_model
 from .. import imagesupport
@@ -196,7 +200,7 @@ class ContainerFrame(NodeFrame):
         new windows.
         """
         newnode = evt.node
-        print "Got request to open node", newnode.key
+        log.debug("Got request to open node: %s" % newnode.key)
         if isinstance(newnode, compass_model.Container):
             self.go(newnode)
         else:

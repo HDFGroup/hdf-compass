@@ -33,6 +33,6 @@ ch.setFormatter(ch_formatter)
 # ch.addFilter(LoggingFilter())  # uncomment to activate the logging filter
 logger.addHandler(ch)
 
-from hdf_compass import compass_viewer
+from . import run
 
-compass_viewer.run()
+run()

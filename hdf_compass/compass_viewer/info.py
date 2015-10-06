@@ -13,8 +13,12 @@
 """
 Defines the left-hand side information panel used to display context info.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import wx
+
+import logging
+log = logging.getLogger(__name__)
 
 from hdf_compass import compass_model
 from .imagesupport import png_to_bitmap

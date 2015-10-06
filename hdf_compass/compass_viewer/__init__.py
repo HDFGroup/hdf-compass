@@ -15,12 +15,17 @@ Main module for HDFCompass.
 
 Defines the App class, along with supporting infrastructure.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 # Must be at the top, to ensure we're the first to call matplotlib.use.
 import matplotlib
 matplotlib.use('WXAgg')
 
 import wx
+
+import logging
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
 
 from hdf_compass import compass_model
 
@@ -113,7 +118,7 @@ def open_node(node, pos=None):
     else:
         newpos = None
 
-    print "Top-level open called for ", node
+    log.debug("Top-level open called for %s" % node)
 
     if isinstance(node, compass_model.Container):
         f = container.ContainerFrame(node, pos=newpos)
@@ -154,33 +159,33 @@ def load_plugins():
     try:
         from hdf_compass import filesystem_model
     except ImportError:
-        print("Filesystem plugin not loaded")
+        log.info("Filesystem plugin not loaded")
 
     try:
         from hdf_compass import array_model
     except ImportError:
-        print("Array plugin not loaded")
+        log.info("Array plugin not loaded")
 
     try:
         from hdf_compass import hdf5_model
     except ImportError:
-        print("HDF plugin not loaded")
+        log.info("HDF plugin not loaded")
 
     # Coming soon!
     # try:
     #     from hdf_compass import bag_model
     # except ImportError:
-    #     print("BAG plugin not loaded")
+    #     log.info("BAG plugin not loaded")
 
     try:
         from hdf_compass import asc_model
     except ImportError:
-        print("Ascii grid plugin not loaded")
+        log.info("Ascii grid plugin not loaded")
 
     try:
         from hdf_compass import opendap_model
     except ImportError:
-        print("Opendap plugin not loaded")
+        log.info("Opendap plugin not loaded")
 
 
 def run():
@@ -204,7 +209,7 @@ def run():
             else:
                 url = 'file://' + op.abspath(url)
         if not open_store(url):
-            print 'Failed to open "%s"; no handlers'%url
+            log.warning('Failed to open "%s"; no handlers' % url)
 
     f = frame.InitFrame()
     
