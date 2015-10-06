@@ -10,5 +10,27 @@
 # request a copy from help@hdfgroup.org.                                     #
 ##############################################################################
 
-from hdf_compass import compass_viewer
-compass_viewer.run()
+"""
+Small module to handle common image operations.
+
+Images themselves come from the auto-generated "images.py" module.
+"""
+
+import cStringIO
+
+import wx
+
+from . import images
+
+
+def getbitmap(name):
+    """ Return a wx.Bitmap of the given icon """
+    png = getattr(images, name)()
+    return png_to_bitmap(png)
+
+
+def png_to_bitmap(png):
+    """ Convert a string with raw PNG data to a wx.Bitmap """
+    stream = cStringIO.StringIO(png)
+    img = wx.ImageFromStream(stream, wx.BITMAP_TYPE_PNG)
+    return img.ConvertToBitmap()

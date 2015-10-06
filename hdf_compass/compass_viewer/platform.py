@@ -9,6 +9,17 @@
 # distribution tree.  If you do not have access to this file, you may        #
 # request a copy from help@hdfgroup.org.                                     #
 ##############################################################################
+"""
+    Module for platform- and version-specific feature detection.
+"""
 
-from hdf_compass import compass_viewer
-compass_viewer.run()
+import sys
+
+MAC = sys.platform == 'darwin'
+WINDOWS = sys.platform == 'win32'
+LINUX = sys.platform == 'linux2'
+
+if not any((MAC, WINDOWS, LINUX)):
+    raise ValueError('Unknown platform "%s"' % sys.platform)
+
+VERSION = "0.5"
