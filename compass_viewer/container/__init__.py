@@ -26,6 +26,7 @@ from ..frame import NodeFrame
 from ..events import ID_COMPASS_OPEN, CompassOpenEvent
 from ..events import ContainerSelectionEvent, EVT_CONTAINER_SELECTION
 from .list import ContainerReportList, ContainerIconList
+from .tree import ContainerTree
 
 ID_GO_MENU_BACK = wx.NewId()
 ID_GO_MENU_NEXT = wx.NewId()
@@ -75,6 +76,7 @@ class ContainerFrame(NodeFrame):
         self.Bind(wx.EVT_MENU, lambda evt: self.go_up(), id=ID_GO_MENU_UP)
         self.Bind(wx.EVT_MENU, lambda evt: self.list_view(), id=ID_VIEW_MENU_LIST)
         self.Bind(wx.EVT_MENU, lambda evt: self.icon_view(), id=ID_VIEW_MENU_ICON)
+        self.Bind(wx.EVT_MENU, lambda evt: self.tree_view(), id=ID_VIEW_MENU_TREE)        
 
         self.toolbar = self.CreateToolBar(wx.TB_HORIZONTAL|wx.NO_BORDER|wx.TB_FLAT|wx.TB_TEXT)
 
@@ -93,19 +95,21 @@ class ContainerFrame(NodeFrame):
         self.toolbar.AddSeparator()
         self.toolbar.AddLabelTool(ID_GO_MENU_UP, "Up", up_bmp, shortHelp="New", longHelp="Long help for 'New'")
         self.toolbar.AddStretchableSpace()
-        self.toolbar.AddLabelTool(ID_VIEW_MENU_LIST, "Tree View", tree_bmp, shortHelp="Tree", longHelp="View in Tree")        
+        self.toolbar.AddLabelTool(ID_VIEW_MENU_TREE, "Tree View", tree_bmp, shortHelp="Tree", longHelp="View in Tree")        
         self.toolbar.AddLabelTool(ID_VIEW_MENU_LIST, "List View", list_bmp, shortHelp="List", longHelp="View in List")
         self.toolbar.AddLabelTool(ID_VIEW_MENU_ICON, "Icon View", icon_bmp, shortHelp="Icon", longHelp="View in Icons")
 
         self.toolbar.Realize()
 
-        self.view = ContainerReportList(self, node)
+        self.view = ContainerTree(self, node)
+        # self.view = ContainerReportList(self, node)
 
         self.history = [node]
         self.history_ptr = 0
         self.update_view()
 
 
+        
     def list_view(self):
         """ Switch to list view """
         if not isinstance(self.view, ContainerReportList):
@@ -117,6 +121,11 @@ class ContainerFrame(NodeFrame):
         if not isinstance(self.view, ContainerIconList):
             self.view = ContainerIconList(self, self.history[self.history_ptr])
 
+    def tree_view(self):
+        """ Switch to tree view """
+        if not isinstance(self.view, ContainerTree):
+            self.view = ContainerTree(self, self.history[self.history_ptr])
+            
 
     # --- Begin history support functions -------------------------------------
 
