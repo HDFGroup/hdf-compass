@@ -25,13 +25,13 @@ You will need:
 * Python 2.7
 * NumPy
 * Matplotlib
-* wxPython Phoenix (2.9.5.0 or later)
+* wxPython Phoenix *(2.9.5.0 or later)*
 * h5py
 
 For packaging the app:
 
+* PyInstaller (Linux & Windows, experimental for OS X) *(>= 3.0)*
 * Py2App (OS X)
-* PyInstaller (Linux & Windows)
 
 Running the Program  
 --------------------
@@ -56,11 +56,17 @@ Packaging on OS X
 Packaging on Windows
 --------------------
 
-    $ pyinstaller HDFCompass.spec
+Single-file:
+
+    $ pyinstaller --clean -y HDFCompass.1file.spec
+
+Single-folder (useful for debugging the `pyinstaller` settings):
+
+    $ pyinstaller --clean -y HDFCompass.1folder.spec
     
 Other info
 ----------
 
-* Github: http://github.com/HDFGroup/hdf-compass
-* Project page: https://www.hdfgroup.org/projects/compass/
-* License: BSD-like HDF Group license (See COPYING)
+* Github: [http://github.com/HDFGroup/hdf-compass](http://github.com/HDFGroup/hdf-compass)
+* Project page: [https://www.hdfgroup.org/projects/compass/](https://www.hdfgroup.org/projects/compass/)
+* License: BSD-like HDF Group license (See [COPYING](https://raw.githubusercontent.com/HDFGroup/hdf-compass/master/COPYING))
