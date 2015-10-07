@@ -175,15 +175,14 @@ class BaseFrame(wx.Frame):
         self.filehistory.AddFileToHistory(path)
         self.filehistory.Save(self.config)
         self.config.Flush()
-            
-        url = 'file://'+path
 
         if not open_store(url):
-            self.filehistory.RemoveFileToHistory(path)
+            fileNum = evt.GetId() - wx.ID_FILE1
+            self.filehistory.RemoveFileFromHistory(fileNum)
             self.filehistory.Save(self.config)
             self.config.Flush()
             dlg = wx.MessageDialog(self, 'The following file could not be opened:\n\n%s' % path,
-                               'No handler for file', wx.OK | wx.ICON_INFORMATION)
+                                   'No handler for file', wx.OK | wx.ICON_INFORMATION)
             dlg.ShowModal()
             dlg.Destroy()
     
@@ -197,9 +196,12 @@ class BaseFrame(wx.Frame):
         
         # open the file
         from . import open_store
-        url = 'file://'+path
+        if sys.platform == 'win32':
+            url = 'file:///' + path
+        else:
+            url = 'file://' + path
         if not open_store(url):
-            self.filehistory.RemoveFileToHistory(path)
+            self.filehistory.RemoveFileFromHistory(fileNum)
             self.filehistory.Save(self.config)
             self.config.Flush()
             dlg = wx.MessageDialog(self, 'The following file could not be opened:\n\n%s' % path,
