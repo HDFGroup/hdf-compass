@@ -22,4 +22,4 @@ LINUX = sys.platform == 'linux2'
 if not any((MAC, WINDOWS, LINUX)):
     raise ValueError('Unknown platform "%s"' % sys.platform)
 
-VERSION = "0.5"
+VERSION = "0.5+ (dev)"
