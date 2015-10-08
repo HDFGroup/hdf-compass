@@ -178,9 +178,12 @@ class BaseFrame(wx.Frame):
 
         if not open_store(url):
             fileNum = evt.GetId() - wx.ID_FILE1
-            self.filehistory.RemoveFileFromHistory(fileNum)
-            self.filehistory.Save(self.config)
-            self.config.Flush()
+            if fileNum < 0 or fileNum >= MAX_RECENT_FILES:
+                print("Unexpected value for fileNum:" + str(fileNum))
+            else:  
+                self.filehistory.RemoveFileFromHistory(fileNum)
+                self.filehistory.Save(self.config)
+                self.config.Flush()
             dlg = wx.MessageDialog(self, 'The following file could not be opened:\n\n%s' % path,
                                    'No handler for file', wx.OK | wx.ICON_INFORMATION)
             dlg.ShowModal()
