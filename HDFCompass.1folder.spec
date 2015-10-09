@@ -83,4 +83,8 @@ coll = COLLECT(exe,
                strip=None,
                upx=True,
                name='HDFCompass')
-
+if is_darwin:
+    app = BUNDLE(coll,
+                 name='HDFCompass.app',
+                 icon=icon_file,
+                 bundle_identifier=None)

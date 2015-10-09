@@ -80,6 +80,6 @@ exe = EXE(pyz,
           icon=icon_file)
 if is_darwin:
     app = BUNDLE(exe,
-                 name='HDFCompass',
+                 name='HDFCompass.app',
                  icon=icon_file,
                  bundle_identifier=None)
