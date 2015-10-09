@@ -3,4 +3,4 @@
 /build
 /dist
 /docs/_build
-/data/hdf5/*.h5
+/data/hdf5/Download/*.h5
