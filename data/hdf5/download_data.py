@@ -4,7 +4,6 @@ Download additional data files from AWS
 """
 
 files = [
-   'tall.h5',
    'ami_hdf.h5',
    'attrfile.h5',
    'countries.h5',
