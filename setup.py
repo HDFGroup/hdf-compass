@@ -42,10 +42,10 @@ PLIST = {   "CFBundleDocumentTypes": [ { "CFBundleTypeExtensions": ["hdf5","h5"]
 # when the program starts up and causes windows not to be displayed.
 OPTIONS = { 'argv_emulation': False,
             'excludes': ['scipy', 'PyQt4', 'mpi4py'],
-            'includes': ['h5py',],
+            'includes': ['h5py', 'matplotlib'],
             'matplotlib_backends': ['wxagg',],
             'iconfile': 'compass.icns',
-            'packages': ['h5py',],
+            'packages': ['h5py', 'matplotlib'],
             'plist': PLIST }
 
 setup(
