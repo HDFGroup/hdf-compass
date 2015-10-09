@@ -14,7 +14,7 @@ files = [
    'snps1000_chr22_CEU.h5',
    'tiefort_bldg_poly_utm.shp.h5',  
    'orig-n10.h5', # 2 MB
-   'LD_22 - linkage disequilibrium - includes 5Kx5K matrix.h5', # 5 MB
+   'LD_22_5Kx5K_matrix.h5', # 5 MB
    'shuttle_hdf.h5', # 8 MB
    'full8_400um.mnc.h5', # 10MB
    'DOQ.h5', # 45 MB
