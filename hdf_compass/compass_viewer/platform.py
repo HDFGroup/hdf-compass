@@ -12,8 +12,11 @@
 """
     Module for platform- and version-specific feature detection.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import sys
+import logging
+log = logging.getLogger(__name__)
 
 MAC = sys.platform == 'darwin'
 WINDOWS = sys.platform == 'win32'

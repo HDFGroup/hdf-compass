@@ -13,10 +13,13 @@
 """
 Implements a simple true-color image viewer.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import wx
 import wx.grid
-from wx.lib.newevent import NewCommandEvent  # FIXME: Unused?
+
+import logging
+log = logging.getLogger(__name__)
 
 from ..frame import NodeFrame
 

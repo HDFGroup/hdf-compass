@@ -68,6 +68,11 @@ of Image, and register it with the other person's class:
 Of course, this assumes you know enough about the internals of the other
 person's Store to make your new class useful.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
 
 from . import images
 

@@ -13,6 +13,7 @@
 """
 Implementation of compass_model classes for HDF5 files.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from itertools import groupby
 import sys
@@ -20,6 +21,10 @@ import os.path as op
 import posixpath as pp
 
 import h5py
+
+import logging
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
 
 # Py2App can't successfully import otherwise
 from hdf_compass import compass_model

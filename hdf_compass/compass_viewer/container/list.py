@@ -12,8 +12,12 @@
 """
 Handles list and icon view for Container display.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import wx
+
+import logging
+log = logging.getLogger(__name__)
 
 from hdf_compass import compass_model
 from ..events import CompassOpenEvent

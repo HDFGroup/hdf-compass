@@ -17,12 +17,17 @@ directories and the ASCII grid data respectively.
 See: http://en.wikipedia.org/wiki/Esri_grid for a description of
 the file format
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import sys
 import os.path as op
 import linecache
 
 import numpy as np
+
+import logging
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
 
 from hdf_compass import compass_model
 

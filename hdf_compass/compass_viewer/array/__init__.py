@@ -12,10 +12,14 @@
 """
 Implements a viewer frame for compass_model.Array.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import wx
 import wx.grid
 from wx.lib.newevent import NewCommandEvent
+
+import logging
+log = logging.getLogger(__name__)
 
 from .. import imagesupport
 from ..frame import NodeFrame

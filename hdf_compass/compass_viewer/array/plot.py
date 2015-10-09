@@ -13,6 +13,7 @@
 """
 Matplotlib window with toolbar.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import numpy as np
 import wx
@@ -21,6 +22,9 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_wxagg import \
     FigureCanvasWxAgg as FigCanvas, \
     NavigationToolbar2WxAgg as NavigationToolbar
+
+import logging
+log = logging.getLogger(__name__)
 
 from ..frame import BaseFrame
 
@@ -33,10 +37,9 @@ class PlotFrame(BaseFrame):
     """
 
     def __init__(self, data, title="a title"):
-        """ Create a new Matplotlib plotting window for a 1D line plot
-        """
+        """ Create a new Matplotlib plotting window for a 1D line plot """
 
-        print self.__class__.__name__
+        log.debug(self.__class__.__name__)
         BaseFrame.__init__(self, id=wx.ID_ANY, title=title, size=(800, 400))
 
         self.data = data
@@ -84,8 +87,8 @@ class ContourPlotFrame(PlotFrame):
         maxElements = 500  # don't attempt plot more than 500x500 elements
         rows = self.data.shape[0]
         cols = self.data.shape[1]
-        row_stride = rows / maxElements + 1
-        col_stride = cols / maxElements + 1
+        row_stride = rows // maxElements + 1
+        col_stride = cols // maxElements + 1
         data = self.data[::row_stride, ::col_stride]
         xx = np.arange(0, self.data.shape[1], col_stride)
         yy = np.arange(0, self.data.shape[0], row_stride)
