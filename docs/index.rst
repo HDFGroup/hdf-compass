@@ -135,7 +135,7 @@ Other methods & properties
 
     **(Abstract)** Discontinue access to the data store.
 
-.. method:: Store.getparent(key)
+.. method:: Store.get_parent(key)
 
     **(Abstract)** Return the object which contains *key*, or None if no such object exists.
 

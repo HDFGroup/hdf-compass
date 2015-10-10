@@ -70,15 +70,15 @@ class BAGStore(compass_model.Store):
     def can_handle(url):
         log.debug("able to handle %s?" % url)
         if not url.startswith('file://'):
-            log.debug("No")
+            log.debug("Invalid url: %s" % url)
             return False
 
         path = url2path(url)
         if not is_bag(path):
-            log.debug("Yes")
+            log.debug("Not a BAG")
             return False
 
-        log.debug("OK")
+        log.debug("Yes")
         return True
 
     def __init__(self, url):
@@ -389,74 +389,82 @@ class BAGMetadataRaw(compass_model.Array):
         return self._dset[args]
 
 
-# class BAGMetadataText(compass_model.Text):
-#     """ Represents a text BAG metadata. """
-#
-#     class_kind = "BAG Metadata [text]"
-#
-#     @staticmethod
-#     def can_handle(store, key):
-#         return (key == "/BAG_root/metadata") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
-#
-#     def __init__(self, store, key):
-#         self._store = store
-#         self._key = key
-#         self._dset = store.f.metadata(as_string=True, as_pretty_xml=True)
-#
-#     @property
-#     def key(self):
-#         return self._key
-#
-#     @property
-#     def store(self):
-#         return self._store
-#
-#     @property
-#     def display_name(self):
-#         return pp.basename(self.key)
-#
-#     @property
-#     def description(self):
-#         return 'Dataset "%s"' % (self.display_name,)
-#
-#     @property
-#     def text(self):
-#         return self._dset
-#
-#
-# class BAGMetadataXml(compass_model.Xml):
-#     """ Represents a text BAG metadata. """
-#
-#     class_kind = "BAG Metadata [xml]"
-#
-#     @staticmethod
-#     def can_handle(store, key):
-#         return (key == "/BAG_root/metadata") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
-#
-#     def __init__(self, store, key):
-#         self._store = store
-#         self._key = key
-#         self._dset = store.f.metadata(as_string=True, as_pretty_xml=True)
-#
-#     @property
-#     def key(self):
-#         return self._key
-#
-#     @property
-#     def store(self):
-#         return self._store
-#
-#     @property
-#     def display_name(self):
-#         return pp.basename(self.key)
-#
-#     @property
-#     def description(self):
-#         return 'Dataset "%s"' % (self.display_name,)
-#
-#     @property
-#     def text(self):
-#         return self._dset
+class BAGMetadataText(compass_model.Text):
+    """ Represents a text BAG metadata. """
+
+    class_kind = "BAG Metadata [text]"
+
+    @staticmethod
+    def can_handle(store, key):
+        return (key == "/BAG_root/metadata") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
+
+    def __init__(self, store, key):
+        self._store = store
+        self._key = key
+        try:
+            self._dset = store.f.metadata(as_string=True, as_pretty_xml=True)
+        except BAGError as e:
+            log.warning("unable to retrieve metadata as xml")
+            self._dset = ""
+
+    @property
+    def key(self):
+        return self._key
+
+    @property
+    def store(self):
+        return self._store
+
+    @property
+    def display_name(self):
+        return pp.basename(self.key)
+
+    @property
+    def description(self):
+        return 'Dataset "%s"' % (self.display_name,)
+
+    @property
+    def text(self):
+        return self._dset
+
+
+class BAGMetadataXml(compass_model.Xml):
+    """ Represents a text BAG metadata. """
+
+    class_kind = "BAG Metadata [xml]"
+
+    @staticmethod
+    def can_handle(store, key):
+        return (key == "/BAG_root/metadata") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
+
+    def __init__(self, store, key):
+        self._store = store
+        self._key = key
+        try:
+            self._dset = store.f.metadata(as_string=True, as_pretty_xml=True)
+        except BAGError as e:
+            log.warning("unable to retrieve metadata as xml")
+            self._dset = ""
+
+    @property
+    def key(self):
+        return self._key
+
+    @property
+    def store(self):
+        return self._store
+
+    @property
+    def display_name(self):
+        return pp.basename(self.key)
+
+    @property
+    def description(self):
+        return 'Dataset "%s"' % (self.display_name,)
+
+    @property
+    def text(self):
+        return self._dset
 
 
 class BAGUncertainty(compass_model.Array):
@@ -604,8 +612,8 @@ BAGStore.push(BAGElevation)
 BAGStore.push(BAGUncertainty)
 BAGStore.push(BAGTrackinList)
 BAGStore.push(BAGMetadataRaw)
-# BAGStore.push(BAGMetadataText)
-# BAGStore.push(BAGMetadataXml)
+BAGStore.push(BAGMetadataText)
+BAGStore.push(BAGMetadataXml)
 BAGStore.push(BAGGroup)
 BAGStore.push(BAGRoot)
 BAGStore.push(BAGImage)
