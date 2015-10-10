@@ -31,7 +31,7 @@ from hdf_compass import compass_model
 from hdf_compass import utils
 
 from .events import ID_COMPASS_OPEN
-from . import container, array, keyvalue, image, frame
+from . import container, array, keyvalue, image, frame, text
 
 __version__ = utils.__version__
 
@@ -113,21 +113,32 @@ def open_node(node, pos=None):
     if pos is not None:
         # The thing we get from GetPosition isn't really a tuple, so
         # you have to manually cast entries to int or it silently fails.
-        newpos =(int(pos[0])+40, int(pos[1])+40)
+        new_pos =(int(pos[0])+40, int(pos[1])+40)
     else:
-        newpos = None
+        new_pos = None
 
     log.debug("Top-level open called for %s" % node)
 
     if isinstance(node, compass_model.Container):
-        f = container.ContainerFrame(node, pos=newpos)
+        f = container.ContainerFrame(node, pos=new_pos)
         f.Show()
+
     elif isinstance(node, compass_model.Array):
-        f = array.ArrayFrame(node, pos=newpos)
+        f = array.ArrayFrame(node, pos=new_pos)
         f.Show()
+
+    elif isinstance(node, compass_model.Xml):
+        f = text.XmlFrame(node, pos=new_pos)
+        f.Show()
+
+    elif isinstance(node, compass_model.Text):
+        f = text.TextFrame(node, pos=new_pos)
+        f.Show()
+
     elif isinstance(node, compass_model.KeyValue):
-        f = keyvalue.KeyValueFrame(node, pos=newpos)
+        f = keyvalue.KeyValueFrame(node, pos=new_pos)
         f.Show()
+
     elif isinstance(node, compass_model.Image):
         f = image.ImageFrame(node, pos=pos)
         f.Show()

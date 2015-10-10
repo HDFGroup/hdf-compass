@@ -451,6 +451,15 @@ class Xml(Text):
     icons = {16:    os.path.join(icon_folder, "xml_16.png"),
              64:    os.path.join(icon_folder, "xml_64.png")}
 
+    @staticmethod
+    def has_validation():
+        """To be overriden in case that the xml has a known mechanism to be validated"""
+        return False
+
+    @property
+    def validation(self):
+        """ Validation info """
+
 
 class Unknown(Node):
     """
