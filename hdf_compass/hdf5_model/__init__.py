@@ -28,6 +28,7 @@ log.addHandler(logging.NullHandler())
 
 # Py2App can't successfully import otherwise
 from hdf_compass import compass_model
+from hdf_compass.utils import url2path
 
 
 def sort_key(name):
@@ -70,10 +71,7 @@ class HDF5Store(compass_model.Store):
     def can_handle(url):
         if not url.startswith('file://'):
             return False
-        if sys.platform == 'win32':
-            path = url.replace('file:///', '')
-        else:
-            path = url.replace('file://', '')
+        path = url2path(url)
         if not h5py.is_hdf5(path):
             return False
         return True
@@ -82,16 +80,13 @@ class HDF5Store(compass_model.Store):
         if not self.can_handle(url):
             raise ValueError(url)
         self._url = url
-        if sys.platform == 'win32':
-            path = url.replace('file:///', '')
-        else:
-            path = url.replace('file://', '')
+        path = url2path(url)
         self.f = h5py.File(path, 'r')
 
     def close(self):
         self.f.close()
 
-    def getparent(self, key):
+    def get_parent(self, key):
         # HDFCompass requires the parent of the root container be None
         if key == "" or key == "/":
             return None

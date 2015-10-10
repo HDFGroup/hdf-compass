@@ -28,9 +28,7 @@ from wx.lib.pubsub import pub
 import logging
 log = logging.getLogger(__name__)
 
-from . import imagesupport
 from .info import InfoPanel
-from . import platform
 
 ID_OPEN_RESOURCE = wx.NewId()
 ID_CLOSE_FILE = wx.NewId()
@@ -38,6 +36,7 @@ ID_CLOSE_FILE = wx.NewId()
 MAX_RECENT_FILES = 8
 
 from hdf_compass import compass_model
+from hdf_compass.utils import __version__, is_darwin, url2path, path2url
 from .events import CompassOpenEvent
 
 
@@ -55,6 +54,8 @@ class BaseFrame(wx.Frame):
     initial window when all other frames are closed.
     """
 
+    icon_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), 'icons'))
+
     def __init__(self, **kwds):
         """ Constructor; any keywords are passed on to wx.Frame.
         """
@@ -64,10 +65,10 @@ class BaseFrame(wx.Frame):
         # Frame icon
         ib = wx.IconBundle()
         icon_32 = wx.EmptyIcon()
-        icon_32.CopyFromBitmap(imagesupport.getbitmap('compass_32'))
+        icon_32.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "compass_32.png"), wx.BITMAP_TYPE_ANY))
         ib.AddIcon(icon_32)
         icon_48 = wx.EmptyIcon()
-        icon_48.CopyFromBitmap(imagesupport.getbitmap('compass_48'))
+        icon_48.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "compass_48.png"), wx.BITMAP_TYPE_ANY))
         ib.AddIcon(icon_48)
         self.SetIcons(ib)
 
@@ -124,10 +125,10 @@ class BaseFrame(wx.Frame):
         """ Display an "About" dialog """
         info = wx.AboutDialogInfo()
         info.Name = "HDFCompass"
-        info.Version = platform.VERSION
+        info.Version = __version__
         info.Copyright = "(c) 2014-%d The HDF Group" % date.today().year
         icon_48 = wx.EmptyIcon()
-        icon_48.CopyFromBitmap(imagesupport.getbitmap('compass_48'))
+        icon_48.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "compass_48.png"), wx.BITMAP_TYPE_ANY))
         info.SetIcon(icon_48)
         wx.AboutBox(info)
 
@@ -138,7 +139,7 @@ class BaseFrame(wx.Frame):
             """ Make a wxPython dialog filter string segment from dict """
             filter_string = []
             hdf_filter_string = []  # put HDF filters in the front
-            for store in compass_model.getstores():
+            for store in compass_model.get_stores():
                 if len(store.file_extensions) == 0:
                     continue
                 for key in store.file_extensions:
@@ -156,7 +157,7 @@ class BaseFrame(wx.Frame):
             return pipe.join(filter_string)
             
         # The wxPython wildcard string is a bunch of filter strings pasted together
-        # wc_string = [s.file_extensions for s in compass_model.getstores() if len(s.file_extensions) != 0]
+        # wc_string = [s.file_extensions for s in compass_model.get_stores() if len(s.file_extensions) != 0]
         # print "jlr -- wc_string: " , wc_string
         # wc_string.append({"All Files": ["*"]})
         # wc_string = "|".join([make_filter_string(x) for x in wc_string])
@@ -170,10 +171,7 @@ class BaseFrame(wx.Frame):
             return
         path = dlg.GetPath()
 
-        if sys.platform == 'win32':
-            url = 'file:///' + path
-        else:
-            url = 'file://' + path
+        url = path2url(path)
             
         self.filehistory.AddFileToHistory(path)
         self.filehistory.Save(self.config)
@@ -202,10 +200,7 @@ class BaseFrame(wx.Frame):
         
         # open the file
         from . import open_store
-        if sys.platform == 'win32':
-            url = 'file:///' + path
-        else:
-            url = 'file://' + path
+        url = path2url(path)
         if not open_store(url):
             self.filehistory.RemoveFileFromHistory(fileNum)
             self.filehistory.Save(self.config)
@@ -260,12 +255,12 @@ class InitFrame(BaseFrame):
         title = "HDFCompass"
         BaseFrame.__init__(self, size=(552,247), title=title, style=style)
 
-        data = imagesupport.getbitmap('logo')
+        data = wx.Bitmap(os.path.join(self.icon_folder, "logo.png"), wx.BITMAP_TYPE_ANY)
         bmp = wx.StaticBitmap(self, wx.ID_ANY, data)
 
         # The init frame isn't visible on Mac, so there shouldn't be an
         # option to close it.  "Quit" does the same thing.
-        if platform.MAC:
+        if is_darwin:
             mb = self.GetMenuBar()
             mu = mb.GetMenu(0)
             mu.Enable(wx.ID_CLOSE, False)

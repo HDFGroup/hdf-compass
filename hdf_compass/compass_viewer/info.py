@@ -21,14 +21,14 @@ import logging
 log = logging.getLogger(__name__)
 
 from hdf_compass import compass_model
-from .imagesupport import png_to_bitmap
-from . import platform
+from hdf_compass.utils import is_win
+
 
 # Info panel width
 PANEL_WIDTH = 200
 
 # Size of the main title font
-FONTSIZE = 16 if platform.WINDOWS else 18
+FONTSIZE = 16 if is_win else 18
 
 
 class InfoPanel(wx.Panel):
@@ -77,10 +77,8 @@ class InfoPanel(wx.Panel):
             self.staticbitmap.Destroy()
 
         # We load the PNG icon directly from the appropriate Node class
-        png = type(node).icons[64]()
-        b = png_to_bitmap(png)
-
-        self.staticbitmap = wx.StaticBitmap(self, wx.ID_ANY, b)
+        png = wx.Bitmap(type(node).icons[64], wx.BITMAP_TYPE_ANY)
+        self.staticbitmap = wx.StaticBitmap(self, wx.ID_ANY, png)
         self.sizer.Insert(1, self.staticbitmap, 0, wx.ALL, border=20)
         self.sizer.Layout()
         self.Layout()

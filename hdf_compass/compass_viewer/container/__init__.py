@@ -20,12 +20,12 @@ Currently list and icon views are supported.
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import wx
+import os
 
 import logging
 log = logging.getLogger(__name__)
 
 from hdf_compass import compass_model
-from .. import imagesupport
 from ..frame import NodeFrame
 from ..events import ID_COMPASS_OPEN
 from ..events import EVT_CONTAINER_SELECTION
@@ -80,12 +80,12 @@ class ContainerFrame(NodeFrame):
         self.toolbar = self.CreateToolBar(wx.TB_HORIZONTAL | wx.NO_BORDER | wx.TB_FLAT | wx.TB_TEXT)
 
         tsize = (24, 24)
-        back_bmp = imagesupport.getbitmap('go_back_24')
-        next_bmp = imagesupport.getbitmap('go_next_24')
-        up_bmp = imagesupport.getbitmap('go_up_24')
-        top_bmp = imagesupport.getbitmap('go_top_24')
-        icon_bmp = imagesupport.getbitmap('view_icon_24')
-        list_bmp = imagesupport.getbitmap('view_list_24')
+        back_bmp = wx.Bitmap(os.path.join(self.icon_folder, "go_back_24.png"), wx.BITMAP_TYPE_ANY)
+        next_bmp = wx.Bitmap(os.path.join(self.icon_folder, "go_next_24.png"), wx.BITMAP_TYPE_ANY)
+        up_bmp = wx.Bitmap(os.path.join(self.icon_folder, "go_up_24.png"), wx.BITMAP_TYPE_ANY)
+        top_bmp = wx.Bitmap(os.path.join(self.icon_folder, "go_top_24.png"), wx.BITMAP_TYPE_ANY)
+        icon_bmp = wx.Bitmap(os.path.join(self.icon_folder, "view_icon_24.png"), wx.BITMAP_TYPE_ANY)
+        list_bmp = wx.Bitmap(os.path.join(self.icon_folder, "view_list_24.png"), wx.BITMAP_TYPE_ANY)
 
         self.toolbar.SetToolBitmapSize(tsize)
         self.toolbar.AddLabelTool(ID_GO_MENU_BACK, "Back", back_bmp, shortHelp="New", longHelp="Long help for 'New'")
@@ -138,7 +138,7 @@ class ContainerFrame(NodeFrame):
     def go_up(self):
         """ Go to the enclosing container """
         node = self.history[self.history_ptr]
-        parent = node.store.getparent(node.key)
+        parent = node.store.get_parent(node.key)
         if parent.key != node.key:  # at the root item
             self.go(parent)
             
@@ -171,7 +171,7 @@ class ContainerFrame(NodeFrame):
 
         can_go_back = self.history_ptr > 0
         can_go_next = self.history_ptr < (len(self.history) - 1)
-        can_go_up = self.node.store.getparent(self.node.key) is not None
+        can_go_up = self.node.store.get_parent(self.node.key) is not None
         can_go_top = self.node.key != self.node.store.root.key
         self.go_menu.Enable(ID_GO_MENU_BACK, can_go_back)
         self.go_menu.Enable(ID_GO_MENU_NEXT, can_go_next)

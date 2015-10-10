@@ -71,7 +71,7 @@ class Filesystem(compass_model.Store):
     def close(self):
         self._valid = False
 
-    def getparent(self, key):
+    def get_parent(self, key):
         if key == "/":
             return None
         return self[op.dirname(key)]

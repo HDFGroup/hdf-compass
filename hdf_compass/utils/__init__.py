@@ -11,9 +11,12 @@
 ##############################################################################
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from .utils import is_darwin, is_win, is_linux, url2path
-
 import logging
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
+
+from .utils import is_darwin, is_win, is_linux, url2path, path2url
+
+
+__version__ = "1.0.5+"
