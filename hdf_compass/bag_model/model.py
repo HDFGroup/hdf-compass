@@ -437,6 +437,11 @@ class BAGMetadataXml(compass_model.Xml):
     def can_handle(store, key):
         return (key == "/BAG_root/metadata") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
 
+    @staticmethod
+    def has_validation():
+        """For BAG data there is a known validation mechanism based on XSD and Schematron"""
+        return True
+
     def __init__(self, store, key):
         self._store = store
         self._key = key
@@ -465,6 +470,20 @@ class BAGMetadataXml(compass_model.Xml):
     @property
     def text(self):
         return self._dset
+
+    @property
+    def validation(self):
+        """ Collect a message string with the result of the validation """
+        msg = str()
+
+        msg += "XML input source: %s\nValidation output: " % self.key
+        if self.store.f.validate_metadata():
+            msg += "VALID"
+        else:
+            msg += "INVALID\nReasons:\n"
+            for err_msg in self.store.f.meta_errors:
+                msg += " - %s\n" % err_msg
+        return msg
 
 
 class BAGUncertainty(compass_model.Array):
