@@ -51,7 +51,7 @@ class ContainerFrame(NodeFrame):
         node:   Container instance to display.
         pos:    Screen position at which to display the window.
         """
-        NodeFrame.__init__(self, node, size=(800, 400), title=node.displaytitle, pos=pos)
+        NodeFrame.__init__(self, node, size=(800, 400), title=node.display_title, pos=pos)
 
         view_menu = wx.Menu()
         view_menu.Append(ID_VIEW_MENU_LIST, "List view")
@@ -165,7 +165,7 @@ class ContainerFrame(NodeFrame):
     def update_view(self):
         """ Refresh the entire contents of the frame according to self.node.
         """
-        self.SetTitle(self.node.displaytitle)
+        self.SetTitle(self.node.display_title)
         self.view = type(self.view)(self, self.node)
         self.update_info()
 

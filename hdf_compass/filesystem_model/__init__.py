@@ -45,7 +45,7 @@ class Filesystem(compass_model.Store):
         return self._url
 
     @property
-    def displayname(self):
+    def display_name(self):
         return "Local file system"
 
     @property
@@ -57,13 +57,13 @@ class Filesystem(compass_model.Store):
         return self._valid
 
     @staticmethod
-    def canhandle(url):
+    def can_handle(url):
         if url == "file://localhost":
             return True
         return False
 
     def __init__(self, url):
-        if not self.canhandle(url):
+        if not self.can_handle(url):
             raise ValueError(url)
         self._url = url
         self._valid = True
@@ -82,10 +82,10 @@ class Directory(compass_model.Container):
         Represents a directory in the filesystem.
     """
 
-    classkind = "Directory"
+    class_kind = "Directory"
 
     @staticmethod
-    def canhandle(store, key):
+    def can_handle(store, key):
         return op.isdir(key)
 
     def __init__(self, store, key):
@@ -105,7 +105,7 @@ class Directory(compass_model.Container):
         return self._store
 
     @property
-    def displayname(self):
+    def display_name(self):
         bn = op.basename(self.key)
         if len(bn) == 0:
             return "/"
@@ -113,7 +113,7 @@ class Directory(compass_model.Container):
 
     @property
     def description(self):
-        return 'Folder "%s" (%d members)' % (self.displayname, len(self))
+        return 'Folder "%s" (%d members)' % (self.display_name, len(self))
 
     def __len__(self):
         return len(self._names)
@@ -133,10 +133,10 @@ class File(compass_model.Array):
         Represents a file (all loaded as an array of bytes)
     """
 
-    classkind = "File"
+    class_kind = "File"
 
     @staticmethod
-    def canhandle(store, key):
+    def can_handle(store, key):
         return op.isfile(key)
 
     def __init__(self, store, key):
@@ -152,12 +152,12 @@ class File(compass_model.Array):
         return self._store
 
     @property
-    def displayname(self):
+    def display_name(self):
         return op.basename(self.key)
 
     @property
     def description(self):
-        return 'File "%s", size %d bytes' % (self.displayname, op.getsize(self.key))
+        return 'File "%s", size %d bytes' % (self.display_name, op.getsize(self.key))
 
     @property
     def shape(self):

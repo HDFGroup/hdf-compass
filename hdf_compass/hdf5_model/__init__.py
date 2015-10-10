@@ -55,7 +55,7 @@ class HDF5Store(compass_model.Store):
         return self._url
 
     @property
-    def displayname(self):
+    def display_name(self):
         return op.basename(self.f.filename)
 
     @property
@@ -67,7 +67,7 @@ class HDF5Store(compass_model.Store):
         return bool(self.f)
 
     @staticmethod
-    def canhandle(url):
+    def can_handle(url):
         if not url.startswith('file://'):
             return False
         if sys.platform == 'win32':
@@ -79,7 +79,7 @@ class HDF5Store(compass_model.Store):
         return True
 
     def __init__(self, url):
-        if not self.canhandle(url):
+        if not self.can_handle(url):
             raise ValueError(url)
         self._url = url
         if sys.platform == 'win32':
@@ -106,10 +106,10 @@ class HDF5Group(compass_model.Container):
     Represents an HDF5 group, to be displayed in the browser view.
     """
 
-    classkind = "HDF5 Group"
+    class_kind = "HDF5 Group"
 
     @staticmethod
-    def canhandle(store, key):
+    def can_handle(store, key):
         return key in store and isinstance(store.f[key], h5py.Group)
 
     @property
@@ -141,19 +141,19 @@ class HDF5Group(compass_model.Container):
         return self._store
 
     @property
-    def displayname(self):
+    def display_name(self):
         name = pp.basename(self.key)
         if name == "":
             name = '/'
         return name
 
     @property
-    def displaytitle(self):
-        return "%s %s" % (self.store.displayname, self.key)
+    def display_title(self):
+        return "%s %s" % (self.store.display_name, self.key)
 
     @property
     def description(self):
-        return 'Group "%s" (%d members)' % (self.displayname, len(self))
+        return 'Group "%s" (%d members)' % (self.display_name, len(self))
 
     def __len__(self):
         return len(self._group)
@@ -172,10 +172,10 @@ class HDF5Dataset(compass_model.Array):
     Represents an HDF5 dataset.
     """
 
-    classkind = "HDF5 Dataset"
+    class_kind = "HDF5 Dataset"
 
     @staticmethod
-    def canhandle(store, key):
+    def can_handle(store, key):
         return key in store and isinstance(store.f[key], h5py.Dataset)
 
     def __init__(self, store, key):
@@ -192,12 +192,12 @@ class HDF5Dataset(compass_model.Array):
         return self._store
 
     @property
-    def displayname(self):
+    def display_name(self):
         return pp.basename(self.key)
 
     @property
     def description(self):
-        return 'Dataset "%s"' % (self.displayname,)
+        return 'Dataset "%s"' % (self.display_name,)
 
     @property
     def shape(self):
@@ -216,10 +216,10 @@ class HDF5KV(compass_model.KeyValue):
     A KeyValue node used for HDF5 attributes.
     """
 
-    classkind = "HDF5 Attributes"
+    class_kind = "HDF5 Attributes"
 
     @staticmethod
-    def canhandle(store, key):
+    def can_handle(store, key):
         return key in store.f
 
     def __init__(self, store, key):
@@ -237,13 +237,13 @@ class HDF5KV(compass_model.KeyValue):
         return self._store
 
     @property
-    def displayname(self):
+    def display_name(self):
         n = pp.basename(self.key)
         return n if n != '' else '/'
 
     @property
     def description(self):
-        return self.displayname
+        return self.display_name
 
     @property
     def keys(self):
@@ -258,10 +258,10 @@ class HDF5Image(compass_model.Image):
     True-color images.
     """
 
-    classkind = "HDF5 Truecolor Image"
+    class_kind = "HDF5 Truecolor Image"
 
     @staticmethod
-    def canhandle(store, key):
+    def can_handle(store, key):
         if key not in store:
             return False
         obj = store.f[key]
@@ -287,13 +287,13 @@ class HDF5Image(compass_model.Image):
         return self._store
 
     @property
-    def displayname(self):
+    def display_name(self):
         n = pp.basename(self.key)
         return n if n != '' else '/'
 
     @property
     def description(self):
-        return self.displayname
+        return self.display_name
 
     @property
     def width(self):

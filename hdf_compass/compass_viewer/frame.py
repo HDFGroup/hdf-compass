@@ -390,7 +390,7 @@ class NodeFrame(BaseFrame):
         for h in handlers:
             id_ = wx.NewId()
             self._menu_handlers[id_] = h
-            wm.Append(id_, "Reopen as " + h.classkind)
+            wm.Append(id_, "Reopen as " + h.class_kind)
             self.Bind(wx.EVT_MENU, self.on_menu_reopen, id=id_)
             
         self.GetMenuBar().Insert(1, wm, "&Window")

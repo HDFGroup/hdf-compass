@@ -37,7 +37,7 @@ class KeyValueFrame(NodeFrame):
 
         node:   Container instance to display.
         """
-        title = 'Attributes of "%s"' % node.displayname
+        title = 'Attributes of "%s"' % node.display_name
         NodeFrame.__init__(self, node, size=(800, 400), title=title, pos=pos)
 
         self.list = KeyValueList(self, node)

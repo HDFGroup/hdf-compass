@@ -106,9 +106,9 @@ class _TestStore(ut.TestCase):
         """ Verify store.url produces a string """
         self.assertIsInstance(self.store.url, basestring)
 
-    def test_displayname(self):
-        """ Verify store.displayname produces a string. """
-        self.assertIsInstance(self.store.displayname, basestring)
+    def test_display_name(self):
+        """ Verify store.display_name produces a string. """
+        self.assertIsInstance(self.store.display_name, basestring)
 
     def test_root(self):
         """ Verify store.root exists and has no parent """
@@ -121,10 +121,10 @@ class _TestStore(ut.TestCase):
         self.store.close()
         self.assertFalse(self.store.valid)
 
-    def test_canhandle(self):
-        """ Verify canhandle() works properly """
-        self.assertTrue(self.storecls.canhandle(self.url))
-        self.assertFalse(self.storecls.canhandle("file:///no/such/path"))
+    def test_can_handle(self):
+        """ Verify can_handle() works properly """
+        self.assertTrue(self.storecls.can_handle(self.url))
+        self.assertFalse(self.storecls.can_handle("file:///no/such/path"))
 
     def test_handlers(self):
         """ The implementation has at least one Node handler registered """
@@ -174,14 +174,14 @@ class _TestNode(ut.TestCase):
         self.assertIn(16, self.nodecls.icons)
         self.assertIn(64, self.nodecls.icons)
 
-    def test_classkind(self):
-        """ classkind is present, and a string """
-        self.assertIsInstance(self.nodecls.classkind, basestring)
+    def test_class_kind(self):
+        """ class_kind is present, and a string """
+        self.assertIsInstance(self.nodecls.class_kind, basestring)
 
-    def test_canhandle(self):
-        """ canhandle() consistency check """
-        self.assertTrue(self.nodecls.canhandle(self.store, self.key))
-        self.assertFalse(self.nodecls.canhandle(self.store, "/some/random/key"))
+    def test_can_handle(self):
+        """ can_handle() consistency check """
+        self.assertTrue(self.nodecls.can_handle(self.store, self.key))
+        self.assertFalse(self.nodecls.can_handle(self.store, "/some/random/key"))
 
     def test_key(self):
         """ Node.key returns a hashable object.
@@ -197,9 +197,9 @@ class _TestNode(ut.TestCase):
         self.assertIsInstance(self.node.store, self.storecls)
         self.assertEqual(self.node.store.url, self.store.url)
 
-    def test_displayname(self):
-        """ displayname exists and is a string """
-        self.assertIsInstance(self.node.displayname, basestring)
+    def test_display_name(self):
+        """ display_name exists and is a string """
+        self.assertIsInstance(self.node.display_name, basestring)
 
 
 class _TestContainer(_TestNode):

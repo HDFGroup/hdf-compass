@@ -32,7 +32,7 @@ class ImageFrame(NodeFrame):
 
     def __init__(self, node, **kwds):
         """ Create a new array viewer, to display *node*. """
-        NodeFrame.__init__(self, node, title=node.displayname, size=(800, 400), **kwds)
+        NodeFrame.__init__(self, node, title=node.display_name, size=(800, 400), **kwds)
         self.node = node
 
         p = ImagePanel(self, node)

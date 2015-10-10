@@ -141,7 +141,7 @@ def open_store(url):
 
     Returns True if the url was successfully opened, False otherwise.
     """
-    stores = [x for x in compass_model.getstores() if x.canhandle(url)]
+    stores = [x for x in compass_model.getstores() if x.can_handle(url)]
 
     if len(stores) > 0:
         instance = stores[0](url)
@@ -171,11 +171,10 @@ def load_plugins():
     except ImportError:
         log.info("HDF plugin not loaded")
 
-    # Coming soon!
-    # try:
-    #     from hdf_compass import bag_model
-    # except ImportError:
-    #     log.info("BAG plugin not loaded")
+    try:
+        from hdf_compass import bag_model
+    except ImportError:
+        log.info("BAG plugin not loaded")
 
     try:
         from hdf_compass import asc_model

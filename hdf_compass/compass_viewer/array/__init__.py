@@ -47,7 +47,7 @@ class ArrayFrame(NodeFrame):
 
     def __init__(self, node, pos=None):
         """ Create a new array viewer, to display *node*. """
-        NodeFrame.__init__(self, node, size=(800, 400), title=node.displayname, pos=pos)
+        NodeFrame.__init__(self, node, size=(800, 400), title=node.display_name, pos=pos)
 
         self.node = node
 

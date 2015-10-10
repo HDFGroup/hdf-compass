@@ -57,7 +57,7 @@ class ArrayStore(compass_model.Store):
         return self._url
 
     @property
-    def displayname(self):
+    def display_name(self):
         return "Testing arrays"
 
     @property
@@ -69,13 +69,13 @@ class ArrayStore(compass_model.Store):
         return True
 
     @staticmethod
-    def canhandle(url):
+    def can_handle(url):
         if url == "array://localhost":
             return True
         return False
 
     def __init__(self, url):
-        if not self.canhandle(url):
+        if not self.can_handle(url):
             raise ValueError(url)
         self._url = url
 
@@ -91,10 +91,10 @@ class ArrayContainer(compass_model.Container):
         Represents a directory in the filesystem.
     """
 
-    classkind = "Array Container"
+    class_kind = "Array Container"
 
     @staticmethod
-    def canhandle(store, key):
+    def can_handle(store, key):
         return key is None
 
     def __init__(self, store, key):
@@ -111,12 +111,12 @@ class ArrayContainer(compass_model.Container):
         return self._store
 
     @property
-    def displayname(self):
+    def display_name(self):
         return "Array Container"
 
     @property
     def description(self):
-        return self.displayname
+        return self.display_name
 
     def __len__(self):
         return len(DATA)
@@ -135,10 +135,10 @@ class Array(compass_model.Array):
         An N-D array
     """
 
-    classkind = "TestArray"
+    class_kind = "TestArray"
 
     @staticmethod
-    def canhandle(store, key):
+    def can_handle(store, key):
         return key in DATA
 
     def __init__(self, store, key):
@@ -155,12 +155,12 @@ class Array(compass_model.Array):
         return self._store
 
     @property
-    def displayname(self):
+    def display_name(self):
         return self.key
 
     @property
     def description(self):
-        return self.displayname
+        return self.display_name
 
     @property
     def shape(self):
@@ -175,10 +175,10 @@ class Array(compass_model.Array):
 
 
 class ArrayKV(compass_model.KeyValue):
-    classkind = "Array Key/Value Attrs"
+    class_kind = "Array Key/Value Attrs"
 
     @staticmethod
-    def canhandle(store, key):
+    def can_handle(store, key):
         return key in DATA
 
     def __init__(self, store, key):
@@ -195,12 +195,12 @@ class ArrayKV(compass_model.KeyValue):
         return self._store
 
     @property
-    def displayname(self):
+    def display_name(self):
         return self.key
 
     @property
     def description(self):
-        return self.displayname
+        return self.display_name
 
     @property
     def keys(self):
