@@ -111,7 +111,7 @@ class ContainerList(wx.ListCtrl):
             for h in handlers:
                 id_ = wx.NewId()
                 self._menu_handlers[id_] = h
-                submenu.Append(id_, h.classkind)
+                submenu.Append(id_, h.class_kind)
                 self.Bind(wx.EVT_MENU, self.on_context_openas, id=id_)
             menu.AppendSubMenu(submenu, "Open As")
 
@@ -187,7 +187,7 @@ class ContainerIconList(ContainerList):
         for item in xrange(len(self.node)):
             subnode = self.node[item]
             image_index = self.il.get_index(type(subnode))
-            self.InsertImageStringItem(item, subnode.displayname, image_index)
+            self.InsertImageStringItem(item, subnode.display_name, image_index)
 
 
 class ContainerReportList(ContainerList):
@@ -224,9 +224,9 @@ class ContainerReportList(ContainerList):
     def OnGetItemText(self, item, col):
         """ Callback method to support virtual list ctrl """
         if col == 0:
-            return self.node[item].displayname
+            return self.node[item].display_name
         elif col == 1:
-            return type(self.node[item]).classkind
+            return type(self.node[item]).class_kind
         return ""
 
     def OnGetItemImage(self, item):

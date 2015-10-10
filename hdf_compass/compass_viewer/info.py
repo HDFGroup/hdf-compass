@@ -69,7 +69,7 @@ class InfoPanel(wx.Panel):
         See the get* methods for specifics on what's displayed.
         """
 
-        self.nametext.SetLabel(node.displayname)
+        self.nametext.SetLabel(node.display_name)
         self.proptext.SetLabel(describe(node))
 
         if self.staticbitmap is not None:
@@ -89,7 +89,7 @@ class InfoPanel(wx.Panel):
 def describe(node):
     """ Return a (possibly multi-line) text description of a node.
     """
-    desc = "%s\n\n" % type(node).classkind
+    desc = "%s\n\n" % type(node).class_kind
 
     if isinstance(node, compass_model.Array):
         desc += "Shape\n%s\n\nType\n%s" % \

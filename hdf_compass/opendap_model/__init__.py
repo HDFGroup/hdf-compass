@@ -47,14 +47,14 @@ class Server(compass_model.Store):
         return new_key in new_dset
 
     @staticmethod
-    def canhandle(url):
+    def can_handle(url):
         try:
             return isinstance(open_url(url), dap.model.DatasetType)
         except Exception:
             return False
 
     def __init__(self, url):
-        if not self.canhandle(url):
+        if not self.can_handle(url):
             raise ValueError(url)
         self._url = url
         self._valid = True
@@ -73,7 +73,7 @@ class Server(compass_model.Store):
         return self._url
 
     @property
-    def displayname(self):
+    def display_name(self):
         return self.dataset.name
 
     @property
@@ -98,7 +98,7 @@ class Dataset(compass_model.Container):
         Represents Dataset/DatasetType Object in OpENDAP/Pydap.
     """
 
-    classkind = "Dataset"
+    class_kind = "Dataset"
 
     def __len__(self):
         return self._store.datalength
@@ -111,7 +111,7 @@ class Dataset(compass_model.Container):
         pass
 
     @staticmethod
-    def canhandle(store, key):
+    def can_handle(store, key):
         return key == ''
 
     def __init__(self, store, key):
@@ -131,7 +131,7 @@ class Dataset(compass_model.Container):
         return self._store
 
     @property
-    def displayname(self):
+    def display_name(self):
         return self._dset.name
 
     @property
@@ -148,7 +148,7 @@ class Structure(compass_model.Container):
         Represents Structure/StructureType Object in OpENDAP/Pydap.
     """
 
-    classkind = "Structure/Grid/Sequence"
+    class_kind = "Structure/Grid/Sequence"
 
     def __len__(self):
         return len(self._dset.data)
@@ -161,7 +161,7 @@ class Structure(compass_model.Container):
         pass
 
     @staticmethod
-    def canhandle(store, key):
+    def can_handle(store, key):
         new_key, new_dset = check_key(key, store.dataset)
         try:
             return new_key in new_dset and isinstance(new_dset[new_key], dap.model.StructureType)
@@ -185,7 +185,7 @@ class Structure(compass_model.Container):
         return self._store
 
     @property
-    def displayname(self):
+    def display_name(self):
         return self._dset.name
 
     @property
@@ -198,7 +198,7 @@ class Base(compass_model.Array):
         Represents Array/BaseType Object in OpENDAP/Pydap.
     """
 
-    classkind = "Array"
+    class_kind = "Array"
 
     @property
     def shape(self):
@@ -214,7 +214,7 @@ class Base(compass_model.Array):
         return self._data[index]
 
     @staticmethod
-    def canhandle(store, key):
+    def can_handle(store, key):
         new_key, new_dset = check_key(key, store.dataset)
         return new_key in new_dset and isinstance(new_dset[new_key], dap.model.BaseType)
 
@@ -241,7 +241,7 @@ class Base(compass_model.Array):
         return self._store
 
     @property
-    def displayname(self):
+    def display_name(self):
         return self._name
 
     @property
@@ -254,7 +254,7 @@ class Attributes(compass_model.KeyValue):
         Represents the Attributes member of Pydap Objects.
     """
 
-    classkind = "Attributes"
+    class_kind = "Attributes"
 
     @property
     def keys(self):
@@ -264,7 +264,7 @@ class Attributes(compass_model.KeyValue):
         return self._keys[name]
 
     @staticmethod
-    def canhandle(store, key):
+    def can_handle(store, key):
         new_key = check_key(key, store.dataset)
         return new_key != ''
 
@@ -284,7 +284,7 @@ class Attributes(compass_model.KeyValue):
         return self._store
 
     @property
-    def displayname(self):
+    def display_name(self):
         return "%s Attributes" % self._key
 
     @property

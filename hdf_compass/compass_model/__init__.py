@@ -136,7 +136,7 @@ class Store(object):
         if key not in self:
             raise KeyError(key)
 
-        return [nc for nc in self.__nodeclasses if nc.canhandle(self, key)]
+        return [nc for nc in self.__nodeclasses if nc.can_handle(self, key)]
 
     # End plugin support
     # -------------------------------------------------------------------------
@@ -156,7 +156,7 @@ class Store(object):
         raise NotImplementedError
 
     @property
-    def displayname(self):
+    def display_name(self):
         """ Short name for display purposes.
 
         For example, for a file-based store you could implement this with
@@ -174,7 +174,7 @@ class Store(object):
         raise NotImplementedError
 
     @staticmethod
-    def canhandle(url):
+    def can_handle(url):
         """ Test if this class can open the resource.
 
         Returns True or False.  Note this may have side effects, but
@@ -231,10 +231,10 @@ class Node(object):
     # This will show up in e.g. the "Open As" context menu.
     # Example:  "HDF5 Image" or "Swath"
 
-    classkind = NotImplemented
+    class_kind = NotImplemented
 
     @staticmethod
-    def canhandle(store, key):
+    def can_handle(store, key):
         """ Determine whether this class can usefully represent the object.
 
         Keep in mind that keys are not technically required to be strings.
@@ -262,17 +262,17 @@ class Node(object):
         raise NotImplementedError
 
     @property
-    def displayname(self):
+    def display_name(self):
         """ A short name for display purposes """
         raise NotImplementedError
 
     @property
-    def displaytitle(self):
+    def display_title(self):
         """ A longer name appropriate for display in a window title.
 
-        Defaults to *displayname*.
+        Defaults to *display_name*.
         """
-        return self.displayname
+        return self.display_name
 
     @property
     def description(self):
@@ -420,10 +420,10 @@ class Unknown(Node):
     icons = {16: images.unknown_16,
              64: images.unknown_64}
 
-    classkind = "Unknown"
+    class_kind = "Unknown"
 
     @staticmethod
-    def canhandle(store, key):
+    def can_handle(store, key):
         return True
 
     def __init__(self, store, key):
@@ -439,7 +439,7 @@ class Unknown(Node):
         return self._store
 
     @property
-    def displayname(self):
+    def display_name(self):
         import os.path
         try:
             return os.path.basename(str(self.key))

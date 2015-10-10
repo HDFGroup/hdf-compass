@@ -22,16 +22,18 @@ Development Environment
 
 You will need:
 
-* Python 2.7
-* NumPy
-* Matplotlib
-* wxPython Phoenix *(2.9.5.0 or later)*
-* h5py
+* [Python 2.7](https://www.python.org/downloads/) *(support for Python 3.4+ in progress)*
+* [NumPy](https://github.com/numpy/numpy)
+* [Matplotlib](https://github.com/matplotlib/matplotlib)
+* [wxPython Phoenix](https://github.com/wxWidgets/Phoenix) *(2.9.5.0 or later)*
+* [h5py](https://github.com/h5py/h5py) *[HDF plugin]*
+* [hydroffice.bag](https://bitbucket.org/ccomjhc/hyo_bag) *[BAG plugin]*
+* [Pydap](https://github.com/robertodealmeida/pydap) *[OPeNDAP plugin]*
 
 For packaging the app:
 
-* PyInstaller (Linux & Windows, experimental for OS X) *(>= 3.0)*
-* Py2App (OS X)
+* [PyInstaller](https://github.com/pyinstaller/pyinstaller) (Linux & Windows, experimental for OS X) *(>= 3.0)*
+* [Py2App](https://bitbucket.org/ronaldoussoren/py2app) (OS X)
 
 Running the Program  
 --------------------

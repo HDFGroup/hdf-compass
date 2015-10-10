@@ -49,7 +49,7 @@ class AsciiGrid(compass_model.Store):
         return self._url
 
     @property
-    def displayname(self):
+    def display_name(self):
         return op.basename(self._url)
 
     @property
@@ -61,7 +61,7 @@ class AsciiGrid(compass_model.Store):
         return self._valid
 
     @staticmethod
-    def canhandle(url):
+    def can_handle(url):
         if not url.startswith('file://'):
             return False
         if not url.endswith('.asc'):
@@ -69,7 +69,7 @@ class AsciiGrid(compass_model.Store):
         return True
 
     def __init__(self, url):
-        if not self.canhandle(url):
+        if not self.can_handle(url):
             raise ValueError(url)
         self._url = url
         self._value = True
@@ -93,10 +93,10 @@ class ASCFile(compass_model.Array):
         Represents a .asc grid file.
     """
 
-    classkind = "ASCII Grid File"
+    class_kind = "ASCII Grid File"
 
     @staticmethod
-    def canhandle(store, key):
+    def can_handle(store, key):
         if key == '/':
             return True
         return False
@@ -118,12 +118,12 @@ class ASCFile(compass_model.Array):
         return self._store
 
     @property
-    def displayname(self):
-        return self._store.displayname
+    def display_name(self):
+        return self._store.display_name
 
     @property
     def description(self):
-        return 'File "%s", size %d bytes' % (self.displayname, op.getsize(self.key))
+        return 'File "%s", size %d bytes' % (self.display_name, op.getsize(self.key))
 
     @property
     def shape(self):
@@ -140,10 +140,10 @@ class ASCFile(compass_model.Array):
 
 
 class Attributes(compass_model.KeyValue):
-    classkind = "Attributes of ASC Grid File"
+    class_kind = "Attributes of ASC Grid File"
 
     @staticmethod
-    def canhandle(store, key):
+    def can_handle(store, key):
         if key == '/':
             return True
         return False
@@ -166,12 +166,12 @@ class Attributes(compass_model.KeyValue):
         return self._store
 
     @property
-    def displayname(self):
+    def display_name(self):
         return self.key
 
     @property
     def description(self):
-        return self.displayname
+        return self.display_name
 
     def close(self):
         self._valid = False
