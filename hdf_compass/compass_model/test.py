@@ -113,7 +113,7 @@ class _TestStore(ut.TestCase):
     def test_root(self):
         """ Verify store.root exists and has no parent """
         self.assertIsInstance(self.store.root, Node)
-        self.assertIs(self.store.getparent(self.store.root.key), None)
+        self.assertIs(self.store.get_parent(self.store.root.key), None)
 
     def test_close_valid(self):
         """ Verify that store.close() works and is reflected by store.valid """

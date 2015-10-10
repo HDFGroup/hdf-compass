@@ -82,7 +82,7 @@ class ArrayStore(compass_model.Store):
     def close(self):
         pass
 
-    def getparent(self, key):
+    def get_parent(self, key):
         return self.root
 
 

@@ -28,13 +28,12 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 from hdf_compass import compass_model
+from hdf_compass import utils
 
-from .imagesupport import png_to_bitmap
-from . import platform
 from .events import ID_COMPASS_OPEN
 from . import container, array, keyvalue, image, frame
 
-__version__ = platform.VERSION
+__version__ = utils.__version__
 
 
 class CompassImageList(wx.ImageList):
@@ -57,15 +56,15 @@ class CompassImageList(wx.ImageList):
         self._indices = {}
         self._size = size
 
-    def get_index(self, nodeclass):
+    def get_index(self, node_class):
         """ Retrieve an index appropriate for the given Node subclass. """
 
-        if nodeclass not in self._indices:
-            png = nodeclass.icons[self._size]()
-            idx = self.Add(png_to_bitmap(png))
-            self._indices[nodeclass] = idx
+        if node_class not in self._indices:
+            png = wx.Bitmap(node_class.icons[self._size], wx.BITMAP_TYPE_ANY)
+            idx = self.Add(png)
+            self._indices[node_class] = idx
 
-        return self._indices[nodeclass]
+        return self._indices[node_class]
 
 
 class CompassApp(wx.App):
@@ -141,7 +140,7 @@ def open_store(url):
 
     Returns True if the url was successfully opened, False otherwise.
     """
-    stores = [x for x in compass_model.getstores() if x.can_handle(url)]
+    stores = [x for x in compass_model.get_stores() if x.can_handle(url)]
 
     if len(stores) > 0:
         instance = stores[0](url)
@@ -203,7 +202,7 @@ def run():
     for url in urls:
         if "://" not in url:
             # assumed to be file path
-            if sys.platform == 'win32':
+            if utils.is_win:
                 url = 'file:///' + op.abspath(url)
             else:
                 url = 'file://' + op.abspath(url)
@@ -212,7 +211,7 @@ def run():
 
     f = frame.InitFrame()
     
-    if platform.MAC:
+    if utils.is_darwin:
         wx.MenuBar.MacSetCommonMenuBar(f.GetMenuBar())
     else:
         f.Show()

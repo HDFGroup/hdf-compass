@@ -1,5 +1,6 @@
 from hdf_compass.compass_model.test import container, store
 from hdf_compass.hdf5_model import HDF5Group, HDF5Store
+from hdf_compass.utils import is_win
 
 import os
 import sys
@@ -13,7 +14,7 @@ if not os.path.exists(test_file):
     raise RuntimeError("Unable to locate test file: %s" % test_file)
 
 # create url
-if sys.platform == 'win32':
+if is_win:
     url = 'file:///' + os.path.abspath(test_file)
 else:
     url = 'file://' + os.path.abspath(test_file)

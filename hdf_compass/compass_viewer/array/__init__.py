@@ -18,10 +18,10 @@ import wx
 import wx.grid
 from wx.lib.newevent import NewCommandEvent
 
+import os
 import logging
 log = logging.getLogger(__name__)
 
-from .. import imagesupport
 from ..frame import NodeFrame
 from .plot import LinePlotFrame, ContourPlotFrame
 
@@ -84,7 +84,7 @@ class ArrayFrame(NodeFrame):
     def init_toolbar(self):
         """ Set up the toolbar at the top of the window. """
         tsize = (24, 24)
-        plot_bmp = imagesupport.getbitmap('viz_plot_24')
+        plot_bmp = wx.Bitmap(os.path.join(self.icon_folder, "viz_plot_24.png"), wx.BITMAP_TYPE_ANY)
 
         self.toolbar = self.CreateToolBar(wx.TB_HORIZONTAL | wx.NO_BORDER | wx.TB_FLAT | wx.TB_TEXT)
 
