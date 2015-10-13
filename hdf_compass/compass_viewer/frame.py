@@ -76,9 +76,9 @@ class BaseFrame(wx.Frame):
         if os.name == 'nt':
             import ctypes
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('HDFCompass')
-        self.filehistory = wx.FileHistory(MAX_RECENT_FILES)
+        self.urlhistory = wx.FileHistory(MAX_RECENT_FILES)
         self.config = wx.Config("HDFCompass", style=wx.CONFIG_USE_LOCAL_FILE)
-        self.filehistory.Load(self.config) 
+        self.urlhistory.Load(self.config) 
         menubar = wx.MenuBar()
 
         # File menu
@@ -86,8 +86,8 @@ class BaseFrame(wx.Frame):
         
         # Open Recent Menu
         recent = wx.Menu()
-        self.filehistory.UseMenu(recent)
-        self.filehistory.AddFilesToMenu()
+        self.urlhistory.UseMenu(recent)
+        self.urlhistory.AddFilesToMenu()
 
         fm.Append(wx.ID_OPEN, "&Open...\tCtrl-O")
         fm.Append(ID_OPEN_RESOURCE, "Open &Resource...\tCtrl-R")
@@ -115,7 +115,7 @@ class BaseFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_resource_open, id=ID_OPEN_RESOURCE)
         self.Bind(wx.EVT_MENU, self.on_about, id=wx.ID_ABOUT)
         self.Bind(wx.EVT_MENU, self.on_exit, id=wx.ID_EXIT)
-        self.Bind(wx.EVT_MENU_RANGE, self.on_file_history, id=wx.ID_FILE1, id2=wx.ID_FILE9)
+        self.Bind(wx.EVT_MENU_RANGE, self.on_url_history, id=wx.ID_FILE1, id2=wx.ID_FILE9)
 
     def on_exit(self, evt):
         """ Called on "exit" event from the menu """
@@ -165,50 +165,19 @@ class BaseFrame(wx.Frame):
         #wc_string.append(make_filter_string(wc_string))
         wc_string = make_filter_string()
         
-        from . import open_store
         dlg = wx.FileDialog(self, "Open Local File", wildcard=wc_string, style=wx.FD_OPEN|wx.FD_FILE_MUST_EXIST)
         if dlg.ShowModal() != wx.ID_OK:
             return
         path = dlg.GetPath()
 
         url = path2url(path)
-            
-        self.filehistory.AddFileToHistory(path)
-        self.filehistory.Save(self.config)
-        self.config.Flush()
-
-        if not open_store(url):
-            fileNum = evt.GetId() - wx.ID_FILE1
-            if fileNum < 0 or fileNum >= MAX_RECENT_FILES:
-                print("Unexpected value for fileNum:" + str(fileNum))
-            else:  
-                self.filehistory.RemoveFileFromHistory(fileNum)
-                self.filehistory.Save(self.config)
-                self.config.Flush()
-            dlg = wx.MessageDialog(self, 'The following file could not be opened:\n\n%s' % path,
-                                   'No handler for file', wx.OK | wx.ICON_INFORMATION)
-            dlg.ShowModal()
-            dlg.Destroy()
+        self.open_url(url)
     
-    def on_file_history(self, event):
-        """ Opens file from history """
-        fileNum = event.GetId() - wx.ID_FILE1
-        path = self.filehistory.GetHistoryFile(fileNum)
-        self.filehistory.AddFileToHistory(path)  # move up the list
-        self.filehistory.Save(self.config)
-        self.config.Flush()
-        
-        # open the file
-        from . import open_store
-        url = path2url(path)
-        if not open_store(url):
-            self.filehistory.RemoveFileFromHistory(fileNum)
-            self.filehistory.Save(self.config)
-            self.config.Flush()
-            dlg = wx.MessageDialog(self, 'The following file could not be opened:\n\n%s' % path,
-                                   'No handler for file', wx.OK | wx.ICON_INFORMATION)
-            dlg.ShowModal()
-            dlg.Destroy() 
+    def on_url_history(self, evt):
+        """ Opens url from history """
+        fileNum = evt.GetId() - wx.ID_FILE1
+        url = self.urlhistory.GetHistoryFile(fileNum)
+        self.open_url(url, fileNum)
             
     def on_window_close(self, evt):
         """ Close Window file event, or cmd-W """
@@ -216,7 +185,6 @@ class BaseFrame(wx.Frame):
 
     def on_resource_open(self, evt):
         """ Request to open a URL via the File menu """
-        from . import open_store
         dlg = wx.TextEntryDialog(self, 'Enter resource URL:')
 
         if dlg.ShowModal() != wx.ID_OK or dlg.GetValue() == "":
@@ -226,10 +194,23 @@ class BaseFrame(wx.Frame):
         url = dlg.GetValue()
         url = url.strip()  # remove any new lines
         dlg.Destroy()
+        self.open_url(url)
 
-        if not open_store(url):
-            dlg = wx.MessageDialog(self, 'The following URL could not be opened:\n\n%s' % url,
-                                   'No handler for URL', wx.OK | wx.ICON_INFORMATION)
+    def open_url(self, url, fileNum=-1):
+        """ Opens url and saves it to history """
+        from . import can_open_store, open_store
+        if can_open_store(url):
+            self.urlhistory.AddFileToHistory(url) # add url to top of list
+            self.urlhistory.Save(self.config)
+            self.config.Flush()
+            open_store(url)
+        else:
+            if fileNum >= 0 and fileNum < MAX_RECENT_FILES:
+                self.urlhistory.RemoveFileFromHistory(fileNum)
+                self.urlhistory.Save(self.config)
+                self.config.Flush()
+            dlg = wx.MessageDialog(self, 'The following url could not be opened:\n\n%s' % url,
+                                   'No handler for url', wx.OK | wx.ICON_INFORMATION)
             dlg.ShowModal()
             dlg.Destroy()
 

@@ -160,6 +160,18 @@ def open_store(url):
 
     return False
 
+def can_open_store(url):
+    """ checks url for first matching registered Store class.
+
+    Returns True if the url can be successfully opened, False otherwise.
+    """
+    stores = [x for x in compass_model.get_stores() if x.can_handle(url)]
+
+    if len(stores) > 0:
+        instance = stores[0](url)
+        return True
+
+    return False
 
 def load_plugins():
     """ Helper function that attempts to load all the plugins """
