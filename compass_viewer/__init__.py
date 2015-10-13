@@ -158,7 +158,7 @@ def run():
     import hdf5_model
     import asc_model
     # todo - disabling opendap module for now due to installer issues
-    # import opendap_model
+    import opendap_model
 
     import sys
     import os.path as op
