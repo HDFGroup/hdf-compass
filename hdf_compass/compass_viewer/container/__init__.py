@@ -86,16 +86,6 @@ class ContainerFrame(NodeFrame):
 
         self.toolbar = self.CreateToolBar(wx.TB_HORIZONTAL | wx.NO_BORDER | wx.TB_FLAT | wx.TB_TEXT)
 
-<<<<<<< HEAD:compass_viewer/container/__init__.py
-        tsize = (24,24)
-        back_bmp =  imagesupport.getbitmap('go_back_24')
-        next_bmp = imagesupport.getbitmap('go_next_24')
-        up_bmp = imagesupport.getbitmap('go_up_24')
-        
-        tree_bmp = imagesupport.getbitmap('view_tree_24')        
-        icon_bmp = imagesupport.getbitmap('view_icon_24')
-        list_bmp = imagesupport.getbitmap('view_list_24')
-=======
         tsize = (24, 24)
         back_bmp = wx.Bitmap(os.path.join(self.icon_folder, "go_back_24.png"), wx.BITMAP_TYPE_ANY)
         next_bmp = wx.Bitmap(os.path.join(self.icon_folder, "go_next_24.png"), wx.BITMAP_TYPE_ANY)
@@ -103,7 +93,8 @@ class ContainerFrame(NodeFrame):
         top_bmp = wx.Bitmap(os.path.join(self.icon_folder, "go_top_24.png"), wx.BITMAP_TYPE_ANY)
         icon_bmp = wx.Bitmap(os.path.join(self.icon_folder, "view_icon_24.png"), wx.BITMAP_TYPE_ANY)
         list_bmp = wx.Bitmap(os.path.join(self.icon_folder, "view_list_24.png"), wx.BITMAP_TYPE_ANY)
->>>>>>> develop:hdf_compass/compass_viewer/container/__init__.py
+        tree_bmp = wx.Bitmap(os.path.join(self.icon_folder, "view_tree_24.png"), wx.BITMAP_TYPE_ANY)        
+
 
         self.toolbar.SetToolBitmapSize(tsize)
         self.toolbar.AddLabelTool(ID_GO_MENU_BACK, "Back", back_bmp, shortHelp="New", longHelp="Long help for 'New'")
@@ -112,16 +103,9 @@ class ContainerFrame(NodeFrame):
         self.toolbar.AddLabelTool(ID_GO_MENU_UP, "Up", up_bmp, shortHelp="New", longHelp="Long help for 'New'")
         self.toolbar.AddLabelTool(ID_GO_MENU_TOP, "Top", top_bmp, shortHelp="New", longHelp="Long help for 'New'")
         self.toolbar.AddStretchableSpace()
-<<<<<<< HEAD:compass_viewer/container/__init__.py
         self.toolbar.AddLabelTool(ID_VIEW_MENU_TREE, "Tree View", tree_bmp, shortHelp="Tree", longHelp="View in Tree")        
         self.toolbar.AddLabelTool(ID_VIEW_MENU_LIST, "List View", list_bmp, shortHelp="List", longHelp="View in List")
         self.toolbar.AddLabelTool(ID_VIEW_MENU_ICON, "Icon View", icon_bmp, shortHelp="Icon", longHelp="View in Icons")
-=======
-        self.toolbar.AddLabelTool(ID_VIEW_MENU_LIST, "List View", list_bmp, shortHelp="New",
-                                  longHelp="Long help for 'New'")
-        self.toolbar.AddLabelTool(ID_VIEW_MENU_ICON, "Icon View", icon_bmp, shortHelp="New",
-                                  longHelp="Long help for 'New'")
->>>>>>> develop:hdf_compass/compass_viewer/container/__init__.py
 
         self.toolbar.Realize()
 
@@ -132,11 +116,6 @@ class ContainerFrame(NodeFrame):
         self.history_ptr = 0
         self.update_view()
 
-<<<<<<< HEAD:compass_viewer/container/__init__.py
-
-        
-=======
->>>>>>> develop:hdf_compass/compass_viewer/container/__init__.py
     def list_view(self):
         """ Switch to list view """
         if not isinstance(self.view, ContainerReportList):
@@ -147,15 +126,11 @@ class ContainerFrame(NodeFrame):
         if not isinstance(self.view, ContainerIconList):
             self.view = ContainerIconList(self, self.history[self.history_ptr])
 
-<<<<<<< HEAD:compass_viewer/container/__init__.py
     def tree_view(self):
         """ Switch to tree view """
         if not isinstance(self.view, ContainerTree):
             self.view = ContainerTree(self, self.history[self.history_ptr])
             
-
-=======
->>>>>>> develop:hdf_compass/compass_viewer/container/__init__.py
     # --- Begin history support functions -------------------------------------
 
     @property
@@ -244,9 +219,3 @@ class ContainerFrame(NodeFrame):
             self.go(newnode)
         else:
             evt.Skip()
-<<<<<<< HEAD:compass_viewer/container/__init__.py
-
-
-        
-=======
->>>>>>> develop:hdf_compass/compass_viewer/container/__init__.py

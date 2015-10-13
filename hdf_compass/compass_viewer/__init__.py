@@ -200,19 +200,6 @@ def load_plugins():
 def run():
     """ Run HDFCompass.  Handles all command-line arguments, etc.
     """
-
-<<<<<<< HEAD:compass_viewer/__init__.py
-    # These are imported to register their classes with
-    # compass_model.  We don't use them directly.
-    import filesystem_model
-    import array_model
-    import hdf5_model
-    import asc_model
-    # todo - disabling opendap module for now due to installer issues
-    import opendap_model
-
-=======
->>>>>>> develop:hdf_compass/compass_viewer/__init__.py
     import sys
     import os.path as op
 

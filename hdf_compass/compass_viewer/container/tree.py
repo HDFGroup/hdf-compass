@@ -44,8 +44,8 @@ class ContainerTree(wx.TreeCtrl):
 
         self.il = wx.GetApp().imagelists[16]
         self.SetImageList(self.il)
-        
-        g = self.AddRoot(node.displayname)
+
+        g = self.AddRoot(node.display_name)
         img_ind = self.il.get_index(type(node))
         self.SetItemImage(g, img_ind, wx.TreeItemIcon_Normal)
         self.SetPyData(g, {'idx':-1})
@@ -53,7 +53,7 @@ class ContainerTree(wx.TreeCtrl):
         for item in xrange(len(self.node)):
             if item < 20:
                 subnode = self.node[item]
-                i = self.AppendItem(g, subnode.displayname)
+                i = self.AppendItem(g, subnode.display_name)
                 image_index = self.il.get_index(type(subnode))
                 self.SetItemImage(i, image_index, wx.TreeItemIcon_Normal)
                 self.SetPyData(i, {'idx':item})
