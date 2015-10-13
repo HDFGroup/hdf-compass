@@ -14,7 +14,7 @@ Handles tree view for Container display.
 """
 
 import wx
-import compass_model
+from hdf_compass import compass_model
 
 from ..events import ID_COMPASS_OPEN, CompassOpenEvent
 from ..events import ContainerSelectionEvent, EVT_CONTAINER_SELECTION
