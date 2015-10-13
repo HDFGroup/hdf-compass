@@ -11,28 +11,8 @@
 ##############################################################################
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from .model import get_stores, push, Store, Node, Container, KeyValue, Array, Text, Xml, Image, Plottable, Unknown
+
 import logging
-
-
-class LoggingFilter(logging.Filter):
-    """ An example of logging filter that disables the logging from a specific module """
-    def filter(self, record):
-        # print(record.name)
-        if record.name.startswith('hdf_compass.compass_viewer.info'):
-            return False
-        return True
-
-
-# logging settings
-logger = logging.getLogger()
-logger.setLevel(logging.NOTSET)
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)  # change to WARNING to minimize verbosity, DEBUG for high verbosity
-ch_formatter = logging.Formatter('%(levelname)-7s %(name)s.%(funcName)s:%(lineno)d > %(message)s')
-ch.setFormatter(ch_formatter)
-# ch.addFilter(LoggingFilter())  # uncomment to activate the logging filter
-logger.addHandler(ch)
-
-from hdf_compass import compass_viewer
-
-compass_viewer.run()
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())

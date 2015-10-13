@@ -9,30 +9,31 @@
 # distribution tree.  If you do not have access to this file, you may        #
 # request a copy from help@hdfgroup.org.                                     #
 ##############################################################################
+"""
+Implementation of utils and helper functions
+"""
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import sys
+
 import logging
+log = logging.getLogger(__name__)
+
+is_darwin = sys.platform == 'darwin'
+is_win = sys.platform == 'win32'
+is_linux = sys.platform == 'linux2'
 
 
-class LoggingFilter(logging.Filter):
-    """ An example of logging filter that disables the logging from a specific module """
-    def filter(self, record):
-        # print(record.name)
-        if record.name.startswith('hdf_compass.compass_viewer.info'):
-            return False
-        return True
+def url2path(url):
+    """Helper function that returns the file path from an url, dealing with Windows peculiarities"""
+    if is_win:
+        return url.replace('file:///', '')
+    else:
+        return url.replace('file://', '')
 
-
-# logging settings
-logger = logging.getLogger()
-logger.setLevel(logging.NOTSET)
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)  # change to WARNING to minimize verbosity, DEBUG for high verbosity
-ch_formatter = logging.Formatter('%(levelname)-7s %(name)s.%(funcName)s:%(lineno)d > %(message)s')
-ch.setFormatter(ch_formatter)
-# ch.addFilter(LoggingFilter())  # uncomment to activate the logging filter
-logger.addHandler(ch)
-
-from hdf_compass import compass_viewer
-
-compass_viewer.run()
+def path2url(path):
+    """Helper function that returns the url from a file path, dealing with Windows peculiarities"""
+    if is_win:
+        return 'file:///' + path
+    else:
+        return 'file://' + path

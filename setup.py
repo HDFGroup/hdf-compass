@@ -44,8 +44,10 @@ OPTIONS = { 'argv_emulation': False,
             'includes': ['h5py', 'matplotlib'],
             'packages': ['h5py', 'matplotlib'],            
             'excludes': ['scipy', 'PyQt4', 'mpi4py'],
-            'matplotlib_backends': ['wxagg'],
+            'includes': ['h5py', 'matplotlib'],
+            'matplotlib_backends': ['wxagg',],
             'iconfile': 'compass.icns',
+            'packages': ['h5py', 'matplotlib'],
             'plist': PLIST }
 
 setup(
