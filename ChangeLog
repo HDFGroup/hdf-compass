@@ -1,5 +1,13 @@
+2015-10-16  Hyo-Kyung Lee  <hyoklee@hdfgroup.org>
+
+	* hdf_compass/compass_viewer/container/tree.py (recursive_walk): added.
+	* hdf_compass/compass_viewer/container/tree.py (on_rclick):
+	handled event properly.
+	* hdf_compass/compass_viewer/container/tree.py (on_activate):
+	handled "more" event.
+
 2015-10-13  Hyo-Kyung Lee  <hyoklee@hdfgroup.org>
 
 	* hdf_compass/compass_viewer/container/tree.py: added.
-	
+
 

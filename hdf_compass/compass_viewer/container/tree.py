@@ -58,10 +58,6 @@ class ContainerTree(wx.TreeCtrl):
         item = self.GetSelection()
         node = self.GetPyData(item)['node']
         return node
-        # idx = self.GetPyData(item)['idx']
-        # if idx < 0:
-        #     return None
-        # return self.node[idx]
 
     def hint_select(self, evt):
         """ Fire off a ContainerSelectionEvent """
@@ -85,7 +81,7 @@ class ContainerTree(wx.TreeCtrl):
             self.Delete(item)
             pnode = self.GetPyData(parent)['node']
             for x in xrange(len(pnode)):
-                if start - 1 < x < start + self.limit:
+                if start <= x < start + self.limit:
                     subnode = pnode[x]
                     i = self.AppendItem(parent, subnode.display_name)
                     image_index = self.il.get_index(type(subnode))
@@ -197,6 +193,8 @@ class ContainerTree(wx.TreeCtrl):
     # -------------------------------------------------------------------
 
     def recursive_walk(self, node):
+        """ Build tree from node by traversing children recursively.
+        """
         g = self.GetSelection()
         for item in xrange(len(node)):
             if item < self.limit:
