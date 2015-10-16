@@ -41,6 +41,7 @@ class ContainerTree(wx.TreeCtrl):
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.hint_select)
         self.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self.hint_select)
         self.node = node
+        self.limit = 20
 
         self.il = wx.GetApp().imagelists[16]
         self.SetImageList(self.il)
@@ -48,28 +49,19 @@ class ContainerTree(wx.TreeCtrl):
         g = self.AddRoot(node.display_name)
         img_ind = self.il.get_index(type(node))
         self.SetItemImage(g, img_ind, wx.TreeItemIcon_Normal)
-        self.SetPyData(g, {'idx':-1})
-        
-        for item in xrange(len(self.node)):
-            if item < 20:
-                subnode = self.node[item]
-                i = self.AppendItem(g, subnode.display_name)
-                image_index = self.il.get_index(type(subnode))
-                self.SetItemImage(i, image_index, wx.TreeItemIcon_Normal)
-                self.SetPyData(i, {'idx':item})
-
-        if len(self.node) > 20:
-            i = self.AppendItem(g, 'more...')
-            self.SetPyData(i, {'idx':-2})
+        self.SetPyData(g, {'idx':-1, 'node':node})
+        self.recursive_walk(node)
 
     @property
     def selection(self):
         """ The currently selected item, or None. """
         item = self.GetSelection()
-        idx = self.GetPyData(item)['idx']
-        if idx < 0:
-            return None
-        return self.node[idx]
+        node = self.GetPyData(item)['node']
+        return node
+        # idx = self.GetPyData(item)['idx']
+        # if idx < 0:
+        #     return None
+        # return self.node[idx]
 
     def hint_select(self, evt):
         """ Fire off a ContainerSelectionEvent """
@@ -84,17 +76,32 @@ class ContainerTree(wx.TreeCtrl):
         ms = wx.GetMouseState()
         if ms.RightIsDown():
             return
-
-        # idx = evt.GetIndex()
+        
         item = evt.GetItem()
-        idx = self.GetPyData(item)['idx']
-        if idx >= 0:
-            newnode = self.node[idx]
+        newnode = self.GetPyData(item)['node']
+        if newnode is None:
+            start = self.GetPyData(item)['idx']
+            parent = self.GetItemParent(item)
+            self.Delete(item)
+            pnode = self.GetPyData(parent)['node']
+            for x in xrange(len(pnode)):
+                if start - 1 < x < start + self.limit:
+                    subnode = pnode[x]
+                    i = self.AppendItem(parent, subnode.display_name)
+                    image_index = self.il.get_index(type(subnode))
+                    self.SetItemImage(i, image_index, wx.TreeItemIcon_Normal)
+                    self.SetPyData(i, {'idx':x, 'node':subnode})
+                    if isinstance(subnode, compass_model.Container):
+                        self.SelectItem(i, True)
+                        self.recursive_walk(subnode)
+            if len(pnode) > start + self.limit:
+                i = self.AppendItem(parent, 'more...')
+                self.SetPyData(i, {'idx':start+self.limit, 'node':None})
+            
+        else:
             pos = wx.GetTopLevelParent(self).GetPosition()
             evt = CompassOpenEvent(newnode, pos=pos)
             wx.PostEvent(self, evt)
-        else:
-            return
 
     # ---------------------------------------------------------
     # Context menu support
@@ -102,13 +109,10 @@ class ContainerTree(wx.TreeCtrl):
     def on_rclick(self, evt):
         """ Pop up a context menu appropriate for the item """
 
-        # Click didn't land on an item
-        idx = evt.GetIndex()
-        if idx < 0:
+        item = evt.GetItem()
+        node = self.GetPyData(item)['node']
+        if node is None:
             return
-
-        # The node which was right-clicked in the view.
-        node = self.node[idx]
         self._menu_node = node
 
         # Determine a list of handlers which can understand this object.
@@ -130,7 +134,7 @@ class ContainerTree(wx.TreeCtrl):
             for h in handlers:
                 id_ = wx.NewId()
                 self._menu_handlers[id_] = h
-                submenu.Append(id_, h.classkind)
+                submenu.Append(id_, h.class_kind)
                 self.Bind(wx.EVT_MENU, self.on_context_openas, id=id_)
             menu.AppendSubMenu(submenu, "Open As")
 
@@ -192,4 +196,20 @@ class ContainerTree(wx.TreeCtrl):
     # End context menu support
     # -------------------------------------------------------------------
 
+    def recursive_walk(self, node):
+        g = self.GetSelection()
+        for item in xrange(len(node)):
+            if item < self.limit:
+                subnode = node[item]
+                i = self.AppendItem(g, subnode.display_name)
+                image_index = self.il.get_index(type(subnode))
 
+                self.SetItemImage(i, image_index, wx.TreeItemIcon_Normal)
+                self.SetPyData(i, {'idx':item, 'node':subnode})
+                if isinstance(subnode, compass_model.Container):
+                    self.SelectItem(i, True)
+                    self.recursive_walk(subnode)
+
+        if len(node) > self.limit:
+            i = self.AppendItem(g, 'more...')
+            self.SetPyData(i, {'idx':self.limit, 'node':None})
