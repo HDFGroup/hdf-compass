@@ -18,19 +18,27 @@ Usage:
 
 The output is HDFCompass.app, in the dist/ folder.
 
-After running setp.py and verifying the install image, run:
+After running setup.py2app.py and verifying the install image, run:
     appdmg spec.json HDFCompass.dmg
 To create dmg install file.  The appdmg utility can be installed from npm: 
     npm install -g appdmg
 
 
-PyInstaller, for Windows and Linux distribution, does not use setup.py.
+PyInstaller, for Windows and Linux distribution, does not use setup.py2app.py.
 """
 
 from setuptools import setup
+from glob import glob
+import os
+	
 
 APP = ['HDFCompass.py']
-DATA_FILES = []
+compass_viewer_folder = os.path.join('hdf_compass', 'compass_viewer', 'icons')
+compass_model_folder = os.path.join('hdf_compass', 'compass_model', 'icons')
+DATA_FILES = [
+	(compass_viewer_folder, glob(os.path.join(compass_viewer_folder, '*.png'))),
+	(compass_model_folder, glob(os.path.join(compass_model_folder, '*.png'))),
+]
 PLIST = {   "CFBundleDocumentTypes": [ { "CFBundleTypeExtensions": ["hdf5","h5"],
                                       "CFBundleTypeName": "HDF5 Data File",
                                       "CFBundleTypeRole": "Viewer"} ],
