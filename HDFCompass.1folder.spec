@@ -50,6 +50,7 @@ def collect_pkg_data(package, include_py_files=False, subdir=None):
     return data_toc
 
 pkg_data_hdf_compass = collect_pkg_data('hdf_compass')
+pkg_data_lxml = collect_pkg_data('lxml')  # temporary patch: https://github.com/pyinstaller/pyinstaller/issues/1613
 
 if is_darwin:
     icon_file = os.path.abspath('HDFCompass.icns')
@@ -80,6 +81,7 @@ coll = COLLECT(exe,
                a.zipfiles,
                a.datas,
                pkg_data_hdf_compass,
+               pkg_data_lxml,
                strip=None,
                upx=True,
                name='HDFCompass')
