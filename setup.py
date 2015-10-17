@@ -44,7 +44,7 @@ OPTIONS = { 'argv_emulation': False,
             'excludes': ['scipy', 'PyQt4', 'mpi4py'],
             'includes': ['h5py', 'matplotlib'],
             'matplotlib_backends': ['wxagg',],
-            'iconfile': 'compass.icns',
+            'iconfile': 'HDFCompass.icns',
             'packages': ['h5py', 'matplotlib'],
             'plist': PLIST }
 
