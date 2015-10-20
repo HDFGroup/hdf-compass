@@ -19,7 +19,6 @@ import os.path as op
 
 import logging
 log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
 
 from hdf_compass import compass_model
 
