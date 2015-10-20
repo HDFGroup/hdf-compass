@@ -9,10 +9,15 @@
 # distribution tree.  If you do not have access to this file, you may        #
 # request a copy from help@hdfgroup.org.                                     #
 ##############################################################################
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import absolute_import, division, print_function
 
-from .model import Server, Dataset, Structure, Attributes, Base
+import os
 
-import logging
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+from hdf_compass.compass_model.test import store, container
+from hdf_compass.bag_model import BAGGroup, BAGStore
+from hdf_compass.utils import data_url
+
+url = os.path.join(data_url(), "bag", "bdb_00.bag")
+
+s = store(BAGStore, url)
+c = container(BAGStore, url, BAGGroup, "/")
