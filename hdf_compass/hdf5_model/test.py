@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 from hdf_compass.compass_model.test import container, store
 from hdf_compass.hdf5_model import HDF5Group, HDF5Store
 from hdf_compass.utils import is_win
