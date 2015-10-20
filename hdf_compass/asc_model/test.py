@@ -9,14 +9,14 @@
 # distribution tree.  If you do not have access to this file, you may        #
 # request a copy from help@hdfgroup.org.                                     #
 ##############################################################################
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import absolute_import, division, print_function
 
-import logging
+import os
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+from hdf_compass.compass_model.test import store
+from hdf_compass.asc_model import AsciiGrid
+from hdf_compass.utils import data_url
 
-from .utils import is_darwin, is_win, is_linux, url2path, path2url, data_url
+url = os.path.join(data_url(), "asc", "sample.asc")
 
-
-__version__ = "1.0.5+"
+s = store(AsciiGrid, url)
