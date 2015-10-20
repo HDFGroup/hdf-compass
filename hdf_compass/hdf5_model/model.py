@@ -70,10 +70,13 @@ class HDF5Store(compass_model.Store):
     @staticmethod
     def can_handle(url):
         if not url.startswith('file://'):
+            log.debug("able to handle %s? no, not starting with file://" % url)
             return False
         path = url2path(url)
         if not h5py.is_hdf5(path):
+            log.debug("able to handle %s? no, not hdf5 file" % url)
             return False
+        log.debug("able to handle %s? yes" % url)
         return True
 
     def __init__(self, url):

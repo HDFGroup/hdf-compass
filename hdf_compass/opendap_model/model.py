@@ -49,8 +49,11 @@ class Server(compass_model.Store):
     @staticmethod
     def can_handle(url):
         try:
-            return isinstance(open_url(url), dap.model.DatasetType)
+            flag = isinstance(open_url(url), dap.model.DatasetType)
+            log.debug("able to handle %s? %r" % (url, flag))
+            return flag
         except Exception:
+            log.debug("able to handle %s? no" % url)
             return False
 
     def __init__(self, url):
