@@ -40,16 +40,19 @@ class ContainerTree(wx.TreeCtrl):
 
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.hint_select)
         self.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self.hint_select)
+        # self.Bind(wx.EVT_SCROLLWIN_BOTTOM, self.on_bottom)
+        self.Bind(wx.EVT_SCROLLWIN, self.on_bottom)
         self.node = node
         self.limit = 20
 
         self.il = wx.GetApp().imagelists[16]
         self.SetImageList(self.il)
 
-        g = self.AddRoot(node.display_name)
+        root = self.AddRoot(node.display_name)
         img_ind = self.il.get_index(type(node))
-        self.SetItemImage(g, img_ind, wx.TreeItemIcon_Normal)
-        self.SetPyData(g, {'idx':-1, 'node':node})
+        self.SetItemImage(root, img_ind, wx.TreeItemIcon_Normal)
+        self.SetPyData(root, {'idx':-1, 'node':node})
+        self.SelectItem(root, True)
         self.recursive_walk(node)
 
     @property
@@ -187,6 +190,14 @@ class ContainerTree(wx.TreeCtrl):
         # Send off a request for it to be opened in the appropriate viewer
         pos = wx.GetTopLevelParent(self).GetPosition()
         wx.PostEvent(self, CompassOpenEvent(node_new, pos=pos))
+        
+    def on_bottom(self, evt):
+        if (evt.Orientation == wx.SB_VERTICAL and 
+            evt.GetEventType() == 10074):
+           print 'Hit the bottom.'
+        evt.Skip()                 
+
+    
 
 
     # End context menu support
