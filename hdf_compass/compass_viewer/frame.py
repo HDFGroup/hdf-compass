@@ -105,7 +105,8 @@ class BaseFrame(wx.Frame):
         # Help menu; note that on the Mac, the About entry is automatically
         # moved to the main application menu by wxPython.
         help_menu = wx.Menu()
-        help_menu.Append(wx.ID_ABOUT, "&About HDFCompass"," Information about this program")
+        help_menu.Append(wx.ID_HELP, "Online &Manual", "Open online documentation")
+        help_menu.Append(wx.ID_ABOUT, "&About HDFCompass", "Information about this program")
         menubar.Append(help_menu, "&Help")
 
         self.SetMenuBar(menubar)
@@ -113,6 +114,7 @@ class BaseFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_window_close, id=wx.ID_CLOSE)
         self.Bind(wx.EVT_MENU, self.on_file_open, id=wx.ID_OPEN)
         self.Bind(wx.EVT_MENU, self.on_resource_open, id=ID_OPEN_RESOURCE)
+        self.Bind(wx.EVT_MENU, self.on_manual, id=wx.ID_HELP)
         self.Bind(wx.EVT_MENU, self.on_about, id=wx.ID_ABOUT)
         self.Bind(wx.EVT_MENU, self.on_exit, id=wx.ID_EXIT)
         self.Bind(wx.EVT_MENU_RANGE, self.on_url_history, id=wx.ID_FILE1, id2=wx.ID_FILE9)
@@ -120,6 +122,11 @@ class BaseFrame(wx.Frame):
     def on_exit(self, evt):
         """ Called on "exit" event from the menu """
         wx.GetApp().Exit()
+
+    def on_manual(self, evt):
+        """ Open the url with the online documentation """
+        import webbrowser
+        webbrowser.open('http://hdf-compass.readthedocs.org/en/stable/')
 
     def on_about(self, evt):
         """ Display an "About" dialog """
