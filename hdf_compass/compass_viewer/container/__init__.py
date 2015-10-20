@@ -175,10 +175,8 @@ class ContainerFrame(NodeFrame):
 
     # --- End history support functions ---------------------------------------
 
-
     def update_view(self):
-        """ Refresh the entire contents of the frame according to self.node.
-        """
+        """ Refresh the entire contents of the frame according to self.node. """
         self.SetTitle(self.node.display_title)
         self.view = type(self.view)(self, self.node)
         self.update_info()

@@ -68,17 +68,16 @@ class BAGStore(compass_model.Store):
 
     @staticmethod
     def can_handle(url):
-        log.debug("able to handle %s?" % url)
         if not url.startswith('file://'):
-            log.debug("Invalid url: %s" % url)
+            log.debug("able to handle %s? no, invalid url" % url)
             return False
 
         path = url2path(url)
         if not is_bag(path):
-            log.debug("Not a BAG")
+            log.debug("able to handle %s? no, not a BAG" % url)
             return False
 
-        log.debug("Yes")
+        log.debug("able to handle %s? yes" % url)
         return True
 
     def __init__(self, url):
