@@ -4,3 +4,4 @@
 /dist
 /docs/_build
 /data/hdf5/Download/*.h5
+.idea
