@@ -31,6 +31,7 @@ def url2path(url):
     else:
         return url.replace('file://', '')
 
+
 def path2url(path):
     """Helper function that returns the url from a file path, dealing with Windows peculiarities"""
     if is_win:
