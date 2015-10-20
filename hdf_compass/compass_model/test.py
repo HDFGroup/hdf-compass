@@ -17,18 +17,18 @@ does basic sanity/consistency checking.  More specific tests must be written
 by plugin authors.
 
 The public interface consists of the following functions, each of which
-provides a TestCase sublass which may be used with unittest:
+provides a TestCase subclass which may be used with unittest:
 
 - store
 - container
-- array
-- keyvalue
-- image
+- array [not implemented]
+- key-value [not implemented]
+- image [not implemented]
 
 Example, in my_model.test:
 
-    from compass_model.test import store, container
-    from my_model import MyStore, MyContainer
+    from hdf_compass.compass_model.test import store, container
+    from hdf_compass.my_model import MyStore, MyContainer
 
     URL = "file:///path/to/myfile.ext"
 
@@ -37,7 +37,7 @@ Example, in my_model.test:
 
 To run unittest, which discovers classes "store_tests" and "container_tests":
 
-    $ python -m unittest my_model.test
+    $ python -m unittest hdf_compass.my_model.test
 
 """
 
@@ -50,33 +50,33 @@ from . import Node, Store
 
 # --- Public API --------------------------------------------------------------
 
-def store(storecls_, url_):
+def store(store_cls_, url_):
     """ Construct a TestCase appropriate for a Store subclass.
 
-    storecls:   Your compass_model.Store implementation.
-    url:        A URL representing a valid datastore to test against.
+    store_cls_: Your compass_model.Store implementation.
+    url_:       A URL representing a valid data-store to test against.
     """
 
     class TestStore(_TestStore):
-        storecls = storecls_
+        store_cls = store_cls_
         url = url_
 
     return TestStore
 
 
-def container(storecls_, url_, nodecls_, key_):
+def container(store_cls_, url_, node_cls_, key_):
     """ Construct a TestCase class appropriate for a Container subclass.
 
-    storecls:   Your compass_model.Store implementation.
-    url:        A URL representing a valid datastore to test against.
-    nodecls:    Your compass_model.Container implementation.
-    key:        A valid key which points to a container.
+    store_cls_: Your compass_model.Store implementation.
+    url_:       A URL representing a valid data-store to test against.
+    node_cls_:  Your compass_model.Container implementation.
+    key_:       A valid key which points to a container.
     """
 
     class TestContainer(_TestContainer):
-        storecls = storecls_
+        store_cls = store_cls_
         url = url_
-        nodecls = nodecls_
+        node_cls = node_cls_
         key = key_
 
     return TestContainer
@@ -86,22 +86,20 @@ def container(storecls_, url_, nodecls_, key_):
 
 
 class _TestStore(ut.TestCase):
-    """
-    Base class for testing Stores.
-    """
+    """ Base class for testing Stores. """
 
-    storecls = None
+    store_cls = None
     url = None
 
     def setUp(self):
-        self.store = self.storecls(self.url)
+        self.store = self.store_cls(self.url)
 
     def tearDown(self):
         if self.store.valid:
             self.store.close()
 
     def test_class(self):
-        """ Verify the thing we get from storecls is actually a Store """
+        """ Verify the thing we get from store_cls is actually a Store """
         self.assertIsInstance(self.store, Store)
 
     def test_url(self):
@@ -125,8 +123,8 @@ class _TestStore(ut.TestCase):
 
     def test_can_handle(self):
         """ Verify can_handle() works properly """
-        self.assertTrue(self.storecls.can_handle(self.url))
-        self.assertFalse(self.storecls.can_handle("file:///no/such/path"))
+        self.assertTrue(self.store_cls.can_handle(self.url))
+        self.assertFalse(self.store_cls.can_handle("file:///no/such/path"))
 
     def test_handlers(self):
         """ The implementation has at least one Node handler registered """
@@ -136,18 +134,16 @@ class _TestStore(ut.TestCase):
 
 
 class _TestNode(ut.TestCase):
-    """
-    Base class for testing Node objects.
-    """
+    """ Base class for testing Node objects. """
 
-    storecls = None
-    nodecls = None
+    store_cls = None
+    node_cls = None
     url = None
     key = None
 
     def setUp(self):
-        self.store = self.storecls(self.url)
-        self.node = self.nodecls(self.store, self.key)
+        self.store = self.store_cls(self.url)
+        self.node = self.node_cls(self.store, self.key)
 
     def tearDown(self):
         if self.store.valid:
@@ -156,34 +152,34 @@ class _TestNode(ut.TestCase):
     def test_contains(self):
         """ Consistency check for store __contains___ """
         self.assertTrue(self.key in self.store)
-        self.assertFalse("keynotinstore" in self.store)
+        self.assertFalse("key_not_in_store" in self.store)
 
     def test_icons(self):
-        """ Icon dict is present and contains valid items:
+        """ Icon dict is present and contains valid icon paths:
 
         keys: int
-        values: callables returning PNG data
+        values: icon paths
 
         Required sizes: 16x16 and 64x64
         """
-        for key, val in self.nodecls.icons.iteritems():
+        import os
+        for key, val in self.node_cls.icons.iteritems():
             self.assertIsInstance(key, int)
-            data = val()
-            self.assertIsInstance(data, bytes)
-            self.assertEqual(data[0:8], b"\x89\x50\x4E\x47\x0D\x0A\x1A\x0A")
+            self.assertIsInstance(val, unicode)
+            self.assertTrue(os.path.exists(val))
 
         # required resolutions
-        self.assertIn(16, self.nodecls.icons)
-        self.assertIn(64, self.nodecls.icons)
+        self.assertIn(16, self.node_cls.icons)
+        self.assertIn(64, self.node_cls.icons)
 
     def test_class_kind(self):
         """ class_kind is present, and a string """
-        self.assertIsInstance(self.nodecls.class_kind, basestring)
+        self.assertIsInstance(self.node_cls.class_kind, basestring)
 
     def test_can_handle(self):
         """ can_handle() consistency check """
-        self.assertTrue(self.nodecls.can_handle(self.store, self.key))
-        self.assertFalse(self.nodecls.can_handle(self.store, "/some/random/key"))
+        self.assertTrue(self.node_cls.can_handle(self.store, self.key))
+        self.assertFalse(self.node_cls.can_handle(self.store, "/some/random/key"))
 
     def test_key(self):
         """ Node.key returns a hashable object.
@@ -196,7 +192,7 @@ class _TestNode(ut.TestCase):
 
     def test_store(self):
         """ Node.store returns a data store of the same class and URL. """
-        self.assertIsInstance(self.node.store, self.storecls)
+        self.assertIsInstance(self.node.store, self.store_cls)
         self.assertEqual(self.node.store.url, self.store.url)
 
     def test_display_name(self):
@@ -205,9 +201,7 @@ class _TestNode(ut.TestCase):
 
 
 class _TestContainer(_TestNode):
-    """
-    Class for testing compass_model.Container implementations.
-    """
+    """ Class for testing compass_model.Container implementations. """
 
     def test_len(self):
         """ Object length is consistent with iter() result """

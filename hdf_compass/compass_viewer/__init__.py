@@ -90,16 +90,14 @@ class CompassApp(wx.App):
 
         self.SetAppName("HDFCompass")
 
-
     def on_compass_open(self, evt):
         """ A request has been made to open a node from somewhere in the GUI
         """
         open_node(evt.node, evt.kwds.get('pos'))
 
-
     def MacOpenFile(self, filename):
         """ A file has been dropped onto the app icon """
-        url = 'file://'+filename
+        url = 'file://' + filename
         open_store(url)
 
 
@@ -160,6 +158,7 @@ def open_store(url):
 
     return False
 
+
 def can_open_store(url):
     """ checks url for first matching registered Store class.
 
@@ -172,6 +171,7 @@ def can_open_store(url):
         return True
 
     return False
+
 
 def load_plugins():
     """ Helper function that attempts to load all the plugins """
@@ -210,8 +210,7 @@ def load_plugins():
 
 
 def run():
-    """ Run HDFCompass.  Handles all command-line arguments, etc.
-    """
+    """ Run HDFCompass.  Handles all command-line arguments, etc. """
 
     import sys
     import os.path as op
@@ -225,10 +224,7 @@ def run():
     for url in urls:
         if "://" not in url:
             # assumed to be file path
-            if utils.is_win:
-                url = 'file:///' + op.abspath(url)
-            else:
-                url = 'file://' + op.abspath(url)
+            url = utils.path2url(op.abspath(url))
         if not open_store(url):
             log.warning('Failed to open "%s"; no handlers' % url)
 

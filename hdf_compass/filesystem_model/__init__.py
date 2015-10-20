@@ -59,7 +59,9 @@ class Filesystem(compass_model.Store):
     @staticmethod
     def can_handle(url):
         if url == "file://localhost":
+            log.debug("able to handle %s? yes" % url)
             return True
+        log.debug("able to handle %s? no" % url)
         return False
 
     def __init__(self, url):
