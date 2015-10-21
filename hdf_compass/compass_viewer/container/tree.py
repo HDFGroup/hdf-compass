@@ -40,7 +40,6 @@ class ContainerTree(wx.TreeCtrl):
 
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.hint_select)
         self.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self.hint_select)
-        # self.Bind(wx.EVT_SCROLLWIN_BOTTOM, self.on_bottom)
         self.Bind(wx.EVT_SCROLLWIN, self.on_bottom)
         self.node = node
         self.limit = 20
@@ -190,30 +189,28 @@ class ContainerTree(wx.TreeCtrl):
         # Send off a request for it to be opened in the appropriate viewer
         pos = wx.GetTopLevelParent(self).GetPosition()
         wx.PostEvent(self, CompassOpenEvent(node_new, pos=pos))
-        
-    def on_bottom(self, evt):
-        if (evt.Orientation == wx.SB_VERTICAL and 
-            evt.GetEventType() == 10074):
-           # Show more items automatically.
-           item = self.GetLastChild(self.root)
-           start = self.GetPyData(item)['idx']
-           self.Delete(item)           
-           for x in xrange(len(self.node)):
-               if start <= x < start + self.limit:
-                   subnode = self.node[x]
-                   i = self.AppendItem(self.root, subnode.display_name)
-                   image_index = self.il.get_index(type(subnode))
-                   self.SetItemImage(i, image_index, wx.TreeItemIcon_Normal)
-                   self.SetPyData(i, {'idx':x, 'node':subnode})
-                   if isinstance(subnode, compass_model.Container):
-                       self.SelectItem(i, True)
-                       self.recursive_walk(subnode)
-           if len(self.node) > start + self.limit:
-               i = self.AppendItem(self.root, 'more...')
-               self.SetPyData(i, {'idx':start+self.limit, 'node':None})
-        evt.Skip()                 
 
-    
+    def on_bottom(self, evt):
+        if (evt.Orientation == wx.SB_VERTICAL and
+            evt.GetEventType() == wx.wxEVT_SCROLLWIN_LINEDOWN):
+            # Show more items automatically.
+            item = self.GetLastChild(self.root)
+            start = self.GetPyData(item)['idx']
+            self.Delete(item)           
+            for x in xrange(len(self.node)):
+                if start <= x < start + self.limit:
+                    subnode = self.node[x]
+                    i = self.AppendItem(self.root, subnode.display_name)
+                    image_index = self.il.get_index(type(subnode))
+                    self.SetItemImage(i, image_index, wx.TreeItemIcon_Normal)
+                    self.SetPyData(i, {'idx':x, 'node':subnode})
+                    if isinstance(subnode, compass_model.Container):
+                        self.SelectItem(i, True)
+                        self.recursive_walk(subnode)
+            if len(self.node) > start + self.limit:
+                i = self.AppendItem(self.root, 'more...')
+                self.SetPyData(i, {'idx':start+self.limit, 'node':None})
+        evt.Skip()
 
 
     # End context menu support
