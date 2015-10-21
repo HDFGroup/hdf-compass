@@ -48,11 +48,11 @@ class ContainerTree(wx.TreeCtrl):
         self.il = wx.GetApp().imagelists[16]
         self.SetImageList(self.il)
 
-        root = self.AddRoot(node.display_name)
+        self.root = self.AddRoot(node.display_name)
         img_ind = self.il.get_index(type(node))
-        self.SetItemImage(root, img_ind, wx.TreeItemIcon_Normal)
-        self.SetPyData(root, {'idx':-1, 'node':node})
-        self.SelectItem(root, True)
+        self.SetItemImage(self.root, img_ind, wx.TreeItemIcon_Normal)
+        self.SetPyData(self.root, {'idx':-1, 'node':node})
+        self.SelectItem(self.root, True)
         self.recursive_walk(node)
 
     @property
@@ -194,7 +194,23 @@ class ContainerTree(wx.TreeCtrl):
     def on_bottom(self, evt):
         if (evt.Orientation == wx.SB_VERTICAL and 
             evt.GetEventType() == 10074):
-           print 'Hit the bottom.'
+           # Show more items automatically.
+           item = self.GetLastChild(self.root)
+           start = self.GetPyData(item)['idx']
+           self.Delete(item)           
+           for x in xrange(len(self.node)):
+               if start <= x < start + self.limit:
+                   subnode = self.node[x]
+                   i = self.AppendItem(self.root, subnode.display_name)
+                   image_index = self.il.get_index(type(subnode))
+                   self.SetItemImage(i, image_index, wx.TreeItemIcon_Normal)
+                   self.SetPyData(i, {'idx':x, 'node':subnode})
+                   if isinstance(subnode, compass_model.Container):
+                       self.SelectItem(i, True)
+                       self.recursive_walk(subnode)
+           if len(self.node) > start + self.limit:
+               i = self.AppendItem(self.root, 'more...')
+               self.SetPyData(i, {'idx':start+self.limit, 'node':None})
         evt.Skip()                 
 
     
