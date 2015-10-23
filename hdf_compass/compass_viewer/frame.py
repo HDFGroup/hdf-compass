@@ -65,10 +65,10 @@ class BaseFrame(wx.Frame):
         # Frame icon
         ib = wx.IconBundle()
         icon_32 = wx.EmptyIcon()
-        icon_32.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "compass_32.png"), wx.BITMAP_TYPE_ANY))
+        icon_32.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "favicon_32.png"), wx.BITMAP_TYPE_ANY))
         ib.AddIcon(icon_32)
         icon_48 = wx.EmptyIcon()
-        icon_48.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "compass_48.png"), wx.BITMAP_TYPE_ANY))
+        icon_48.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "favicon_48.png"), wx.BITMAP_TYPE_ANY))
         ib.AddIcon(icon_48)
         self.SetIcons(ib)
 
@@ -135,7 +135,7 @@ class BaseFrame(wx.Frame):
         info.Version = __version__
         info.Copyright = "(c) 2014-%d The HDF Group" % date.today().year
         icon_48 = wx.EmptyIcon()
-        icon_48.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "compass_48.png"), wx.BITMAP_TYPE_ANY))
+        icon_48.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "favicon_48.png"), wx.BITMAP_TYPE_ANY))
         info.SetIcon(icon_48)
         wx.AboutBox(info)
 
