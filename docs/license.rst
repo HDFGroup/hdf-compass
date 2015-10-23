@@ -1,6 +1,12 @@
+License
+=======
 
-Copyright Notice and License Terms for 
+Application License
+-------------------
+
+Copyright Notice and License Terms for
 HDF Compass - Viewer for HDF5 and other file formats
+
 -----------------------------------------------------------------------------
 
 HDF Compass
@@ -8,44 +14,44 @@ Copyright 2014-2015 by The HDF Group.
 
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
-modification, are permitted for any purpose (including commercial purposes) 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted for any purpose (including commercial purposes)
 provided that the following conditions are met:
 
-1. Redistributions of source code must retain the above copyright notice, 
+1. Redistributions of source code must retain the above copyright notice,
    this list of conditions, and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright notice, 
-   this list of conditions, and the following disclaimer in the documentation 
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions, and the following disclaimer in the documentation
    and/or materials provided with the distribution.
 
-3. In addition, redistributions of modified forms of the source or binary 
-   code must carry prominent notices stating that the original code was 
+3. In addition, redistributions of modified forms of the source or binary
+   code must carry prominent notices stating that the original code was
    changed and the date of the change.
 
-4. All publications or advertising materials mentioning features or use of 
-   this software are asked, but not required, to acknowledge that it was 
+4. All publications or advertising materials mentioning features or use of
+   this software are asked, but not required, to acknowledge that it was
    developed by The HDF Group and credit the contributors.
 
-5. Neither the name of The HDF Group, nor the name of any Contributor may 
-   be used to endorse or promote products derived from this software 
-   without specific prior written permission from The HDF Group or the 
+5. Neither the name of The HDF Group, nor the name of any Contributor may
+   be used to endorse or promote products derived from this software
+   without specific prior written permission from The HDF Group or the
    Contributor, respectively.
 
-DISCLAIMER: 
-THIS SOFTWARE IS PROVIDED BY THE HDF GROUP AND THE CONTRIBUTORS 
-"AS IS" WITH NO WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED.  In no 
-event shall The HDF Group or the Contributors be liable for any damages 
-suffered by the users arising out of the use of this software, even if 
-advised of the possibility of such damage. 
- 
------------------------------------------------------------------------------
+DISCLAIMER:
+THIS SOFTWARE IS PROVIDED BY THE HDF GROUP AND THE CONTRIBUTORS
+"AS IS" WITH NO WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED.  In no
+event shall The HDF Group or the Contributors be liable for any damages
+suffered by the users arising out of the use of this software, even if
+advised of the possibility of such damage.
+
 
 Additional Copyright and License Information
+--------------------------------------------
 
-Copyright and license terms for the following software can be found 
+Copyright and license terms for the following software can be found
 in the adjacent subdirectory Additional_Legal/.  This information was
-obtained from sources provided by each software package provider at 
+obtained from sources provided by each software package provider at
 the location specified under "Original source:" and was current as of
 19 December 2014.
 
@@ -53,23 +59,18 @@ HDF Compass uses selected icons from the following icon sets:
 
     KDE Oxygen icon set
       Provided by: KDE Community
-      Copyright and license information:
-           Additional_Legal/KDE_Oxygen_Icon_Set_Copyright_and_License.txt
-      Original source:
-           http://www.gnu.org/copyleft/lesser.html
-           (via link from https://techbase.kde.org/Projects/Oxygen/Licensing)
-      License type: GNU LGPL version 3 license 
+      Copyright and license information: additional_legal/KDE_Oxygen_Icon_Set_Copyright_and_License.txt
+      Original source: http://www.gnu.org/copyleft/lesser.html (via link from https://techbase.kde.org/Projects/Oxygen/Licensing)
+      License type: GNU LGPL version 3 license
 
     HydroPro icon set
       Provided by: Ben Fleming via MediaDesign
-      Copyright and license information:
-           Additional_Legal/HydroPro_Icons_Terms.txt
-      Original source:
-           http://www.iconarchive.com/icons/media-design/hydropro/readme.txt
+      Copyright and license information: additional_legal/HydroPro_Icons_Terms.txt
+      Original source: http://www.iconarchive.com/icons/media-design/hydropro/readme.txt
       License type: Freeware
 
 Pre-built HDF Compass binaries include the following software.
-None of this software is present in whole or in part in the HDF 
+None of this software is present in whole or in part in the HDF
 Compass source code.
 
     Python interpreter
