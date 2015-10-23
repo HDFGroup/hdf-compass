@@ -163,13 +163,6 @@ class BaseFrame(wx.Frame):
             pipe = "|"
             return pipe.join(filter_string)
             
-        # The wxPython wildcard string is a bunch of filter strings pasted together
-        # wc_string = [s.file_extensions for s in compass_model.get_stores() if len(s.file_extensions) != 0]
-        # print "jlr -- wc_string: " , wc_string
-        # wc_string.append({"All Files": ["*"]})
-        # wc_string = "|".join([make_filter_string(x) for x in wc_string])
-        #wc_string.append("|")
-        #wc_string.append(make_filter_string(wc_string))
         wc_string = make_filter_string()
         
         dlg = wx.FileDialog(self, "Open Local File", wildcard=wc_string, style=wx.FD_OPEN|wx.FD_FILE_MUST_EXIST)
