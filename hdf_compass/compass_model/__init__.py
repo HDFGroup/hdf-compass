@@ -11,7 +11,7 @@
 ##############################################################################
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from .model import get_stores, push, Store, Node, Container, KeyValue, Array, Text, Xml, Image, Plottable, Unknown
+from .model import get_stores, push, Store, Node, Container, KeyValue, Array, Text, Xml, Image, Unknown
 
 import logging
 log = logging.getLogger(__name__)

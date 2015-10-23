@@ -65,6 +65,12 @@ class AsciiGrid(compass_model.Store):
         if not url.endswith('.asc'):
             log.debug("able to handle %s? no, missing .asc extension" % url)
             return False
+
+        first_line = open(url2path(url)).readline()
+        if first_line.split()[0].upper() != "NCOLS":
+            log.debug("able to handle %s? no, invalid first line" % url)
+            return False
+
         log.debug("able to handle %s? yes" % url)
         return True
 
