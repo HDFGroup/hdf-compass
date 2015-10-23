@@ -405,31 +405,6 @@ class Image(Node):
         """ Image data """
 
 
-class Plottable(Node):
-    """
-    Represents anything that can be plotted to a 2D canvas using Matplotlib.
-
-    Unlike the rest of the GUI elements, for this node the viewing experience
-    is completely up to you.
-
-    Subclasses may be requested to pop up a Matplotlib window, or render their
-    contents to a PNG byte string for display or export elsewhere in the GUI.
-    """
-
-    __metaclass__ = ABCMeta
-
-    def show(self):
-        """ Pop up a Matplotlib display window """
-        raise NotImplementedError
-
-    def render(self, width, height):
-        """ Render the image as PNG.
-
-        Should return a byte string; width and height are in pixels.
-        """
-        raise NotImplementedError
-
-
 class Text(Node):
     """ A text. """
 
