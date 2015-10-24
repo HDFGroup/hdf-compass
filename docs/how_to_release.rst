@@ -4,9 +4,11 @@ How to release `[developer]`
 Versioning
 ----------
 
-You need to manually modify the ``__version__`` variable in the `__init__.py` file present in ``hdf_compass.utils`` package.
+You need to install ``bumpversion``.
 
-The above version value must agree with the variables ``version`` and ``release`` present in the ``conf.py`` under the `docs` folder.
+Once installed, you can run something like: ``bumpversion --allow-dirty --new-version 0.6.0.dev0 patch``.
+
+The above release value must agree with the variable ``version`` present in the ``conf.py`` under the `docs` folder.
 
 
 PyInstaller
