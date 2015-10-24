@@ -13,6 +13,10 @@ HDF Compass
     :target: http://hdf-compass.readthedocs.org/en/latest/?badge=latest
     :alt: Latest Documentation Status
     
+.. image:: https://ci.appveyor.com/api/projects/status/iv12e3jucm9pvnus/branch/develop?svg=true
+    :target: https://ci.appveyor.com/project/gmasetti/hdf-compass-feb56/branch/develop
+    :alt: AppVeyor Status
+        
 Welcome to the project!  HDF Compass is an experimental viewer program for
 HDF5 and related formats, designed to complement other more complex
 applications like HDFView.  Strong emphasis is placed on clean minimal design,
