@@ -1,6 +1,19 @@
-.DS_Store
-*.pyc
+*.py[co]
+__pycache__/
+
+# build files
 /build
 /dist
+/*.egg
+/*.egg-info/
+/*.egg-link
 /docs/_build
+
+# downloaded test samples
 /data/hdf5/Download/*.h5
+
+# PyCharm settings
+.idea
+
+# Mac OS X
+.DS_Store

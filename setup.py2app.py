@@ -11,7 +11,7 @@
 ##############################################################################
 
 """
-Setup script for HDFCompass on Mac OS X.  
+Setup script required by py2app to freeze HDFCompass on Mac OS X.
 
 Usage:
     python setup.py py2app
