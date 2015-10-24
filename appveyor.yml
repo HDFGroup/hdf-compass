@@ -6,7 +6,7 @@ branches:
 
 environment:
   global:
-    MINICONDA: "C:\\tools\\Miniconda"
+    MINICONDA: "C:\\Miniconda"
 
   matrix:
     - PYTHON_VERSION: 2.7
@@ -14,7 +14,7 @@ environment:
 
 install:
   # Install miniconda using a powershell script.
-  - "choco install -y miniconda"
+  # - "choco install -y miniconda"
   - "SET PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
 
   # Install the build and runtime dependencies of the project.
@@ -22,14 +22,17 @@ install:
   - "conda update -q conda"
   - "conda info -a"
   - "conda create -q -n test-environment python=%PYTHON_VERSION%"
+  - "conda config --add channels hydroffice"
+  - "conda config --add channels SciTools"
+  - "conda config --add channels IOOS"
   - "activate test-environment"
 
   # Check that we have the expected version of Python
   - "python --version"
 
   # Install dependencies
-  - "conda install -q setuptools wheel numpy matplotlib h5py lxml opendap"
-  - "pip install hydroffice.bag"
+  - "conda install -q h5py lxml numpy matplotlib pydap wxpython"
+  - "pip install --no-dependencies hydroffice.bag"
   - "pip install pyinstaller"
 
   # Add to path the current folder
