@@ -1,0 +1,59 @@
+version: develop-{build}
+
+branches:
+  only:
+  - develop
+
+environment:
+  global:
+    MINICONDA: "C:\\tools\\Miniconda"
+
+  matrix:
+    - PYTHON_VERSION: 2.7
+    # - PYTHON_VERSION: 3.4
+
+install:
+  # Install miniconda using a powershell script.
+  - "choco install -y miniconda"
+  - "SET PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
+
+  # Install the build and runtime dependencies of the project.
+  - "conda config --set always_yes yes --set changeps1 no"
+  - "conda update -q conda"
+  - "conda info -a"
+  - "conda create -q -n test-environment python=%PYTHON_VERSION%"
+  - "activate test-environment"
+
+  # Check that we have the expected version of Python
+  - "python --version"
+
+  # Install dependencies
+  - "conda install -q setuptools wheel numpy matplotlib h5py lxml opendap"
+  - "pip install hydroffice.bag"
+  - "pip install pyinstaller"
+
+  # Add to path the current folder
+  - "SET PYTHONPATH=%PYTHONPATH%;%CD%"
+
+build_script:
+  - "python setup.py build"
+
+test_script:
+  - "python -m unittest hdf_compass.array_model.test"
+  - "python -m unittest hdf_compass.asc_model.test"
+  - "python -m unittest hdf_compass.bag_model.test"
+  - "python -m unittest hdf_compass.filesystem_model.test"
+  - "python -m unittest hdf_compass.hdf5_model.test"
+  - "python -m unittest hdf_compass.opendap_model.test"
+
+after_test:
+    # If tests are successful, create a whl package for the project.
+    - "python setup.py bdist_wheel"
+    # Freeze the application using PyInstaller
+    - "pyinstaller HDFCompass.1file.spec"
+    # Show the content of the `dist` folder
+    - ps: "ls dist"
+
+artifacts:
+    # Archive the generated wheel package and the frozen application in the ci.appveyor.com build report.
+    - path: dist\*
