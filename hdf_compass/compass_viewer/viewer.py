@@ -21,6 +21,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import matplotlib
 matplotlib.use('WXAgg')
 
+import sys
 import wx
 
 import logging
@@ -175,43 +176,62 @@ def can_open_store(url):
 def load_plugins():
     """ Helper function that attempts to load all the plugins """
 
+    # provide some info about the env in use
+    import platform
+    log.debug("Python %s %s on %s %s (%s)" % (platform.python_version(), platform.architecture()[0],
+                                              platform.uname()[0], platform.uname()[2], platform.uname()[4]))
+    import numpy
+    log.debug("numpy %s" % numpy.__version__)
+    log.debug("matplotlib %s" % matplotlib.__version__)
+    log.debug("wxPython %s" % wx.__version__)
+
     from hdf_compass import compass_model
 
     try:
         from hdf_compass import filesystem_model
     except ImportError:
-        log.info("Filesystem plugin not loaded")
+        log.warning("Filesystem plugin: NOT loaded")
 
     try:
         from hdf_compass import array_model
     except ImportError:
-        log.info("Array plugin not loaded")
+        log.warning("Array plugin: NOT loaded")
 
     try:
         from hdf_compass import hdf5_model
+        import h5py
+        log.debug("h5py %s" % h5py.__version__)
     except ImportError:
-        log.info("HDF plugin not loaded")
+        log.warning("HDF5 plugin: NOT loaded")
 
     try:
         from hdf_compass import bag_model
+        from hydroffice import bag
+        from lxml import etree
+        log.debug("hydroffice.bag %s" % bag.__version__)
+        log.debug("lxml %s (libxml %s, libxslt %s)"
+                  % (etree.__version__, ".".join(str(i) for i in etree.LIBXML_VERSION),
+                     ".".join(str(i) for i in etree.LIBXSLT_VERSION)))
     except ImportError:
-        log.info("BAG plugin not loaded")
+        log.warning("BAG plugin: NOT loaded")
 
     try:
         from hdf_compass import asc_model
     except ImportError:
-        log.info("Ascii grid plugin not loaded")
+        log.warning("Ascii grid: plugin NOT loaded")
 
     try:
         from hdf_compass import opendap_model
+        from pydap import lib
+        log.debug("pydap %s (protocol %s)"
+                  % (".".join(str(i) for i in lib.__version__), ".".join(str(i) for i in lib.__dap__)))
     except ImportError:
-        log.info("Opendap plugin not loaded")
+        log.warning("Opendap plugin: NOT loaded")
 
 
 def run():
     """ Run HDFCompass.  Handles all command-line arguments, etc. """
 
-    import sys
     import os.path as op
 
     app = CompassApp(False)
