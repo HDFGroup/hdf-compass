@@ -93,7 +93,7 @@ class ContainerTree(wx.TreeCtrl):
                         self.SelectItem(i, True)
                         self.recursive_walk(subnode, 0)
             if (len(pnode) > start + self.limit and
-                platform.system() is 'Linux'):
+                platform.system() == 'Linux'):
                 i = self.AppendItem(parent, 'more...')
                 self.SetPyData(i, {'idx':start+self.limit, 'node':None})
             
@@ -214,7 +214,7 @@ class ContainerTree(wx.TreeCtrl):
                         self.SelectItem(i, True)
                         self.recursive_walk(subnode, 0)
             if (len(self.node) > start + self.limit and
-                platform.system() is 'Linux'):
+                platform.system() == 'Linux'):
                 i = self.AppendItem(self.root, 'more...')
                 self.SetPyData(i, {'idx':start+self.limit, 'node':None})
         evt.Skip()
@@ -240,6 +240,6 @@ class ContainerTree(wx.TreeCtrl):
                     self.recursive_walk(subnode, depth+1)
 
         if (len(node) > self.limit and
-            platform.system() is 'Linux'):
+            platform.system() == 'Linux'):
             i = self.AppendItem(g, 'more...')
             self.SetPyData(i, {'idx':self.limit, 'node':None})
