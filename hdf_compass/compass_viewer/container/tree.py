@@ -52,7 +52,7 @@ class ContainerTree(wx.TreeCtrl):
         self.SetItemImage(self.root, img_ind, wx.TreeItemIcon_Normal)
         self.SetPyData(self.root, {'idx':-1, 'node':node})
         self.SelectItem(self.root, True)
-        self.recursive_walk(node)
+        self.recursive_walk(node, 0)
 
     @property
     def selection(self):
@@ -91,7 +91,7 @@ class ContainerTree(wx.TreeCtrl):
                     self.SetPyData(i, {'idx':x, 'node':subnode})
                     if isinstance(subnode, compass_model.Container):
                         self.SelectItem(i, True)
-                        self.recursive_walk(subnode)
+                        self.recursive_walk(subnode, 0)
             if len(pnode) > start + self.limit:
                 i = self.AppendItem(parent, 'more...')
                 self.SetPyData(i, {'idx':start+self.limit, 'node':None})
@@ -206,7 +206,7 @@ class ContainerTree(wx.TreeCtrl):
                     self.SetPyData(i, {'idx':x, 'node':subnode})
                     if isinstance(subnode, compass_model.Container):
                         self.SelectItem(i, True)
-                        self.recursive_walk(subnode)
+                        self.recursive_walk(subnode, 0)
             if len(self.node) > start + self.limit:
                 i = self.AppendItem(self.root, 'more...')
                 self.SetPyData(i, {'idx':start+self.limit, 'node':None})
@@ -216,9 +216,11 @@ class ContainerTree(wx.TreeCtrl):
     # End context menu support
     # -------------------------------------------------------------------
 
-    def recursive_walk(self, node):
+    def recursive_walk(self, node, depth):
         """ Build tree from node by traversing children recursively.
         """
+        if depth > 1:
+            return
         g = self.GetSelection()
         for item in xrange(len(node)):
             if item < self.limit:
@@ -230,7 +232,7 @@ class ContainerTree(wx.TreeCtrl):
                 self.SetPyData(i, {'idx':item, 'node':subnode})
                 if isinstance(subnode, compass_model.Container):
                     self.SelectItem(i, True)
-                    self.recursive_walk(subnode)
+                    self.recursive_walk(subnode, depth+1)
 
         if len(node) > self.limit:
             i = self.AppendItem(g, 'more...')

@@ -1,3 +1,8 @@
+2015-10-26  Hyo-Kyung Lee  <hyoklee@hdfgroup.org>
+
+	* hdf_compass/compass_viewer/container/tree.py (recursive_walk):
+	added depth parameter to limit traversal.
+
 2015-10-16  Hyo-Kyung Lee  <hyoklee@hdfgroup.org>
 
 	* hdf_compass/compass_viewer/container/tree.py (recursive_walk): added.

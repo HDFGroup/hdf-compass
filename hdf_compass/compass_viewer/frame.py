@@ -65,10 +65,10 @@ class BaseFrame(wx.Frame):
         # Frame icon
         ib = wx.IconBundle()
         icon_32 = wx.EmptyIcon()
-        icon_32.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "compass_32.png"), wx.BITMAP_TYPE_ANY))
+        icon_32.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "favicon_32.png"), wx.BITMAP_TYPE_ANY))
         ib.AddIcon(icon_32)
         icon_48 = wx.EmptyIcon()
-        icon_48.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "compass_48.png"), wx.BITMAP_TYPE_ANY))
+        icon_48.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "favicon_48.png"), wx.BITMAP_TYPE_ANY))
         ib.AddIcon(icon_48)
         self.SetIcons(ib)
 
@@ -105,7 +105,8 @@ class BaseFrame(wx.Frame):
         # Help menu; note that on the Mac, the About entry is automatically
         # moved to the main application menu by wxPython.
         help_menu = wx.Menu()
-        help_menu.Append(wx.ID_ABOUT, "&About HDFCompass"," Information about this program")
+        help_menu.Append(wx.ID_HELP, "Online &Manual", "Open online documentation")
+        help_menu.Append(wx.ID_ABOUT, "&About HDFCompass", "Information about this program")
         menubar.Append(help_menu, "&Help")
 
         self.SetMenuBar(menubar)
@@ -113,6 +114,7 @@ class BaseFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_window_close, id=wx.ID_CLOSE)
         self.Bind(wx.EVT_MENU, self.on_file_open, id=wx.ID_OPEN)
         self.Bind(wx.EVT_MENU, self.on_resource_open, id=ID_OPEN_RESOURCE)
+        self.Bind(wx.EVT_MENU, self.on_manual, id=wx.ID_HELP)
         self.Bind(wx.EVT_MENU, self.on_about, id=wx.ID_ABOUT)
         self.Bind(wx.EVT_MENU, self.on_exit, id=wx.ID_EXIT)
         self.Bind(wx.EVT_MENU_RANGE, self.on_url_history, id=wx.ID_FILE1, id2=wx.ID_FILE9)
@@ -121,6 +123,11 @@ class BaseFrame(wx.Frame):
         """ Called on "exit" event from the menu """
         wx.GetApp().Exit()
 
+    def on_manual(self, evt):
+        """ Open the url with the online documentation """
+        import webbrowser
+        webbrowser.open('http://hdf-compass.readthedocs.org/en/stable/')
+
     def on_about(self, evt):
         """ Display an "About" dialog """
         info = wx.AboutDialogInfo()
@@ -128,7 +135,7 @@ class BaseFrame(wx.Frame):
         info.Version = __version__
         info.Copyright = "(c) 2014-%d The HDF Group" % date.today().year
         icon_48 = wx.EmptyIcon()
-        icon_48.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "compass_48.png"), wx.BITMAP_TYPE_ANY))
+        icon_48.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "favicon_48.png"), wx.BITMAP_TYPE_ANY))
         info.SetIcon(icon_48)
         wx.AboutBox(info)
 
@@ -156,13 +163,6 @@ class BaseFrame(wx.Frame):
             pipe = "|"
             return pipe.join(filter_string)
             
-        # The wxPython wildcard string is a bunch of filter strings pasted together
-        # wc_string = [s.file_extensions for s in compass_model.get_stores() if len(s.file_extensions) != 0]
-        # print "jlr -- wc_string: " , wc_string
-        # wc_string.append({"All Files": ["*"]})
-        # wc_string = "|".join([make_filter_string(x) for x in wc_string])
-        #wc_string.append("|")
-        #wc_string.append(make_filter_string(wc_string))
         wc_string = make_filter_string()
         
         dlg = wx.FileDialog(self, "Open Local File", wildcard=wc_string, style=wx.FD_OPEN|wx.FD_FILE_MUST_EXIST)
