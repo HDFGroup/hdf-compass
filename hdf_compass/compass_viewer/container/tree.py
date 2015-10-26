@@ -12,7 +12,7 @@
 """
 Handles tree view for Container display.
 """
-
+import platform
 import wx
 from hdf_compass import compass_model
 
@@ -92,7 +92,8 @@ class ContainerTree(wx.TreeCtrl):
                     if isinstance(subnode, compass_model.Container):
                         self.SelectItem(i, True)
                         self.recursive_walk(subnode, 0)
-            if len(pnode) > start + self.limit:
+            if (len(pnode) > start + self.limit and
+                platform.system() is 'Linux'):
                 i = self.AppendItem(parent, 'more...')
                 self.SetPyData(i, {'idx':start+self.limit, 'node':None})
             
@@ -190,7 +191,12 @@ class ContainerTree(wx.TreeCtrl):
         pos = wx.GetTopLevelParent(self).GetPosition()
         wx.PostEvent(self, CompassOpenEvent(node_new, pos=pos))
 
+    # End context menu support
+    # -------------------------------------------------------------------
+        
     def on_bottom(self, evt):
+        """ Handle window scroll down event.
+        """
         if (evt.Orientation == wx.SB_VERTICAL and
             evt.GetEventType() == wx.wxEVT_SCROLLWIN_LINEDOWN):
             # Show more items automatically.
@@ -207,14 +213,13 @@ class ContainerTree(wx.TreeCtrl):
                     if isinstance(subnode, compass_model.Container):
                         self.SelectItem(i, True)
                         self.recursive_walk(subnode, 0)
-            if len(self.node) > start + self.limit:
+            if (len(self.node) > start + self.limit and
+                platform.system() is 'Linux'):
                 i = self.AppendItem(self.root, 'more...')
                 self.SetPyData(i, {'idx':start+self.limit, 'node':None})
         evt.Skip()
 
 
-    # End context menu support
-    # -------------------------------------------------------------------
 
     def recursive_walk(self, node, depth):
         """ Build tree from node by traversing children recursively.
@@ -234,6 +239,7 @@ class ContainerTree(wx.TreeCtrl):
                     self.SelectItem(i, True)
                     self.recursive_walk(subnode, depth+1)
 
-        if len(node) > self.limit:
+        if (len(node) > self.limit and
+            platform.system() is 'Linux'):
             i = self.AppendItem(g, 'more...')
             self.SetPyData(i, {'idx':self.limit, 'node':None})
