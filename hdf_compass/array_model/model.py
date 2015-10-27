@@ -35,9 +35,14 @@ DATA = {'array://localhost/a_0d': np.array(1),
         'array://localhost/cmp_3d': np.ones((10, 10, 10), dtype=DT_CMP),
         'array://localhost/cmp_4d': np.ones((10, 10, 10, 10), dtype=DT_CMP),
         'array://localhost/S_0d': np.array(b"Hello"),
-        'array://localhost/S_1d': np.array((b"Hello",)),
-        'array://localhost/U_0d': np.array("Hello"),
-        'array://localhost/U_1d': np.array(("Hello",)),
+        'array://localhost/S_1d': np.array([b"Hello", b"Ciao"]),
+        'array://localhost/S_2d': np.array([[b"Hello", b"Ciao"], [b"Hello", b"Ciao"]]),
+        'array://localhost/S_3d': np.array([[[b"Hello", b"Ciao"], [b"Hello", b"Ciao"]],
+                                            [[b"Hello", b"Ciao"], [b"Hello", b"Ciao"]]]),
+        'array://localhost/U_1d': np.array(["Hello", "Ciao"]),
+        'array://localhost/U_2d': np.array([["Hello", "Ciao"], ["Hello", "Ciao"]]),
+        'array://localhost/U_3d': np.array([[["Hello", "Ciao"], ["Hello", "Ciao"]],
+                                            [["Hello", "Ciao"], ["Hello", "Ciao"]]]),
         'array://localhost/v_0d': np.array('\x01', dtype='|V1'),
         'array://localhost/non_square': np.arange(5 * 10).reshape((5, 10)),
         }
@@ -190,6 +195,73 @@ class Array(compass_model.Array):
         return True
 
 
+class ArrayText(compass_model.Text):
+    """ Represents a text array (both ASCII and UNICODE). """
+
+    class_kind = "TestArray [text]"
+
+    @staticmethod
+    def can_handle(store, key):
+        if key not in DATA:
+            return False
+
+        if DATA[key].dtype.kind == 'S':
+            # log.debug("ASCII String (characters: %d)" % DATA[key].dtype.itemsize)
+            return True
+        if DATA[key].dtype.kind == 'U':
+            # log.debug("Unicode String (characters: %d)" % DATA[key].dtype.itemsize)
+            return True
+        return False
+
+    def __init__(self, store, key):
+        self._store = store
+        self._key = key
+        self.data = DATA[key]
+
+    @property
+    def key(self):
+        return self._key
+
+    @property
+    def store(self):
+        return self._store
+
+    @property
+    def display_name(self):
+        return self.key.rsplit('/', 1)[-1]
+
+    @property
+    def description(self):
+        return 'Text "%s"' % (self.display_name,)
+
+    @property
+    def shape(self):
+        return self.data.shape
+
+    @property
+    def text(self):
+        txt = str()
+
+        if len(self.shape) == 0:
+            print(self.data)
+            txt += str(self.data)
+
+        elif len(self.shape) == 1:
+            for el in self.data:
+                txt += el + ",\n"
+
+        elif len(self.shape) == 2:
+            for i in range(self.shape[0]):
+                for j in range(self.shape[1]):
+                    txt += self.data[i, j] + ", "
+                txt += "\n"
+
+        else:
+            txt = ">> display of more than 2D string array not implemented <<"
+
+        return txt
+
+
 class ArrayKV(compass_model.KeyValue):
     class_kind = "Array Key/Value Attrs"
 
@@ -229,5 +301,6 @@ class ArrayKV(compass_model.KeyValue):
 ArrayStore.push(ArrayKV)
 ArrayStore.push(ArrayContainer)
 ArrayStore.push(Array)
+ArrayStore.push(ArrayText)
 
 compass_model.push(ArrayStore)
