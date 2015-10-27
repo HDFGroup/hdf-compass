@@ -221,9 +221,7 @@ class BaseFrame(wx.Frame):
 
 
 class InitFrame(BaseFrame):
-
-    """
-    Frame displayed when the application starts up.
+    """ Frame displayed when the application starts up.
 
     This includes the menu bar provided by TopFrame.  On the Mac, although it
     still exists (to prevent the application from exiting), the frame
@@ -233,7 +231,7 @@ class InitFrame(BaseFrame):
     def __init__(self):
         
         style = wx.DEFAULT_FRAME_STYLE & (~wx.RESIZE_BORDER) & (~wx.MAXIMIZE_BOX)
-        title = "HDFCompass"
+        title = "HDF Compass"
         BaseFrame.__init__(self, size=(552,247), title=title, style=style)
 
         data = wx.Bitmap(os.path.join(self.icon_folder, "logo.png"), wx.BITMAP_TYPE_ANY)
@@ -249,9 +247,7 @@ class InitFrame(BaseFrame):
             
             
 class NodeFrame(BaseFrame):
-
-    """
-    Base class for any frame which displays a Node instance.
+    """ Base class for any frame which displays a Node instance.
 
     Provides a "Close file" menu item and manages open data stores.
 
@@ -299,8 +295,7 @@ class NodeFrame(BaseFrame):
 
     @classmethod
     def _close(cls, store):
-        """ Manually close the store, and broadcast a pubsub notification.
-        """
+        """ Manually close the store, and broadcast a pubsub notification. """
         cls._stores.pop(store, None)
         store.close()
         pub.sendMessage('store.close')
@@ -309,8 +304,7 @@ class NodeFrame(BaseFrame):
 
     @property
     def info(self):
-        """ The InfoPanel object used for the left-hand sidebar.
-        """
+        """ The InfoPanel object used for the left-hand sidebar. """
         return self.__info
 
     @property
