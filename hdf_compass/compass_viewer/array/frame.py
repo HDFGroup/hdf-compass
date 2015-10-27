@@ -21,6 +21,8 @@ from wx.lib.newevent import NewCommandEvent
 import os
 import logging
 
+log = logging.getLogger(__name__)
+
 from ..frame import NodeFrame
 from .plot import LinePlotFrame, ContourPlotFrame
 
@@ -45,29 +47,32 @@ class ArrayFrame(NodeFrame):
     """
 
     def __init__(self, node, pos=None):
-        """ Create a new array viewer, to display *node*. """
+        """ Create a new array viewer to display the node. """
         NodeFrame.__init__(self, node, size=(800, 400), title=node.display_name, pos=pos)
 
         self.node = node
 
-        # The Slicer is the panel with indexing controls
-        self.slicer = SlicerPanel(self, node.shape, node.dtype.fields is not None)
-        self.grid = ArrayGrid(self, node, self.slicer)
-
+        # Update the menu
         vis_menu = wx.Menu()
-        vis_menu.Append(ID_VIS_MENU_PLOT, "Plot Data\tCtrl-D")
-        self.add_menu(vis_menu, "Visualize")
-
+        if self.node.is_plottable():
+            vis_menu.Append(ID_VIS_MENU_PLOT, "Plot Data\tCtrl-D")
+            self.add_menu(vis_menu, "Visualize")
+        # Initialize the toolbar
         self.init_toolbar()
 
+        # The Slicer is the panel with indexing controls
+        self.slicer = SlicerPanel(self, node.shape, node.dtype.fields is not None)
+        # Create the grid array
+        self.grid = ArrayGrid(self, node, self.slicer)
+        # Sizer for slicer and grid
         gridsizer = wx.BoxSizer(wx.VERTICAL)
         gridsizer.Add(self.slicer, 0, wx.EXPAND)
         gridsizer.Add(self.grid, 1, wx.EXPAND)
-
         self.view = gridsizer
 
         self.Bind(EVT_ARRAY_SLICED, self.on_sliced)
-        self.Bind(wx.EVT_MENU, self.on_plot, id=ID_VIS_MENU_PLOT)
+        if self.node.is_plottable():
+            self.Bind(wx.EVT_MENU, self.on_plot, id=ID_VIS_MENU_PLOT)
 
         # Workaround for wxPython bug (see SlicerPanel.enable_spinctrls)
         ID_WORKAROUND_TIMER = wx.NewId()
@@ -75,22 +80,19 @@ class ArrayFrame(NodeFrame):
         self.timer = wx.Timer(self, ID_WORKAROUND_TIMER)
         self.timer.Start(100)
 
-    def on_workaround_timer(self, evt):
-        """ See slicer.enable_spinctrls docs """
-        self.timer.Destroy()
-        self.slicer.enable_spinctrls()
-
     def init_toolbar(self):
         """ Set up the toolbar at the top of the window. """
-        tsize = (24, 24)
+        t_size = (24, 24)
         plot_bmp = wx.Bitmap(os.path.join(self.icon_folder, "viz_plot_24.png"), wx.BITMAP_TYPE_ANY)
 
         self.toolbar = self.CreateToolBar(wx.TB_HORIZONTAL | wx.NO_BORDER | wx.TB_FLAT | wx.TB_TEXT)
 
-        self.toolbar.SetToolBitmapSize(tsize)
+        self.toolbar.SetToolBitmapSize(t_size)
         self.toolbar.AddStretchableSpace()
-        self.toolbar.AddLabelTool(ID_VIS_MENU_PLOT, "Plot Data", plot_bmp, shortHelp="Plot data in a popup window",
-                                  longHelp="Long help for 'New'")
+        if self.node.is_plottable():
+            self.toolbar.AddLabelTool(ID_VIS_MENU_PLOT, "Plot Data", plot_bmp,
+                                      shortHelp="Plot data in a popup window",
+                                      longHelp="Plot the array data in a popup window")
         self.toolbar.Realize()
 
     def on_sliced(self, evt):
@@ -161,6 +163,11 @@ class ArrayFrame(NodeFrame):
             else:
                 f = ContourPlotFrame(data)
                 f.Show()
+
+    def on_workaround_timer(self, evt):
+        """ See slicer.enable_spinctrls docs """
+        self.timer.Destroy()
+        self.slicer.enable_spinctrls()
 
 
 class SlicerPanel(wx.Panel):

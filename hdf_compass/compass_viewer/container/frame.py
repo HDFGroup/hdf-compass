@@ -65,12 +65,20 @@ class ContainerFrame(NodeFrame):
         self.view_menu = view_menu
 
         go_menu = wx.Menu()
-        go_menu.Append(ID_GO_MENU_BACK, "Back\tCtrl-[")
-        go_menu.Append(ID_GO_MENU_NEXT, "Next\tCtrl-]")
-        go_menu.Append(ID_GO_MENU_UP, "Up\tCtrl-Up")
-        go_menu.Append(ID_GO_MENU_TOP, "Top\tCtrl-/")
+        go_menu.Append(ID_GO_MENU_BACK, "Back")
+        go_menu.Append(ID_GO_MENU_NEXT, "Next")
+        go_menu.Append(ID_GO_MENU_UP, "Up")
+        go_menu.Append(ID_GO_MENU_TOP, "Top")
         self.add_menu(go_menu, "Go")
         self.go_menu = go_menu
+
+        self.acc_tbl = wx.AcceleratorTable([
+            (wx.ACCEL_CMD, wx.WXK_LEFT, ID_GO_MENU_BACK),
+            (wx.ACCEL_CMD, wx.WXK_RIGHT, ID_GO_MENU_NEXT),
+            (wx.ACCEL_CMD, wx.WXK_UP, ID_GO_MENU_UP),
+            (wx.ACCEL_CMD | wx.ACCEL_SHIFT, wx.WXK_UP, ID_GO_MENU_TOP),
+        ])
+        self.SetAcceleratorTable(self.acc_tbl)
 
         self.Bind(wx.EVT_MENU, self.on_open, id=ID_COMPASS_OPEN)
         self.Bind(EVT_CONTAINER_SELECTION, lambda evt: self.update_info())

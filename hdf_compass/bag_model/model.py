@@ -264,6 +264,15 @@ class BAGDataset(compass_model.Array):
     def __getitem__(self, args):
         return self._dset[args]
 
+    def is_plottable(self):
+        if self.dtype.kind == 'S':
+            log.debug("Not plottable since ASCII String (characters: %d)" % self.dtype.itemsize)
+            return False
+        if self.dtype.kind == 'U':
+            log.debug("Not plottable since Unicode String (characters: %d)" % self.dtype.itemsize)
+            return False
+        return True
+
 
 class BAGElevation(compass_model.Array):
     """ Represents a BAG elevation. """
@@ -387,6 +396,15 @@ class BAGMetadataRaw(compass_model.Array):
     def __getitem__(self, args):
         return self._dset[args]
 
+    def is_plottable(self):
+        if self.dtype.kind == 'S':
+            log.debug("Not plottable since ASCII String (characters: %d)" % self.dtype.itemsize)
+            return False
+        if self.dtype.kind == 'U':
+            log.debug("Not plottable since Unicode String (characters: %d)" % self.dtype.itemsize)
+            return False
+        return True
+
 
 class BAGMetadataText(compass_model.Text):
     """ Represents a text BAG metadata. """
@@ -436,8 +454,7 @@ class BAGMetadataXml(compass_model.Xml):
     def can_handle(store, key):
         return (key == "/BAG_root/metadata") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
 
-    @staticmethod
-    def has_validation():
+    def has_validation(self):
         """For BAG data there is a known validation mechanism based on XSD and Schematron"""
         return True
 

@@ -374,6 +374,10 @@ class Array(Node):
         """ Retrieve data elements """
         raise NotImplementedError
 
+    def is_plottable(self):
+        """ To be overriden in case that there are cases in which the array is not plottable """
+        return True
+
 
 class Image(Node):
     """
@@ -426,8 +430,7 @@ class Xml(Text):
     icons = {16:    os.path.join(icon_folder, "xml_16.png"),
              64:    os.path.join(icon_folder, "xml_64.png")}
 
-    @staticmethod
-    def has_validation():
+    def has_validation(self):
         """To be overriden in case that the xml has a known mechanism to be validated"""
         return False
 
