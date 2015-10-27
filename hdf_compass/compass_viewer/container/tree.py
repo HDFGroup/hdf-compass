@@ -67,19 +67,21 @@ class ContainerTree(wx.TreeCtrl):
         log.debug('selected.')
         grp = self.GetSelection()
         node = self.GetPyData(grp)['node']
-        for item in xrange(len(node)):
-            if item < self.limit:
-                subnode = node[item]
-                i = self.AppendItem(grp, subnode.display_name)
-                image_index = self.il.get_index(type(subnode))
+        # Add children if they don't exist.
+        if self.GetChildrenCount(grp) == 0:
+            for item in xrange(len(node)):
+                if item < self.limit:
+                    subnode = node[item]
+                    i = self.AppendItem(grp, subnode.display_name)
+                    image_index = self.il.get_index(type(subnode))
 
-                self.SetItemImage(i, image_index, wx.TreeItemIcon_Normal)
-                self.SetPyData(i, {'idx':item, 'node':subnode})
-        if (len(node) > self.limit and
-            platform.system() == 'Linux'):
-            i = self.AppendItem(grp, 'more...')
-            self.SetPyData(i, {'idx':self.limit, 'node':None})
-        self.Expand(grp)
+                    self.SetItemImage(i, image_index, wx.TreeItemIcon_Normal)
+                    self.SetPyData(i, {'idx':item, 'node':subnode})
+            if (len(node) > self.limit and
+                platform.system() == 'Linux'):
+                i = self.AppendItem(grp, 'more...')
+                self.SetPyData(i, {'idx':self.limit, 'node':None})
+            self.Expand(grp)
         return node
 
     def hint_select(self, evt):
@@ -112,7 +114,7 @@ class ContainerTree(wx.TreeCtrl):
                     image_index = self.il.get_index(type(subnode))
                     self.SetItemImage(i, image_index, wx.TreeItemIcon_Normal)
                     self.SetPyData(i, {'idx':x, 'node':subnode})
-                    # Uncomment the following for deep traversal.
+                    # Uncomment the following lines for deep traversal.
                     # if isinstance(subnode, compass_model.Container):
                     #    self.SelectItem(i, True)
                     #    self.recursive_walk(subnode, 0)
