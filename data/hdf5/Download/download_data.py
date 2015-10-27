@@ -16,6 +16,8 @@ except ImportError as e:
 files = [
     'ami_hdf.h5',
     'attrfile.h5',
+    'craterlake.h5',
+    'compound.h5',
     'countries.h5',
     'hapmap_compressed.h5',
     'hdf5_test.h5',
