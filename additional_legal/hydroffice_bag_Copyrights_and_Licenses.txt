@@ -1,0 +1,40 @@
+
+Copyright Notice and License Terms for 
+hydroffice.bag - BAG package for HydrOffice
+-----------------------------------------------------------------------------
+
+hydroffice.bag
+Copyright 2015- by G.Masetti and B.R.Calder (CCOM, UNH).
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without 
+modification, are permitted for any purpose (including commercial purposes) 
+provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, 
+   this list of conditions, and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, 
+   this list of conditions, and the following disclaimer in the documentation 
+   and/or materials provided with the distribution.
+
+3. In addition, redistributions of modified forms of the source or binary 
+   code must carry prominent notices stating that the original code was 
+   changed and the date of the change.
+
+4. All publications or advertising materials mentioning features or use of 
+   this software are asked, but not required, to acknowledge that it was 
+   developed by G.Masetti and B.R.Calder and credit the contributors.
+
+5. Neither the name of G.Masetti and B.R.Calder, nor the name
+   of any Contributor may be used to endorse or promote products derived
+   from this software without specific prior written permission
+   from Giuseppe Masetti and Brian R. Calder or the Contributor, respectively.
+
+DISCLAIMER: 
+THIS SOFTWARE IS PROVIDED BY THE CCOM AND THE CONTRIBUTORS 
+"AS IS" WITH NO WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED.  In no 
+event shall G.Masetti and B.R.Calder or the Contributors be liable for any damages
+suffered by the users arising out of the use of this software, even if 
+advised of the possibility of such damage. 

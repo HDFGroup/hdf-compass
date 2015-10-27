@@ -374,6 +374,10 @@ class Array(Node):
         """ Retrieve data elements """
         raise NotImplementedError
 
+    def is_plottable(self):
+        """ To be overriden in case that there are cases in which the array is not plottable """
+        return True
+
 
 class Image(Node):
     """
@@ -405,31 +409,6 @@ class Image(Node):
         """ Image data """
 
 
-class Plottable(Node):
-    """
-    Represents anything that can be plotted to a 2D canvas using Matplotlib.
-
-    Unlike the rest of the GUI elements, for this node the viewing experience
-    is completely up to you.
-
-    Subclasses may be requested to pop up a Matplotlib window, or render their
-    contents to a PNG byte string for display or export elsewhere in the GUI.
-    """
-
-    __metaclass__ = ABCMeta
-
-    def show(self):
-        """ Pop up a Matplotlib display window """
-        raise NotImplementedError
-
-    def render(self, width, height):
-        """ Render the image as PNG.
-
-        Should return a byte string; width and height are in pixels.
-        """
-        raise NotImplementedError
-
-
 class Text(Node):
     """ A text. """
 
@@ -451,8 +430,7 @@ class Xml(Text):
     icons = {16:    os.path.join(icon_folder, "xml_16.png"),
              64:    os.path.join(icon_folder, "xml_64.png")}
 
-    @staticmethod
-    def has_validation():
+    def has_validation(self):
         """To be overriden in case that the xml has a known mechanism to be validated"""
         return False
 

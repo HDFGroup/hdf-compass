@@ -46,18 +46,18 @@ class InfoPanel(wx.Panel):
         font = wx.Font(FONTSIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
 
         # Sidebar title text
-        self.nametext = wx.StaticText(self, style=wx.ALIGN_LEFT | wx.ST_ELLIPSIZE_MIDDLE, size=(PANEL_WIDTH - 40, 30))
-        self.nametext.SetFont(font)
+        self.name_text = wx.StaticText(self, style=wx.ALIGN_LEFT | wx.ST_ELLIPSIZE_MIDDLE, size=(PANEL_WIDTH - 40, 30))
+        self.name_text.SetFont(font)
 
         # Sidebar icon (see display method)
-        self.staticbitmap = None
+        self.static_bitmap = None
 
         # Descriptive text below the icon
-        self.proptext = wx.StaticText(self, style=wx.ALIGN_LEFT)
+        self.prop_text = wx.StaticText(self, style=wx.ALIGN_LEFT)
 
         self.sizer = sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(self.nametext, 0, wx.LEFT | wx.TOP | wx.RIGHT, border=20)
-        sizer.Add(self.proptext, 0, wx.LEFT | wx.RIGHT, border=20)
+        sizer.Add(self.name_text, 0, wx.LEFT | wx.TOP | wx.RIGHT, border=20)
+        sizer.Add(self.prop_text, 0, wx.LEFT | wx.RIGHT, border=20)
         sizer.AddStretchSpacer(1)
         self.SetSizer(sizer)
 
@@ -69,29 +69,28 @@ class InfoPanel(wx.Panel):
         See the get* methods for specifics on what's displayed.
         """
 
-        self.nametext.SetLabel(node.display_name)
-        self.proptext.SetLabel(describe(node))
+        self.name_text.SetLabel(node.display_name)
+        self.prop_text.SetLabel(describe(node))
 
-        if self.staticbitmap is not None:
-            self.sizer.Remove(self.staticbitmap)
-            self.staticbitmap.Destroy()
+        if self.static_bitmap is not None:
+            self.sizer.Remove(self.static_bitmap)
+            self.static_bitmap.Destroy()
 
         # We load the PNG icon directly from the appropriate Node class
         png = wx.Bitmap(type(node).icons[64], wx.BITMAP_TYPE_ANY)
-        self.staticbitmap = wx.StaticBitmap(self, wx.ID_ANY, png)
-        self.sizer.Insert(1, self.staticbitmap, 0, wx.ALL, border=20)
+        self.static_bitmap = wx.StaticBitmap(self, wx.ID_ANY, png)
+        self.sizer.Insert(1, self.static_bitmap, 0, wx.ALL, border=20)
         self.sizer.Layout()
         self.Layout()
 
 
 def describe(node):
-    """ Return a (possibly multi-line) text description of a node.
-    """
+    """ Return a (possibly multi-line) text description of a node. """
     desc = "%s\n\n" % type(node).class_kind
 
     if isinstance(node, compass_model.Array):
         desc += "Shape\n%s\n\nType\n%s" % \
-                (node.shape, dtypetext(node.dtype))
+                (node.shape, dtype_text(node.dtype))
 
     elif isinstance(node, compass_model.Container):
         desc += "%d items\n" % len(node)
@@ -99,9 +98,13 @@ def describe(node):
     return desc
 
 
-def dtypetext(dt):
+def dtype_text(dt):
     """ String description appropriate for a NumPy dtype """
+
+    log.debug("dtype kind: %s, size: %d" % (dt.kind, dt.itemsize))
+
     if dt.names is not None:
+        log.debug("dtype names: %s" % ",".join(n for n in dt.names))
         return "Compound (%d fields)" % len(dt.names)
     if dt.kind == 'f':
         return "%d-byte floating point" % dt.itemsize
@@ -111,4 +114,6 @@ def dtypetext(dt):
         return "%d-byte signed integer" % dt.itemsize
     if dt.kind == 'S':
         return "ASCII String (%d characters)" % dt.itemsize
+    if dt.kind == 'U':
+        return "Unicode String (%d characters)" % dt.itemsize
     return "Unknown"
