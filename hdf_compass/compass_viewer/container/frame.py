@@ -128,6 +128,7 @@ class ContainerFrame(NodeFrame):
          """ Switch to tree view """
          if not isinstance(self.view, ContainerTree):
              self.view = ContainerTree(self, self.history[self.history_ptr])
+             self.update_view()
             
     # --- Begin history support functions -------------------------------------
 

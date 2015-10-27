@@ -12,12 +12,18 @@
 """
 Handles tree view for Container display.
 """
+__author__ = 'Hyo-Kyung Lee <hyoklee@hdfgroup.org>'
+
 import platform
 import wx
 from hdf_compass import compass_model
 
 from ..events import ID_COMPASS_OPEN, CompassOpenEvent
 from ..events import ContainerSelectionEvent, EVT_CONTAINER_SELECTION
+
+
+import logging
+log = logging.getLogger(__name__)
 
 ID_CONTEXT_MENU_OPEN = wx.NewId()
 ID_CONTEXT_MENU_OPENWINDOW = wx.NewId()
@@ -39,7 +45,6 @@ class ContainerTree(wx.TreeCtrl):
                   id=ID_CONTEXT_MENU_OPENWINDOW)
 
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.hint_select)
-        self.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self.hint_select)
         self.Bind(wx.EVT_SCROLLWIN, self.on_bottom)
         self.node = node
         self.limit = 20
@@ -52,13 +57,25 @@ class ContainerTree(wx.TreeCtrl):
         self.SetItemImage(self.root, img_ind, wx.TreeItemIcon_Normal)
         self.SetPyData(self.root, {'idx':-1, 'node':node})
         self.SelectItem(self.root, True)
-        self.recursive_walk(node, 0)
+        # self.selection()
+        #self.recursive_walk(node, 0)
+        # self.Expand(self.root)
 
     @property
     def selection(self):
         """ The currently selected item, or None. """
-        item = self.GetSelection()
-        node = self.GetPyData(item)['node']
+        log.debug('selected.')
+        grp = self.GetSelection()
+        node = self.GetPyData(grp)['node']
+        for item in xrange(len(node)):
+            if item < self.limit:
+                subnode = node[item]
+                i = self.AppendItem(grp, subnode.display_name)
+                image_index = self.il.get_index(type(subnode))
+
+                self.SetItemImage(i, image_index, wx.TreeItemIcon_Normal)
+                self.SetPyData(i, {'idx':item, 'node':subnode})
+        self.Expand(grp)
         return node
 
     def hint_select(self, evt):
@@ -77,7 +94,9 @@ class ContainerTree(wx.TreeCtrl):
         
         item = evt.GetItem()
         newnode = self.GetPyData(item)['node']
-        if newnode is None:
+
+
+        if newnode is None:  # It must be 'more' item on Linux.
             start = self.GetPyData(item)['idx']
             parent = self.GetItemParent(item)
             self.Delete(item)
@@ -89,9 +108,10 @@ class ContainerTree(wx.TreeCtrl):
                     image_index = self.il.get_index(type(subnode))
                     self.SetItemImage(i, image_index, wx.TreeItemIcon_Normal)
                     self.SetPyData(i, {'idx':x, 'node':subnode})
-                    if isinstance(subnode, compass_model.Container):
-                        self.SelectItem(i, True)
-                        self.recursive_walk(subnode, 0)
+                    # Uncomment the following for deep traversal.
+                    # if isinstance(subnode, compass_model.Container):
+                    #    self.SelectItem(i, True)
+                    #    self.recursive_walk(subnode, 0)
             if (len(pnode) > start + self.limit and
                 platform.system() == 'Linux'):
                 i = self.AppendItem(parent, 'more...')
@@ -101,6 +121,7 @@ class ContainerTree(wx.TreeCtrl):
             pos = wx.GetTopLevelParent(self).GetPosition()
             evt = CompassOpenEvent(newnode, pos=pos)
             wx.PostEvent(self, evt)
+
 
     # ---------------------------------------------------------
     # Context menu support
@@ -112,6 +133,7 @@ class ContainerTree(wx.TreeCtrl):
         node = self.GetPyData(item)['node']
         if node is None:
             return
+        print node
         self._menu_node = node
 
         # Determine a list of handlers which can understand this object.
@@ -196,27 +218,28 @@ class ContainerTree(wx.TreeCtrl):
         
     def on_bottom(self, evt):
         """ Handle window scroll down event.
+            This works only for Windows and Mac.
+            Mac fires this event several times in succession.
+            Windows fires only once.
         """
         if (evt.Orientation == wx.SB_VERTICAL and
             evt.GetEventType() == wx.wxEVT_SCROLLWIN_LINEDOWN):
+            log.debug("got scroll down event.")
             # Show more items automatically.
             item = self.GetLastChild(self.root)
             start = self.GetPyData(item)['idx']
-            self.Delete(item)           
+            if platform.system() == 'Linux':
+                log.warning("Linux got scroll linedown event. This should not happen in wxPython.")
             for x in xrange(len(self.node)):
-                if start <= x < start + self.limit:
+                if start < x <= start + self.limit:
                     subnode = self.node[x]
                     i = self.AppendItem(self.root, subnode.display_name)
                     image_index = self.il.get_index(type(subnode))
                     self.SetItemImage(i, image_index, wx.TreeItemIcon_Normal)
                     self.SetPyData(i, {'idx':x, 'node':subnode})
-                    if isinstance(subnode, compass_model.Container):
-                        self.SelectItem(i, True)
-                        self.recursive_walk(subnode, 0)
-            if (len(self.node) > start + self.limit and
-                platform.system() == 'Linux'):
-                i = self.AppendItem(self.root, 'more...')
-                self.SetPyData(i, {'idx':start+self.limit, 'node':None})
+                    # if isinstance(subnode, compass_model.Container):
+                    #    self.SelectItem(i, True)
+                    #    self.recursive_walk(subnode, 0)
         evt.Skip()
 
 
@@ -224,6 +247,8 @@ class ContainerTree(wx.TreeCtrl):
     def recursive_walk(self, node, depth):
         """ Build tree from node by traversing children recursively.
         """
+        # If nodes have loop among them, it will recurse forever.
+        # To prevent it, use depth.
         if depth > 1:
             return
         g = self.GetSelection()
@@ -235,9 +260,10 @@ class ContainerTree(wx.TreeCtrl):
 
                 self.SetItemImage(i, image_index, wx.TreeItemIcon_Normal)
                 self.SetPyData(i, {'idx':item, 'node':subnode})
-                if isinstance(subnode, compass_model.Container):
-                    self.SelectItem(i, True)
-                    self.recursive_walk(subnode, depth+1)
+                # Uncomment the following if you'd like to traverse recursively.
+                # if isinstance(subnode, compass_model.Container):
+                #    self.SelectItem(i, True)
+                #    self.recursive_walk(subnode, depth+1)
 
         if (len(node) > self.limit and
             platform.system() == 'Linux'):
