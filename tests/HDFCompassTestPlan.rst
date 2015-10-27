@@ -5,15 +5,15 @@ The test plan includes Testing environment, Installation, Basic
 functionality, Basic viewer tests, Plug-in tests, and a table to carry
 out a test with a sample file.
 
-I  write comments starting with KY with the *italicized* font.
+kyang2014 write comments starting with kyang2014:
 
-KY: *From the ticket and JR's
+kyang2014: From the ticket and JR's
 comments(https://github.com/HDFGroup/hdf-compass/issues/71) , it seems
 this is just for the release validation. The tester doesn't need to
 build HDFCompass from the source. The developer will provide the
-binaries to the tester.*
+binaries to the tester.
 
-**I. Testing environment**
+I. Testing environment
 
 1) Platforms
 
@@ -27,22 +27,17 @@ binaries to the tester.*
 | Linux          | 64-bit CentOS 6 and 7?           |
 +----------------+----------------------------------+
 
-KY: *Do we need the Python,h5py etc. versions? Seems that we don't need
-these information just for this purpose.*
+kyang2014: Do we need the Python,h5py etc. versions? Seems that we don't need
+these information just for this purpose?
 
 2) Where to obtain the testing files
 
-KY:
+kyang2014: May use Amazon S3 or google cloud or azure.
+I put some testing files for a quick test under
+ftp://ftp.hdfgroup.uiuc.edu/pub/outgoing/HDFCompass/kent-files/
 
-*The quickest solution is to use the company's  ftp area:*
-`*ftp://ftp.hdfgroup.uiuc.edu/pub/outgoing/* <ftp://ftp.hdfgroup.uiuc.edu/pub/outgoing/>`__
 
-*An HDFCompass directory can be obtained and testing files can be put
-there. S3 is also a good candidate. Any comments from other people?*
-
- 
-
-**II. Installation**
+II. Installation
 
 +----------------+-------------------------------------------+
 | **Platform**   | **Experience**                            |
@@ -56,7 +51,7 @@ there. S3 is also a good candidate. Any comments from other people?*
 
  
 
-**III. Basic functionality**
+III. Basic functionality
 
 1) Launch HDFCompass
 
@@ -81,11 +76,9 @@ see if the program can get started.
 | Exit            |                        |                                  |
 +-----------------+------------------------+----------------------------------+
 
-3) Toolbar Icon displays (On mac). Can drag files to Toolbar?  –(\ *KY: 
-Not sure about this? Don't have a Mac machine to test this. Dragging
-files to HDFCompass doesn't work on windows*)
+3) Toolbar Icon displays (On mac). Can drag files to Toolbar?  
 
-**IV. Basic viewer Tests**
+IV. Basic viewer Tests
 
 1) Basic Tests
 
@@ -111,20 +104,20 @@ A)
 
 B)
 
-On each window, check the "Go" icon(\ *KY: currently the function
-doesn't work on my windows 7 platform*)
+On each window, check the "Go" icon
 
 2) Advanced Tests
 
 Same as the above but may need to provide the information that needs
-specific attention for some tests.
+specific attentions for some tests.
 
-*KY: Do we want to test if one can open an HDF5 file >1 times at the
-same time? *
+kyang2014: Do we want to test if one can open an HDF5 file >1 times at the
+same time?
 
 3) Files for the basic Tests
 
-A) Really basic one: A file that just includes one group, one HDF5
+A) Really basic one:
+A file that just includes one group, one HDF5
 dataset of 2-D floating-point array, a string attribute under the group
 and an integer attribute for the dataset.
 
@@ -156,7 +149,7 @@ C) Advanced tests:
 
     e) HDF5 Image, table, packed table
 
-    *(KY: f to i should be more advanced)*
+    kyang2014: f) to i) should be more advanced.
 
     f) HDF5 datatypes(advanced):
 
@@ -189,26 +182,20 @@ C) Advanced tests:
 
     i3) Many objects
 
-*KY: Need to get approved to implement the above testing plan. In the
+kyang2014: Need to get approved to implement the above testing plan. In the
 mean time, I've just tried out the HDFCompass with some files I
-collected by my own.*
+collected by my own.
 
-*Issues I found are submitted to*
-`*https://github.com/HDFGroup/hdf-compass/issues/* <https://github.com/HDFGroup/hdf-compass/issues/>`__
-*with issue number 87-99. *
+Issues I found are submitted to github issues 87-99.
 
-*My own testing files(included a few from JR) can be found under*
-`*ftp://ftp.hdfgroup.uiuc.edu/pub/outgoing/HDFCompass/kent-files/* <ftp://ftp.hdfgroup.uiuc.edu/pub/outgoing/HDFCompass/kent-files/>`__
+My own testing files(included a few from JR) can be found under
+ftp://ftp.hdfgroup.uiuc.edu/pub/outgoing/HDFCompass/kent-files/
 
-**V. Plug-in Tests**
+V. Plug-in Tests
 
 1) OPeNDAP
 
-KY: Fill in the information later if necessary (*From JR's email on
-Oct.14,2015: Also it needs detail for OpenDAP testing and Asci Grid
-plugin testing. So fill in some information now).*
-
-*KY: *
+kyang2014:
 
 *Needs the clarification about the purpose of OPeNDAP plug-in. DAP is a
 protocol. Various formats such as netCDF, HDF4, HDF5, grib, excel etc.
@@ -221,8 +208,7 @@ python implementation(pydap) is also available. *
 
 *Also the OPeNDAP plug-in uses Pydap underneath to access the DAP data.
 The Pydap client may also have its own limitation(See the last section
-of kyang2014's comments at*
-`*https://github.com/HDFGroup/hdf-compass/issues/60* <https://github.com/HDFGroup/hdf-compass/issues/60>`__\ *)*
+of kyang2014's comments for issue 60.
 
 Since the HDF group implemented HDF modules for Hyrax, so first we
 should target the HDF5 files served via Hyrax implementation of OPeNDAP.
@@ -234,37 +220,42 @@ serve our NASA customers, we implement an option(CF option) in addition
 to the default option for Hyrax output. In my view, default option is
 more fit for HDFCompass although the CF option may be more practical for
 users.Since the output is different for different options, we need to
-provide the **expected output **\ for different options. 
+provide the expected output for different options. 
+
+The testing
+files can be found under
+ftp://ftp.hdfgroup.uiuc.edu/pub/outgoing/HDFCompass/kent-files/hdf5-handler-fake/
 
 A1) Default option
 
-This mapping keeps the original HDF5 structure via DAP2. The testing
-files can be found under
-https://svn.hdfgroup.uiuc.edu/hdf5_handler/trunk/data/ (eventually we
-will provide a place just for OPeNDAP-plugin tests)
+a) DAP2 testing
+This mapping keeps the original HDF5 structure via DAP2.
 
-d\_compound.h5
+d_compound.h5
+d_group.h5
+d_objref.h5
+d_regref.h5
+d_link_soft.h5
+d_link_hard.h5
+d_int.h5
+t_string.h5
+t_vl_string.h5
 
-d\_group.h5
+b) DAP4 testing
+Prerequiste: Pydap supports DAP4
 
-| d\_objref.h5
-| d\_regref.h5
-
-d\_link\_soft.h5
-
-d\_link\_hard.h5
-
-| d\_int.h5
-| t\_string.h5
-| t\_vl\_string.h5
-
-(If Pydap supports DAP4, following files should be added)
-
-Check
-https://svn.hdfgroup.uiuc.edu/hdf5_handler/trunk/bes-testsuite/hdf5_handlerTest.default.at
-
-search dmr.bescmd and dap.bescmd for the corresponding files.
-
+d_compound.h5
+d_group.h5
+d_objref.h5
+d_regref.h5
+d_link_soft.h5
+d_link_hard.h5
+d_int.h5
+d_int64.h5
+t_string_cstr.h5
+t_vl_string_cstr.h5
+nc4_group_atomic.h5
+nc4_group_comp.h5
  
 
 A2) CF option
@@ -273,62 +264,45 @@ The output is more like netCDF output, which is like a subset of HDF5.
 The variable/attribute names are following CF conventions. Groups are
 flattened out. Bunch of datatypes not supported by CF are ignored. Some
 customized features specifically requested from NASA are also added.
-*The testing files can be found under*
+The DAP4 output is strictly mapped from the DAP2 output. So the testing files
+are the same.
 
-`*https://svn.hdfgroup.uiuc.edu/hdf5\_handler/trunk/data/* <https://svn.hdfgroup.uiuc.edu/hdf5_handler/trunk/data/>`__
-*(eventually we will provide a place just for OPeNDAP-plugin tests)*
+t_float.h5
+t_group_scalar_attrs.h5
+t_int.h5
+t_2d_2dll.nc4.h5
+t_cf_1dll.h5
+t_size8.h5
+t_string.h5
+t_unsupported.h5
+t_vl_string.h5
+t_name_clash.h5
+t_non_cf_char.h5
+t_fillvalue_2d_2x2y.nc4.h5
+grid_1_2d.h5
 
-`*https://svn.hdfgroup.uiuc.edu/hdf5\_handler/trunk/bes-testsuite/hdf5\_handlerTest.cf.at* <https://svn.hdfgroup.uiuc.edu/hdf5_handler/trunk/bes-testsuite/hdf5_handlerTest.cf.at>`__
-*can be used as a reference.*
 
-t\_float.h5
+B) (Maybe) Testing the access of HDF4 via Hyrax
 
-t\_group\_scalar\_attrs.h5
+C) (Maybe) Testing the access of HDF5 via THREDDS
 
-t\_int.h5
+D) (Maybe) Testing the access of netCDF via THREDDS
 
-| t\_2d\_2dll.nc4.h5
-| t\_cf\_1dll.h5
-| t\_size8.h5
-| t\_string.h5
-| t\_unsupported.h5
-| t\_vl\_string.h5
-| t\_name\_clash.h5
-| t\_non\_cf\_char.h5
-| t\_fillvalue\_2d\_2x2y.nc4.h5
-| grid\_1\_2d.h5
-
- 
-
-*B) (Maybe) Testing the access of HDF4 via Hyrax*
-
-*C) (Maybe) Testing the access of HDF5 via THREDDS*
-
-*D) (Maybe) Testing the access of netCDF via THREDDS*
-
-*.......*
+.......
 
 2) ASCII Grid
 
-(From JR: just keep a note for future work
-
-This is information about the Ascii Grid
-format: \ https://en.wikipedia.org/wiki/Esri_grid.  Ted's intern wrote a
-plugin for it last summer as a starter project.  Attached is a `small
-file <file:///C:\Users\ymuqun\Downloads\attach_a04f04baf1e496baed88678dff17dfbc>`__\ in
-that format (if you can find some other's in that format, that will be
-great).
-
-*KY: Just have a check with the sample.asc of this plug-in. Actually I
+sample.asc can be found under the test directory.
+kyang2014: Just have a check with the sample.asc of this plug-in. Actually I
 don't think the plot is right although the data values in the viewer
-looks like corresponding to the sample.asc. *
+looks like corresponding to the sample.asc.
 
-*The problem is the startin*\ g point of the plot index. HDFcompass
-starting from the upper-left corner with index (0,0). The (0,0) ASCII
+The problem is the starting point of the plot index. HDFcompass
+starting from the upper-left corner with index (0,0). The (0,0) in the ASCII
 Grid should start from lower-left. So the plot is upside-down.This
 example shows the compass contour plot feature is not sufficient. The
 contour plot is not appropriate. The plot should be like the one at 
-https://en.wikipedia.org/wiki/Esri\_grid.
+https://en.wikipedia.org/wiki/Esri_grid.
 
 This Basic testing for this plug-in is relatively easy. It just needs
 three tests.
@@ -339,13 +313,9 @@ three tests.
 
 3) Sample.asc without having NODATA\_Value
 
-**VI. An example to check the functionality of the basic viewer**
+VI. An example to check the functionality of the basic viewer
 
-*KY new: Not sure about this but keep the original note.*
-
-*KY: Need to provide the expected output*
-
-*Fill in the information later if necessary,*
+kyang2014: Fill in the information later if necessary
 
  
 
