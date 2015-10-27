@@ -60,10 +60,10 @@ class ContainerFrame(NodeFrame):
         self.view_menu = view_menu
 
         go_menu = wx.Menu()
-        go_menu.Append(ID_GO_MENU_BACK, "Back\tCtrl-[")
-        go_menu.Append(ID_GO_MENU_NEXT, "Next\tCtrl-]")
+        go_menu.Append(ID_GO_MENU_BACK, "Back\tCtrl-Left")
+        go_menu.Append(ID_GO_MENU_NEXT, "Next\tCtrl-Right")
         go_menu.Append(ID_GO_MENU_UP, "Up\tCtrl-Up")
-        go_menu.Append(ID_GO_MENU_TOP, "Top\tCtrl-/")
+        go_menu.Append(ID_GO_MENU_TOP, "Top\tCtrl-Shift-Up")
         self.add_menu(go_menu, "Go")
         self.go_menu = go_menu
 
