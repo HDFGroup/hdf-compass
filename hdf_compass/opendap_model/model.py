@@ -33,9 +33,7 @@ def check_key(key, dataset):
 
 
 class Server(compass_model.Store):
-    """
-        Represents the remote OpENDAP server to be accessed
-    """
+    """ Represents the remote OpENDAP server to be accessed """
 
     def __contains__(self, key):
         if '/' not in key:
@@ -97,9 +95,7 @@ class Server(compass_model.Store):
 
 
 class Dataset(compass_model.Container):
-    """
-        Represents Dataset/DatasetType Object in OpENDAP/Pydap.
-    """
+    """ Represents Dataset/DatasetType Object in OpENDAP/Pydap. """
 
     class_kind = "Dataset"
 
@@ -147,9 +143,7 @@ class Dataset(compass_model.Container):
 
 
 class Structure(compass_model.Container):
-    """
-        Represents Structure/StructureType Object in OpENDAP/Pydap.
-    """
+    """ Represents Structure/StructureType Object in OpENDAP/Pydap. """
 
     class_kind = "Structure/Grid/Sequence"
 
@@ -197,9 +191,7 @@ class Structure(compass_model.Container):
 
 
 class Base(compass_model.Array):
-    """
-        Represents Array/BaseType Object in OpENDAP/Pydap.
-    """
+    """ Represents Array/BaseType Object in OpENDAP/Pydap. """
 
     class_kind = "Array"
 
@@ -262,9 +254,7 @@ class Base(compass_model.Array):
 
 
 class Attributes(compass_model.KeyValue):
-    """
-        Represents the Attributes member of Pydap Objects.
-    """
+    """ Represents the Attributes member of Pydap Objects. """
 
     class_kind = "Attributes"
 

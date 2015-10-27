@@ -100,9 +100,7 @@ class HDF5Store(compass_model.Store):
 
 
 class HDF5Group(compass_model.Container):
-    """
-    Represents an HDF5 group, to be displayed in the browser view.
-    """
+    """ Represents an HDF5 group, to be displayed in the browser view. """
 
     class_kind = "HDF5 Group"
 
@@ -166,9 +164,7 @@ class HDF5Group(compass_model.Container):
 
 
 class HDF5Dataset(compass_model.Array):
-    """
-    Represents an HDF5 dataset.
-    """
+    """ Represents an HDF5 dataset. """
 
     class_kind = "HDF5 Dataset"
 
@@ -218,10 +214,74 @@ class HDF5Dataset(compass_model.Array):
         return True
 
 
+class HDF5Text(compass_model.Text):
+    """ Represents a text array (both ASCII and UNICODE). """
+
+    class_kind = "HDF5 Dataset[text]"
+
+    @staticmethod
+    def can_handle(store, key):
+        if key in store and isinstance(store.f[key], h5py.Dataset):
+            if store.f[key].dtype.kind == 'S':
+                # log.debug("ASCII String (characters: %d)" % DATA[key].dtype.itemsize)
+                return True
+            if store.f[key].dtype.kind == 'U':
+                # log.debug("Unicode String (characters: %d)" % DATA[key].dtype.itemsize)
+                return True
+
+        return False
+
+    def __init__(self, store, key):
+        self._store = store
+        self._key = key
+        self.data = store.f[key]
+
+    @property
+    def key(self):
+        return self._key
+
+    @property
+    def store(self):
+        return self._store
+
+    @property
+    def display_name(self):
+        return pp.basename(self.key)
+
+    @property
+    def description(self):
+        return 'Text "%s"' % (self.display_name,)
+
+    @property
+    def shape(self):
+        return self.data.shape
+
+    @property
+    def text(self):
+        txt = str()
+
+        if len(self.shape) == 0:
+            # print(type(self.data))
+            txt += str(self.data[()])
+
+        elif len(self.shape) == 1:
+            for el in self.data:
+                txt += el + ", \n"
+
+        elif len(self.shape) == 2:
+            for i in range(self.shape[0]):
+                for j in range(self.shape[1]):
+                    txt += self.data[i, j] + ", "
+                txt += "\n"
+
+        else:
+            txt = ">> display of more than 2D string array not implemented <<"
+
+        return txt
+
+
 class HDF5KV(compass_model.KeyValue):
-    """
-    A KeyValue node used for HDF5 attributes.
-    """
+    """ A KeyValue node used for HDF5 attributes. """
 
     class_kind = "HDF5 Attributes"
 
@@ -322,6 +382,7 @@ class HDF5Image(compass_model.Image):
 # Register handlers    
 HDF5Store.push(HDF5KV)
 HDF5Store.push(HDF5Dataset)
+HDF5Store.push(HDF5Text)
 HDF5Store.push(HDF5Group)
 HDF5Store.push(HDF5Image)
 
