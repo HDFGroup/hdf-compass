@@ -208,6 +208,15 @@ class HDF5Dataset(compass_model.Array):
     def __getitem__(self, args):
         return self._dset[args]
 
+    def is_plottable(self):
+        if self.dtype.kind == 'S':
+            log.debug("Not plottable since ASCII String (characters: %d)" % self.dtype.itemsize)
+            return False
+        if self.dtype.kind == 'U':
+            log.debug("Not plottable since Unicode String (characters: %d)" % self.dtype.itemsize)
+            return False
+        return True
+
 
 class HDF5KV(compass_model.KeyValue):
     """

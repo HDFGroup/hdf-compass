@@ -251,6 +251,15 @@ class Base(compass_model.Array):
     def description(self):
         return "A Pydap BaseType Object."
 
+    def is_plottable(self):
+        if self.dtype.kind == 'S':
+            log.debug("Not plottable since ASCII String (characters: %d)" % self.dtype.itemsize)
+            return False
+        if self.dtype.kind == 'U':
+            log.debug("Not plottable since Unicode String (characters: %d)" % self.dtype.itemsize)
+            return False
+        return True
+
 
 class Attributes(compass_model.KeyValue):
     """

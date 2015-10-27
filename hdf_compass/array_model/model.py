@@ -34,8 +34,10 @@ DATA = {'array://localhost/a_0d': np.array(1),
         'array://localhost/cmp_2d': np.ones((10, 10), dtype=DT_CMP),
         'array://localhost/cmp_3d': np.ones((10, 10, 10), dtype=DT_CMP),
         'array://localhost/cmp_4d': np.ones((10, 10, 10, 10), dtype=DT_CMP),
-        'array://localhost/s_0d': np.array("Hello"),
-        'array://localhost/s_1d': np.array(("Hello",)),
+        'array://localhost/S_0d': np.array(b"Hello"),
+        'array://localhost/S_1d': np.array((b"Hello",)),
+        'array://localhost/U_0d': np.array("Hello"),
+        'array://localhost/U_1d': np.array(("Hello",)),
         'array://localhost/v_0d': np.array('\x01', dtype='|V1'),
         'array://localhost/non_square': np.arange(5 * 10).reshape((5, 10)),
         }
@@ -177,6 +179,15 @@ class Array(compass_model.Array):
 
     def __getitem__(self, args):
         return self.data[args]
+
+    def is_plottable(self):
+        if self.dtype.kind == 'S':
+            log.debug("Not plottable since ASCII String (characters: %d)" % self.dtype.itemsize)
+            return False
+        if self.dtype.kind == 'U':
+            log.debug("Not plottable since Unicode String (characters: %d)" % self.dtype.itemsize)
+            return False
+        return True
 
 
 class ArrayKV(compass_model.KeyValue):
