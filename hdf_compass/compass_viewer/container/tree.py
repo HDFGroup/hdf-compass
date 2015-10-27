@@ -75,6 +75,10 @@ class ContainerTree(wx.TreeCtrl):
 
                 self.SetItemImage(i, image_index, wx.TreeItemIcon_Normal)
                 self.SetPyData(i, {'idx':item, 'node':subnode})
+        if (len(node) > self.limit and
+            platform.system() == 'Linux'):
+            i = self.AppendItem(grp, 'more...')
+            self.SetPyData(i, {'idx':self.limit, 'node':None})
         self.Expand(grp)
         return node
 
