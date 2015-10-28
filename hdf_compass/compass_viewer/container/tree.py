@@ -233,6 +233,7 @@ class ContainerTree(wx.TreeCtrl):
                             self.SetItemImage(i, image_index, wx.TreeItemIcon_Normal)
                             self.SetPyData(i, {'idx':x, 'node':subnode})
                             self.ScrollTo(i)
+        evt.Skip()
 
 
     def recursive_walk(self, node, depth):
