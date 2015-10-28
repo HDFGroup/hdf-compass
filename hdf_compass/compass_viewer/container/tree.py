@@ -55,6 +55,7 @@ class ContainerTree(wx.TreeCtrl):
         self.Bind(wx.EVT_SCROLLWIN, self.on_bottom)
         self.node = node
         self.limit = 20
+        self.bottom = 8
 
         self.il = wx.GetApp().imagelists[16]
         self.SetImageList(self.il)
@@ -209,22 +210,29 @@ class ContainerTree(wx.TreeCtrl):
             Mac fires this event several times in succession.
             Windows fires only once.
         """
-        if (evt.Orientation == wx.SB_VERTICAL and
-            (evt.GetEventType() == wx.wxEVT_SCROLLWIN_PAGEDOWN
-                or evt.GetEventType() == wx.wxEVT_SCROLLWIN_LINEDOWN)):
-            log.debug("got scroll down event.")
-            # Show more items automatically.
-            item = self.GetLastChild(self.root)
-            start = self.GetPyData(item)['idx']
-
-            for x in xrange(len(self.node)):
-                if start < x <= start + self.limit:
-                    subnode = self.node[x]
-                    i = self.AppendItem(self.root, subnode.display_name)
-                    image_index = self.il.get_index(type(subnode))
-                    self.SetItemImage(i, image_index, wx.TreeItemIcon_Normal)
-                    self.SetPyData(i, {'idx':x, 'node':subnode})
-                    self.ScrollTo(i)
+        p = 0
+        if evt.Orientation == wx.SB_VERTICAL:
+            if (evt.GetEventType() == wx.wxEVT_SCROLLWIN_THUMBRELEASE):
+                p = evt.GetPosition()
+                # print p
+                if p >= self.bottom:
+                    self.bottom = p
+            if  (evt.GetEventType() == wx.wxEVT_SCROLLWIN_PAGEDOWN
+                or evt.GetEventType() == wx.wxEVT_SCROLLWIN_LINEDOWN
+                or self.bottom == p):
+                log.debug("got scroll down event.")
+                # Show more items automatically.
+                item = self.GetLastChild(self.root)
+                if item:
+                    start = self.GetPyData(item)['idx']
+                    for x in xrange(len(self.node)):
+                        if start < x <= start + self.limit:
+                            subnode = self.node[x]
+                            i = self.AppendItem(self.root, subnode.display_name)
+                            image_index = self.il.get_index(type(subnode))
+                            self.SetItemImage(i, image_index, wx.TreeItemIcon_Normal)
+                            self.SetPyData(i, {'idx':x, 'node':subnode})
+                            self.ScrollTo(i)
 
 
     def recursive_walk(self, node, depth):
