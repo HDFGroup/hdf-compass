@@ -28,10 +28,17 @@ log = logging.getLogger(__name__)
 
 from ..frame import BaseFrame
 
+ID_VIEW_CMAP_JET = wx.NewId()  # default
+ID_VIEW_CMAP_BONE = wx.NewId()
+ID_VIEW_CMAP_GIST_EARTH = wx.NewId()
+ID_VIEW_CMAP_OCEAN = wx.NewId()
+ID_VIEW_CMAP_RAINBOW = wx.NewId()
+ID_VIEW_CMAP_RDYLGN = wx.NewId()
+ID_VIEW_CMAP_WINTER = wx.NewId()
+
 
 class PlotFrame(BaseFrame):
-    """
-    Base class for Matplotlib plot windows.
+    """ Base class for Matplotlib plot windows.
 
     Override draw_figure() to plot your figure on the provided axes.
     """
@@ -81,16 +88,76 @@ class LinePlotFrame(PlotFrame):
 
 class ContourPlotFrame(PlotFrame):
     def __init__(self, data, names=None, title="Contour Plot"):
+        # need to be set before calling the parent (need for plotting)
+        self.colormap = "jet"
+
         PlotFrame.__init__(self, data, title)
 
+        self.cmap_menu = wx.Menu()
+        self.cmap_menu.Append(ID_VIEW_CMAP_JET, "Jet", kind=wx.ITEM_RADIO)
+        self.cmap_menu.Append(ID_VIEW_CMAP_BONE, "Bone", kind=wx.ITEM_RADIO)
+        self.cmap_menu.Append(ID_VIEW_CMAP_GIST_EARTH, "Gist Earth", kind=wx.ITEM_RADIO)
+        self.cmap_menu.Append(ID_VIEW_CMAP_OCEAN, "Ocean", kind=wx.ITEM_RADIO)
+        self.cmap_menu.Append(ID_VIEW_CMAP_RAINBOW, "Rainbow", kind=wx.ITEM_RADIO)
+        self.cmap_menu.Append(ID_VIEW_CMAP_RDYLGN, "Red-Yellow-Green", kind=wx.ITEM_RADIO)
+        self.cmap_menu.Append(ID_VIEW_CMAP_WINTER, "Winter", kind=wx.ITEM_RADIO)
+        self.add_menu(self.cmap_menu, "Colormap")
+
+        self.Bind(wx.EVT_MENU, self.on_cmap_jet, id=ID_VIEW_CMAP_JET)
+        self.Bind(wx.EVT_MENU, self.on_cmap_bone, id=ID_VIEW_CMAP_BONE)
+        self.Bind(wx.EVT_MENU, self.on_cmap_gist_earth, id=ID_VIEW_CMAP_GIST_EARTH)
+        self.Bind(wx.EVT_MENU, self.on_cmap_ocean, id=ID_VIEW_CMAP_OCEAN)
+        self.Bind(wx.EVT_MENU, self.on_cmap_rainbow, id=ID_VIEW_CMAP_RAINBOW)
+        self.Bind(wx.EVT_MENU, self.on_cmap_rdylgn, id=ID_VIEW_CMAP_RDYLGN)
+        self.Bind(wx.EVT_MENU, self.on_cmap_winter, id=ID_VIEW_CMAP_WINTER)
+
+    def on_cmap_jet(self, evt):
+        log.debug("cmap: jet")
+        self.colormap = "jet"
+        self._refresh_plot()
+
+    def on_cmap_bone(self, evt):
+        log.debug("cmap: bone")
+        self.colormap = "bone"
+        self._refresh_plot()
+
+    def on_cmap_gist_earth(self, evt):
+        log.debug("cmap: gist_earth")
+        self.colormap = "gist_earth"
+        self._refresh_plot()
+
+    def on_cmap_ocean(self, evt):
+        log.debug("cmap: ocean")
+        self.colormap = "ocean"
+        self._refresh_plot()
+
+    def on_cmap_rainbow(self, evt):
+        log.debug("cmap: rainbow")
+        self.colormap = "rainbow"
+        self._refresh_plot()
+
+    def on_cmap_rdylgn(self, evt):
+        log.debug("cmap: RdYlGn")
+        self.colormap = "RdYlGn"
+        self._refresh_plot()
+
+    def on_cmap_winter(self, evt):
+        log.debug("cmap: winter")
+        self.colormap = "winter"
+        self._refresh_plot()
+
+    def _refresh_plot(self):
+        self.draw_figure()
+        self.canvas.draw()
+
     def draw_figure(self):
-        maxElements = 500  # don't attempt plot more than 500x500 elements
+        max_elements = 500  # don't attempt plot more than 500x500 elements
         rows = self.data.shape[0]
         cols = self.data.shape[1]
-        row_stride = rows // maxElements + 1
-        col_stride = cols // maxElements + 1
+        row_stride = rows // max_elements + 1
+        col_stride = cols // max_elements + 1
         data = self.data[::row_stride, ::col_stride]
         xx = np.arange(0, self.data.shape[1], col_stride)
         yy = np.arange(0, self.data.shape[0], row_stride)
-        out = self.axes.contourf(xx, yy, data, 25)
+        out = self.axes.contourf(xx, yy, data, 25, cmap=plt.cm.get_cmap(self.colormap))
         plt.colorbar(out)

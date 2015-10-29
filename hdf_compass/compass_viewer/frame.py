@@ -39,6 +39,8 @@ from hdf_compass import compass_model
 from hdf_compass.utils import __version__, is_darwin, url2path, path2url
 from .events import CompassOpenEvent
 
+open_frames = 0  # count the open frames
+
 
 class BaseFrame(wx.Frame):
 
@@ -55,13 +57,17 @@ class BaseFrame(wx.Frame):
     """
 
     icon_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), 'icons'))
+    open_frames = 0  # count the number of frames
 
     def __init__(self, **kwds):
         """ Constructor; any keywords are passed on to wx.Frame.
         """
 
-        wx.Frame.__init__(self, None, **kwds) 
-        
+        wx.Frame.__init__(self, None, **kwds)
+
+        BaseFrame.open_frames += 1
+        log.debug("new frame -> open frames: %s" % BaseFrame.open_frames)
+
         # Frame icon
         ib = wx.IconBundle()
         icon_32 = wx.EmptyIcon()
@@ -111,17 +117,21 @@ class BaseFrame(wx.Frame):
 
         self.SetMenuBar(menubar)
 
-        self.Bind(wx.EVT_MENU, self.on_window_close, id=wx.ID_CLOSE)
         self.Bind(wx.EVT_MENU, self.on_file_open, id=wx.ID_OPEN)
         self.Bind(wx.EVT_MENU, self.on_resource_open, id=ID_OPEN_RESOURCE)
         self.Bind(wx.EVT_MENU, self.on_manual, id=wx.ID_HELP)
         self.Bind(wx.EVT_MENU, self.on_about, id=wx.ID_ABOUT)
         self.Bind(wx.EVT_MENU, self.on_exit, id=wx.ID_EXIT)
+        self.Bind(wx.EVT_CLOSE, self.on_exit)
         self.Bind(wx.EVT_MENU_RANGE, self.on_url_history, id=wx.ID_FILE1, id2=wx.ID_FILE9)
 
     def on_exit(self, evt):
         """ Called on "exit" event from the menu """
-        wx.GetApp().Exit()
+        BaseFrame.open_frames -= 1
+        log.debug("exit frame -> open frames: %s" % BaseFrame.open_frames)
+        self.Destroy()
+        if BaseFrame.open_frames == 0:
+            wx.GetApp().Exit()
 
     def on_manual(self, evt):
         """ Open the url with the online documentation """
@@ -131,7 +141,7 @@ class BaseFrame(wx.Frame):
     def on_about(self, evt):
         """ Display an "About" dialog """
         info = wx.AboutDialogInfo()
-        info.Name = "HDFCompass"
+        info.Name = "HDF Compass"
         info.Version = __version__
         info.Copyright = "(c) 2014-%d The HDF Group" % date.today().year
         icon_48 = wx.EmptyIcon()
@@ -179,10 +189,6 @@ class BaseFrame(wx.Frame):
         url = self.urlhistory.GetHistoryFile(fileNum)
         self.open_url(url, fileNum)
             
-    def on_window_close(self, evt):
-        """ Close Window file event, or cmd-W """
-        self.Destroy()
-
     def on_resource_open(self, evt):
         """ Request to open a URL via the File menu """
         dlg = wx.TextEntryDialog(self, 'Enter resource URL:')
@@ -205,7 +211,7 @@ class BaseFrame(wx.Frame):
             self.config.Flush()
             open_store(url)
         else:
-            if fileNum >= 0 and fileNum < MAX_RECENT_FILES:
+            if (fileNum >= 0) and (fileNum < MAX_RECENT_FILES):
                 self.urlhistory.RemoveFileFromHistory(fileNum)
                 self.urlhistory.Save(self.config)
                 self.config.Flush()
@@ -232,7 +238,7 @@ class InitFrame(BaseFrame):
         
         style = wx.DEFAULT_FRAME_STYLE & (~wx.RESIZE_BORDER) & (~wx.MAXIMIZE_BOX)
         title = "HDF Compass"
-        BaseFrame.__init__(self, size=(552,247), title=title, style=style)
+        super(InitFrame, self).__init__(size=(552, 247), title=title, style=style)
 
         data = wx.Bitmap(os.path.join(self.icon_folder, "logo.png"), wx.BITMAP_TYPE_ANY)
         bmp = wx.StaticBitmap(self, wx.ID_ANY, data)
@@ -276,7 +282,7 @@ class NodeFrame(BaseFrame):
     def _incref(cls, store):
         """ Record that a client is using the specified store. """
         try:
-            cls._stores[store] = cls._stores[store] + 1
+            cls._stores[store] += 1
         except KeyError:
             cls._stores[store] = 1
 
@@ -338,7 +344,7 @@ class NodeFrame(BaseFrame):
         node:   The compass_model.Node instance to display.
         """
 
-        BaseFrame.__init__(self, **kwds)
+        super(NodeFrame, self).__init__(**kwds)
 
         # Enable the "Close File" menu entry
         fm = self.GetMenuBar().GetMenu(0)
