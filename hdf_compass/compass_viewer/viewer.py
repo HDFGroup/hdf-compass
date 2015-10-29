@@ -227,6 +227,12 @@ def load_plugins():
                   % (".".join(str(i) for i in lib.__version__), ".".join(str(i) for i in lib.__dap__)))
     except ImportError:
         log.warning("Opendap plugin: NOT loaded")
+    
+    from hdf_compass import hdf5rest_model    
+    try:
+        from hdf_compass import hdf5rest_model
+    except ImportError:
+        log.warning("HDF5 REST: plugin NOT loaded")
 
 
 def run():
