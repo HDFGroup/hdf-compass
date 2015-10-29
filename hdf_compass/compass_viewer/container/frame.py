@@ -31,6 +31,7 @@ from ..events import ID_COMPASS_OPEN
 from ..events import EVT_CONTAINER_SELECTION
 from .list import ContainerReportList, ContainerIconList
 from .tree import ContainerTree
+from .graph import ContainerGraph
 
 ID_GO_MENU_BACK = wx.NewId()
 ID_GO_MENU_NEXT = wx.NewId()
@@ -89,7 +90,9 @@ class ContainerFrame(NodeFrame):
         self.Bind(wx.EVT_MENU, lambda evt: self.go_top(), id=ID_GO_MENU_TOP)
         self.Bind(wx.EVT_MENU, lambda evt: self.list_view(), id=ID_VIEW_MENU_LIST)
         self.Bind(wx.EVT_MENU, lambda evt: self.icon_view(), id=ID_VIEW_MENU_ICON)
-        self.Bind(wx.EVT_MENU, lambda evt: self.tree_view(), id=ID_VIEW_MENU_TREE)        
+        self.Bind(wx.EVT_MENU, lambda evt: self.tree_view(), id=ID_VIEW_MENU_TREE)
+        self.Bind(wx.EVT_MENU, lambda evt: self.graph_view(), id=ID_VIEW_MENU_GRAPH)
+
         self.toolbar = self.CreateToolBar(wx.TB_HORIZONTAL | wx.NO_BORDER | wx.TB_FLAT | wx.TB_TEXT)
 
         tsize = (24, 24)
@@ -115,6 +118,7 @@ class ContainerFrame(NodeFrame):
                                   longHelp="View in Icons")
 
         self.toolbar.Realize()
+        # self.view = ContainerGraph(self, node)
         self.view = ContainerTree(self, node)
         # self.view = ContainerReportList(self, node)
 
@@ -136,6 +140,12 @@ class ContainerFrame(NodeFrame):
          """ Switch to tree view """
          if not isinstance(self.view, ContainerTree):
              self.view = ContainerTree(self, self.history[self.history_ptr])
+             self.update_view()
+
+    def graph_view(self):
+         """ Switch to graph view """
+         if not isinstance(self.view, ContainerTree):
+             self.view = ContainerGraph(self, self.history[self.history_ptr])
              self.update_view()
             
     # --- Begin history support functions -------------------------------------

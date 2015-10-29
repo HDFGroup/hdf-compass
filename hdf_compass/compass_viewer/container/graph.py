@@ -10,7 +10,7 @@
 # request a copy from help@hdfgroup.org.                                     #
 ##############################################################################
 """
-Handles tree view for Container display.
+Handles graph view for Container display.
 """
 __author__ = 'Hyo-Kyung Lee <hyoklee@hdfgroup.org>'
 
@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 ID_CONTEXT_MENU_OPEN = wx.NewId()
 ID_CONTEXT_MENU_OPENWINDOW = wx.NewId()
 
-class ContainerTree(wx.TreeCtrl):
+class ContainerGraph(wx.Window):
 
     """
     Defines the current selection (via .selection property) as well as
@@ -44,52 +44,117 @@ class ContainerTree(wx.TreeCtrl):
         :param kwds: other optional arguments
         :return:
         """
-        wx.TreeCtrl.__init__(self, parent, **kwds)
-        self.Bind(wx.EVT_TREE_ITEM_RIGHT_CLICK, self.on_rclick)
-        self.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self.on_activate)
+        wx.Window.__init__(self, parent, **kwds)
+        # Bind mouse events later.
+        self.Bind(wx.EVT_SIZE, self.OnSize)
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        # self.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self.on_activate)
         self.Bind(wx.EVT_MENU, self.on_context_open, id=ID_CONTEXT_MENU_OPEN)
         self.Bind(wx.EVT_MENU, self.on_context_openwindow,
                   id=ID_CONTEXT_MENU_OPENWINDOW)
 
-        self.Bind(wx.EVT_TREE_SEL_CHANGED, self.hint_select)
-        self.Bind(wx.EVT_SCROLLWIN, self.on_bottom)
+
         self.node = node
-
-        self.limit = 1000
-        self.bottom = 2064
-
-        # self.limit = 20
-        # self.bottom = 8
+        self.limit = 20
 
         self.il = wx.GetApp().imagelists[16]
-        self.SetImageList(self.il)
 
-        self.root = self.AddRoot(node.display_name)
-        img_ind = self.il.get_index(type(node))
-        self.SetItemImage(self.root, img_ind, wx.TreeItemIcon_Normal)
-        self.SetPyData(self.root, {'idx':-1, 'node':node})
-        self.SelectItem(self.root, True)
+        self.BufferBmp = None
+        self.OnSize(None)
 
+    def OnSize(self, event):
+        # Get the size of the drawing area in pixels.
+        self.wi, self.he = self.GetSizeTuple()
+        # Create BufferBmp and set the same size as the drawing area.
+        self.BufferBmp = wx.EmptyBitmap(self.wi, self.he)
+        memdc = wx.MemoryDC()
+        memdc.SelectObject(self.BufferBmp)
+        # Drawing job
+        ret = self.DoSomeDrawing(memdc)
+        if not ret:  #error
+            self.BufferBmp = None
+            wx.MessageBox('Error in drawing', 'CommentedDrawing', wx.OK | wx.ICON_EXCLAMATION)
+
+
+    # OnPaint is executed at the app start, when resizing or when
+    # the application windows becomes active. OnPaint copies the
+    # buffered picture, instead of preparing (again) the drawing job.
+    # This is the trick, copying is very fast.
+    # Note: if you forget to define the dc in this procedure,
+    # (no dc = ... code line), the application will run in
+    # an infinite loop. This is a common beginner's error. (I think)
+    # BeginDrawing() and EndDrawing() are for windows platforms (see doc).
+    def OnPaint(self, event):
+        dc = wx.PaintDC(self)
+        dc.BeginDrawing()
+        if self.BufferBmp != None:
+            dc.DrawBitmap(self.BufferBmp, 0, 0, True)
+        else:
+            dc.EndDrawing()
+
+
+    # The function defines the drawing job. Everything is drawn on the dc.
+    # In that application, the dc corresponds to the BufferBmp.
+    # Three things are drawn, a square with a fixed size, and two
+    # rectangles with sizes determined by the size of the dc, that
+    # means the size of the drawing area. Keep in mind, the size
+    # of the drawing area depends on the size of the main frame,
+    # which can be resized on the fly with your mouse.
+    # At this point, I will introduce a small complication, that is
+    # in fact quite practical. It may happen, the drawing is not
+    # working correctly. Either there is an error in the drawing job
+    # or the data you want to plot can not be drawn correctly. A typical
+    # example is the plotting of 'scientific data'. The data are not (or
+    # may not be) scaled correctly, that leads to errors, generally integer
+    # overflow errors.
+    # To circumvent this, the procedure returns True, if the drawing succeed.
+    # It returns False, if the drawing fails. The returned value may be used
+    # later.
+    def DoSomeDrawing(self, dc):
+        try:
+
+            dc.BeginDrawing()
+
+            #~ raise OverflowError #for test
+
+            # Clear everything
+            dc.SetBrush(wx.Brush(wx.WHITE, wx.SOLID))
+            dc.Clear()
+
+            # Draw the square with a fixed size.
+            dc.SetBrush(wx.Brush(wx.CYAN, wx.SOLID))
+            dc.SetPen(wx.Pen(wx.BLUE, 1, wx.SOLID))
+            dc.DrawRectangle(10, 10, 200, 200)
+
+            # Draw a transparent rectangle with a red border, proportional to
+            # the dc size.
+            dcwi, dche = dc.GetSizeTuple()
+            dc.SetBrush(wx.Brush(wx.CYAN, wx.TRANSPARENT))
+            dc.SetPen(wx.Pen(wx.RED, 1, wx.SOLID))
+            dc.DrawRectangle(0, 0, dcwi, dche)
+
+            # Draw one another rectangle, a rectangle with a size proportional
+            # to the dc size.
+            gap = 50
+            dc.SetBrush(wx.Brush(wx.WHITE, wx.TRANSPARENT))
+            dc.SetPen(wx.Pen(wx.BLACK, 1, wx.SOLID))
+            dc.DrawRectangle(0 + gap, 0 + gap, dcwi - 2 * gap, dche - 2 * gap)
+
+            # These next 2 lines will raise an overflow error.
+            #~ largeval = 1e10
+            #~ dc.DrawLine(dcwi // 2, dche // 2, largeval, largeval)
+
+            dc.EndDrawing()
+            return True
+
+        except:
+            return False
 
     @property
     def selection(self):
         """ The currently selected item, or None. """
         log.debug('selected.')
-        grp = self.GetSelection()
-        node = self.GetPyData(grp)['node']
-        # Add children if they don't exist.
-        if (isinstance(node, compass_model.Container) and
-            self.GetChildrenCount(grp) == 0):
-            for item in xrange(len(node)):
-                if item < self.limit:
-                    subnode = node[item]
-                    i = self.AppendItem(grp, subnode.display_name)
-                    image_index = self.il.get_index(type(subnode))
-
-                    self.SetItemImage(i, image_index, wx.TreeItemIcon_Normal)
-                    self.SetPyData(i, {'idx':item, 'node':subnode})
-            self.Expand(grp)
-        return node
+        return None
 
     def hint_select(self, evt):
         """ Fire off a ContainerSelectionEvent """
@@ -98,21 +163,14 @@ class ContainerTree(wx.TreeCtrl):
 
     def on_activate(self, evt):
         """ Emit a CompassOpenEvent when an item is double-clicked.
-        """ 
+        """
 
         # wxPython Mac incorrectly treats a rapid left-right click as activate
         ms = wx.GetMouseState()
         if ms.RightIsDown():
             return
-        
-        item = evt.GetItem()
-        newnode = self.GetPyData(item)['node']
 
-
-        if newnode:
-            pos = wx.GetTopLevelParent(self).GetPosition()
-            evt = CompassOpenEvent(newnode, pos=pos)
-            wx.PostEvent(self, evt)
+        wx.PostEvent(self, evt)
 
 
     # ---------------------------------------------------------
@@ -121,11 +179,8 @@ class ContainerTree(wx.TreeCtrl):
     def on_rclick(self, evt):
         """ Pop up a context menu appropriate for the item """
 
-        item = evt.GetItem()
-        node = self.GetPyData(item)['node']
-        if node is None:
-            return
-        print node
+
+        node = self.node
         self._menu_node = node
 
         # Determine a list of handlers which can understand this object.
@@ -179,7 +234,7 @@ class ContainerTree(wx.TreeCtrl):
     def on_context_openwindow(self, evt):
         """ Called in response to a plain "Open in New Window" in the context
         menu.
-        
+
         Posts an event directly to the app object.
         """
         pos = wx.GetTopLevelParent(self).GetPosition()
@@ -190,10 +245,10 @@ class ContainerTree(wx.TreeCtrl):
         """ Called in response to one of the "Open As" context menu items.
         """
         # The "Open As" submenu ID
-        id_ = evt.GetId()               
+        id_ = evt.GetId()
 
         # Node which was right-clicked in the view
-        node_being_opened = self._menu_node 
+        node_being_opened = self._menu_node
 
         # The requested Node subclass to instantiate
         h = self._menu_handlers[id_]
@@ -207,52 +262,17 @@ class ContainerTree(wx.TreeCtrl):
 
     # End context menu support
     # -------------------------------------------------------------------
-        
-    def on_bottom(self, evt):
-        """ Handle window scroll down event.
-            This works only for Windows and Mac.
-            Mac fires this event several times in succession.
-            Windows fires only once.
-        """
-        p = 0
-        if evt.Orientation == wx.SB_VERTICAL:
-            if (evt.GetEventType() == wx.wxEVT_SCROLLWIN_THUMBRELEASE):
-                p = evt.GetPosition()
-                # print p
-                if p >= self.bottom:
-                    self.bottom = p
-            if  (evt.GetEventType() == wx.wxEVT_SCROLLWIN_PAGEDOWN
-                or evt.GetEventType() == wx.wxEVT_SCROLLWIN_LINEDOWN
-                or self.bottom == p):
-                log.debug("got scroll down event.")
-                # Show more items automatically.
-                item = self.GetLastChild(self.root)
-                if item:
-                    start = self.GetPyData(item)['idx']
-                    for x in xrange(len(self.node)):
-                        if start < x <= start + self.limit:
-                            subnode = self.node[x]
-                            i = self.AppendItem(self.root, subnode.display_name)
-                            image_index = self.il.get_index(type(subnode))
-                            self.SetItemImage(i, image_index, wx.TreeItemIcon_Normal)
-                            self.SetPyData(i, {'idx':x, 'node':subnode})
-                            self.ScrollTo(i)
-        evt.Skip()
+
 
 
     def recursive_walk(self, node, depth):
-        """ Build tree from node by traversing children recursively.
+        """ Build graph from node by traversing children recursively.
         """
         # If nodes have loop among them, it will recurse forever.
         # To prevent it, use depth.
         if depth > 1:
             return
-        g = self.GetSelection()
+
         for item in xrange(len(node)):
             if item < self.limit:
                 subnode = node[item]
-                i = self.AppendItem(g, subnode.display_name)
-                image_index = self.il.get_index(type(subnode))
-
-                self.SetItemImage(i, image_index, wx.TreeItemIcon_Normal)
-                self.SetPyData(i, {'idx':item, 'node':subnode})
