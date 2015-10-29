@@ -89,12 +89,23 @@ def describe(node):
     desc = "%s\n\n" % type(node).class_kind
 
     if isinstance(node, compass_model.Array):
-        desc += "Shape\n%s\n\nType\n%s" % \
+        desc += "Shape\n%s\n\nType\n%s\n" % \
                 (node.shape, dtype_text(node.dtype))
 
     elif isinstance(node, compass_model.Container):
         desc += "%d items\n" % len(node)
-
+    
+    if not isinstance(node, compass_model.KeyValue):    
+        # see if there is a key-value handler for this node
+        handlers = node.store.gethandlers(node.key)
+        for h in handlers:
+            
+            kv_node = h(node.store, node.key)
+            if isinstance(kv_node, compass_model.KeyValue):
+                num_keys = len(kv_node.keys)
+                if num_keys > 0:
+                    desc += "\n%d %s\n" % (len(kv_node.keys), type(kv_node).class_kind)
+            
     return desc
 
 
