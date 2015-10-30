@@ -11,7 +11,7 @@
 ##############################################################################
 
 """
-Implementation of compass_model classes for HDF5 files.
+Implementation of compass_model classes for HDF5 REST API.
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
@@ -21,6 +21,7 @@ import os.path as op
 import posixpath as pp
 import json
 import requests
+import numpy as np
 
 import logging
 log = logging.getLogger(__name__)
@@ -42,15 +43,14 @@ def get_json(endpoint, domain=None, uri=None):
     headers = {}
     if domain is not None:        
         headers['host'] = domain
-    #self.log.info("GET: " + req)
-    print("GET: " + req)
-    rsp = requests.get(req, headers=headers)
-    #self.log.info("RSP: " + str(rsp.status_code) + ':' + rsp.text)
-    print("RSP: " + str(rsp.status_code) + ':' + rsp.text)
+    
+    log.debug("GET: " + req)
+     
+    rsp = requests.get(req, headers=headers, verify=False)
+    log.debug("RSP: " + str(rsp.status_code) + ':' + rsp.text)
+    
     if rsp.status_code != 200:
-        print("status_code: %d", rsp.status_code)
-        raise IOError(rsp.reason)
-        #print "rsp text", rsp.text    
+        raise IOError(rsp.reason)  
     rsp_json = json.loads(rsp.text)
                     
     return rsp_json
@@ -65,13 +65,53 @@ def sort_key(name):
 
 class HDF5RestStore(compass_model.Store):
     """
-    Data store implementation using an HDF5 file.
+    Data store implementation for an HDF Service endpoint
 
-    Keys are the full names of objects in the file.
+    Keys are valid h5paths to the object:
+        e.g.:
+            /g1
+            /g1/dset1.1
+            /g1/dtype
+            
+    Values are URI's to the resource
+            /groups/<uuid>
+            /datasets/<uuid>
+            /datatypes/<uuid>
     """
 
     def __contains__(self, key):
-        return key in self.f
+        if key in self.f:
+            return True
+        try:
+            pkey = self.get_parent(key)
+        except KeyError:
+            return False
+        if pkey not in self.f:
+            # assumes that we've loaded any parents, before querying for children
+            return False
+        pkey_uri = self.f[pkey]
+        if not pkey_uri.startswith("/groups/"):
+            # if the parent is not a group, this is not a valid key
+            return False
+        # do a get on the link name
+        linkname = pp.basename(key)
+        contains = False
+        try:
+            link_json = self.get(pkey_uri + "/links/" + linkname)
+            if link_json["class"] == "H5L_TYPE_HARD":
+                log.debug("add key to store:" + key)
+                self.f[key] = '/' + link_json["collection"] + '/' + link_json["id"]
+                contains = True
+            else:
+                pass # todo support soft/external links
+            
+        except IOError:
+            # invalid link
+            # todo - verify it is a 404
+            log.debug("invalid key:"+key)
+        return contains
+        
+     
 
     @property
     def url(self):
@@ -90,14 +130,12 @@ class HDF5RestStore(compass_model.Store):
 
     @property
     def valid(self):
-        return '/' in self._keystore
+        return '/' in self.f
         
-    @property
-    def keystore(self):
-        return self._keystore
 
     @staticmethod
     def can_handle(url):
+        log.debug("hdf5rest can_handle: " + url)
         try:
             flag = True
             rsp_json = get_json(url)
@@ -116,16 +154,18 @@ class HDF5RestStore(compass_model.Store):
     def __init__(self, url):
         if not self.can_handle(url):
             raise ValueError(url)
+            
+        self._url = url
         # extract domain if there's a "host" query param
         queryParam = "host="
-        print("url:" + url)
+       
         nindex = url.find('?' + queryParam)
         if nindex < 0:
             nindex = url.find('&' + queryParam)
         if nindex > 0:
             domain = url[(nindex + len(queryParam) + 1):]
             # trim any additional query params
-            nindex = domain.find['&']
+            nindex = domain.find('&')
             if nindex > 0:
                 domain = domain[:nindex]
             self._domain = domain
@@ -136,12 +176,17 @@ class HDF5RestStore(compass_model.Store):
         if nindex < 0:
             self._endpoint = url
         else:
-            self._endpoint = url[:nindex]
-            
+            self._endpoint = url[:(nindex)]
+            if self._endpoint.endswith('/'):
+                # trim any trailing '/'
+                self._endpoint = self._endpoint[:-1]
+         
+        self.cache = {} # http cache    
         rsp = self.get('/')
         
         self.f = {}
         self.f['/'] = "/groups/" + rsp['root']
+        
         
     @property
     def endpoint(self):
@@ -156,11 +201,16 @@ class HDF5RestStore(compass_model.Store):
         return self._objid
         
     def get(self, uri):
-        rsp = get_json(self.endpoint, domain=self.domain, uri=uri)
+        
+        if uri in self.cache:
+            rsp = self.cache[uri]
+        else:
+            rsp = get_json(self.endpoint, domain=self.domain, uri=uri)
+            self.cache[uri] = rsp
         return rsp
         
     def close(self):
-        pass
+        self.f = {}  # clear the key store
 
     def get_parent(self, key):
         # HDFCompass requires the parent of the root container be None
@@ -171,10 +221,10 @@ class HDF5RestStore(compass_model.Store):
         if pkey == "":
             pkey = "/"
             
-        if pkey not in self._keystore:
+        if pkey not in self.f:
             # is it possible to get to a key without traversing the parents?
             # if so, we should query the server for the given path
-            raise IOError("parent not found")
+            raise KeyError("parent not found: " + pkey)
         return self[pkey]
 
 
@@ -194,12 +244,14 @@ class HDF5RestGroup(compass_model.Container):
             rsp = self.store.get(self._uri + "/links")
             self._xnames = []
             links = rsp["links"]
+            log.debug("got %d links for key: %s" % (len(links), self._key))
             for link in links:
                 name = link["title"]
                 self._xnames.append(name)
                 link_key = pp.join(self.key, name)
                 if link_key not in self.store.f:
                     if link["class"] == "H5L_TYPE_HARD":
+                        log.debug("add key to store:" + link_key)
                         self.store.f[link_key] = '/' + link["collection"] + '/' + link["id"]
                     else:
                         pass # todo support soft/external links
@@ -217,6 +269,7 @@ class HDF5RestGroup(compass_model.Container):
         self._xnames = None
         rsp = store.get(self._uri)
         self._count = rsp["linkCount"]
+        log.debug("new group node: " + self._key)
         self.get_names()
 
     @property
@@ -246,11 +299,11 @@ class HDF5RestGroup(compass_model.Container):
         return self._count
 
     def __iter__(self):
-        for name in self._names:
+        for name in self._xnames:
             yield self.store[pp.join(self.key, name)]
 
     def __getitem__(self, idx):
-        name = self._names[idx]
+        name = self._xnames[idx]
         return self.store[pp.join(self.key, name)]
 
 
@@ -304,9 +357,33 @@ class HDF5RestDataset(compass_model.Array):
         return self._dtype
 
     def __getitem__(self, args):
-        print("getitem: " + str(args))
-        return None
-        return self._dset[args]
+         log.debug("getitem: " + str(args))
+         req = self._uri + "/value"
+         rank = len(self._shape)
+         if rank > 0:
+             sel_query = '['
+             for dim in range(rank):
+                 if dim < len(args):
+                     s = args[dim]
+                 else:
+                     s = slice(0, self._shape[dim])
+                 sel_query += str(s.start)
+                 sel_query += ':'
+                 if s.stop > self._shape[dim]:
+                     sel_query += str(self._shape[dim])
+                 else:
+                    sel_query += str(s.stop)
+                 sel_query += ','
+             sel_query = sel_query[:-1]  # trim trailing comma
+             sel_query += ']'
+             req += "?select=" + sel_query
+         
+             
+         rsp = self.store.get(req)
+         value = rsp["value"]
+         arr = np.array(value, dtype=self._dtype)
+         return arr
+               
 
     def is_plottable(self):
         if self.dtype.kind == 'S':
@@ -370,7 +447,12 @@ class HDF5RestKV(compass_model.KeyValue):
         return self._names[:]
 
     def __getitem__(self, name):
-        return self._obj.attrs[name]
+        rsp = self._store.get(self._uri + "/attributes/" + name)
+        type_json = rsp["type"]
+        value_json = rsp["value"]
+        arr_dtype = hdf5dtype.createDataType(type_json)
+        arr = np.array(value_json, dtype=arr_dtype)
+        return arr
 
 
 
