@@ -90,6 +90,7 @@ class ContourPlotFrame(PlotFrame):
     def __init__(self, data, names=None, title="Contour Plot"):
         # need to be set before calling the parent (need for plotting)
         self.colormap = "jet"
+        self.cb = None  # matplotlib color-bar
 
         PlotFrame.__init__(self, data, title)
 
@@ -159,5 +160,10 @@ class ContourPlotFrame(PlotFrame):
         data = self.data[::row_stride, ::col_stride]
         xx = np.arange(0, self.data.shape[1], col_stride)
         yy = np.arange(0, self.data.shape[0], row_stride)
-        out = self.axes.contourf(xx, yy, data, 25, cmap=plt.cm.get_cmap(self.colormap))
-        plt.colorbar(out)
+        img = self.axes.contourf(xx, yy, data, 25, cmap=plt.cm.get_cmap(self.colormap))
+        self.axes.set_aspect('equal')
+        if self.cb:
+            self.cb.on_mappable_changed(img)
+        else:
+            self.cb = plt.colorbar(img, ax=self.axes)
+        self.cb.ax.tick_params(labelsize=8)
