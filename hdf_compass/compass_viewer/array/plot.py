@@ -19,9 +19,8 @@ import numpy as np
 import wx
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_wxagg import \
-    FigureCanvasWxAgg as FigCanvas, \
-    NavigationToolbar2WxAgg as NavigationToolbar
+from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
+from matplotlib.backends.backend_wx import NavigationToolbar2Wx as NavigationToolbar
 
 import logging
 log = logging.getLogger(__name__)
@@ -112,6 +111,13 @@ class ContourPlotFrame(PlotFrame):
         self.Bind(wx.EVT_MENU, self.on_cmap_rdylgn, id=ID_VIEW_CMAP_RDYLGN)
         self.Bind(wx.EVT_MENU, self.on_cmap_winter, id=ID_VIEW_CMAP_WINTER)
 
+        self.status_bar = wx.StatusBar(self, -1)
+        self.status_bar.SetFieldsCount(2)
+        self.SetStatusBar(self.status_bar)
+
+        self.canvas.mpl_connect('motion_notify_event', self.update_status_bar)
+        self.canvas.Bind(wx.EVT_ENTER_WINDOW, self.change_cursor)
+
     def on_cmap_jet(self, evt):
         log.debug("cmap: jet")
         self.colormap = "jet"
@@ -167,3 +173,14 @@ class ContourPlotFrame(PlotFrame):
         else:
             self.cb = plt.colorbar(img, ax=self.axes)
         self.cb.ax.tick_params(labelsize=8)
+
+    def change_cursor(self, event):
+        self.canvas.SetCursor(wx.StockCursor(wx.CURSOR_CROSS))
+
+    def update_status_bar(self, event):
+        msg = str()
+        if event.inaxes:
+            x, y = int(event.xdata), int(event.ydata)
+            z = self.data[y, x]
+            msg = "x= %d, y= %d, z= %f" % (x, y, z)
+        self.status_bar.SetStatusText(msg, 1)
