@@ -118,8 +118,8 @@ class ContainerFrame(NodeFrame):
                                   longHelp="View in Icons")
 
         self.toolbar.Realize()
-        # self.view = ContainerGraph(self, node)
-        self.view = ContainerTree(self, node)
+        self.view = ContainerGraph(self, node)
+        # self.view = ContainerTree(self, node)
         # self.view = ContainerReportList(self, node)
 
         self.history = [node]
