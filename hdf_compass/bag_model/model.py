@@ -498,16 +498,7 @@ class BAGMetadataXml(compass_model.Xml):
     @property
     def validation(self):
         """ Collect a message string with the result of the validation """
-        msg = str()
-
-        msg += "XML input source: %s\nValidation output: " % self.key
-        if self.store.f.validate_metadata():
-            msg += "VALID"
-        else:
-            msg += "INVALID\nReasons:\n"
-            for err_msg in self.store.f.meta_errors:
-                msg += " - %s\n" % err_msg
-        return msg
+        return self.store.f.validation_info()
 
 
 class BAGUncertainty(compass_model.Array):
