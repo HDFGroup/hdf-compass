@@ -130,7 +130,7 @@ class BaseFrame(wx.Frame):
         BaseFrame.open_frames -= 1
         log.debug("exit frame -> open frames: %s" % BaseFrame.open_frames)
         self.Destroy()
-        if BaseFrame.open_frames == 0:
+        if (BaseFrame.open_frames == 0) or isinstance(self, InitFrame):
             wx.GetApp().Exit()
 
     def on_manual(self, evt):
