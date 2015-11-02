@@ -644,7 +644,6 @@ class BAGMetadataXml(compass_model.Xml):
         """ Collect a message string with the result of the validation """
         return self.store.f.validation_info()
 
-
 class BAGUncertaintyArray(compass_model.Array):
     """ Represents an uncertainty array. """
     class_kind = "BAG Uncertainty [array]"
