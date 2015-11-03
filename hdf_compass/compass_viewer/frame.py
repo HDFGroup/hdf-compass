@@ -122,6 +122,7 @@ class BaseFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_manual, id=wx.ID_HELP)
         self.Bind(wx.EVT_MENU, self.on_about, id=wx.ID_ABOUT)
         self.Bind(wx.EVT_MENU, self.on_exit, id=wx.ID_EXIT)
+        self.Bind(wx.EVT_MENU, self.on_close, id=wx.ID_CLOSE)
         self.Bind(wx.EVT_CLOSE, self.on_close)
         self.Bind(wx.EVT_MENU_RANGE, self.on_url_history, id=wx.ID_FILE1, id2=wx.ID_FILE9)
 
