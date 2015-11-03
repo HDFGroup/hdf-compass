@@ -104,7 +104,7 @@ class BaseFrame(wx.Frame):
         fm.Append(wx.ID_CLOSE, "&Close Window\tCtrl-W")
         fm.Append(ID_CLOSE_FILE, "Close &File\tShift-Ctrl-W")
         fm.Enable(ID_CLOSE_FILE, False)
-        fm.Append(wx.ID_EXIT,"E&xit"," Terminate the program")   
+        fm.Append(wx.ID_EXIT, "E&xit", " Terminate the program")
         
         menubar.Append(fm, "&File")
 
@@ -122,16 +122,22 @@ class BaseFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_manual, id=wx.ID_HELP)
         self.Bind(wx.EVT_MENU, self.on_about, id=wx.ID_ABOUT)
         self.Bind(wx.EVT_MENU, self.on_exit, id=wx.ID_EXIT)
-        self.Bind(wx.EVT_CLOSE, self.on_exit)
+        self.Bind(wx.EVT_MENU, self.on_close, id=wx.ID_CLOSE)
+        self.Bind(wx.EVT_CLOSE, self.on_close)
         self.Bind(wx.EVT_MENU_RANGE, self.on_url_history, id=wx.ID_FILE1, id2=wx.ID_FILE9)
+
+    def on_close(self, evt):
+        """ Called on frame closing """
+        BaseFrame.open_frames -= 1
+        log.debug("close frame -> open frames: %s" % BaseFrame.open_frames)
+        self.Destroy()
+        if isinstance(self, InitFrame):
+            self.on_exit(evt)
 
     def on_exit(self, evt):
         """ Called on "exit" event from the menu """
-        BaseFrame.open_frames -= 1
-        log.debug("exit frame -> open frames: %s" % BaseFrame.open_frames)
-        self.Destroy()
-        if (BaseFrame.open_frames == 0) or isinstance(self, InitFrame):
-            wx.GetApp().Exit()
+        log.debug("exit app -> closing all open frames: %s" % BaseFrame.open_frames)
+        wx.GetApp().Exit()
 
     def on_manual(self, evt):
         """ Open the url with the online documentation """
