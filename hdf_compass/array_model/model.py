@@ -55,6 +55,14 @@ class ArrayStore(compass_model.Store):
         Keys are array names as reported in DATA.
     """
 
+    @staticmethod
+    def plugin_name():
+        return "Array"
+
+    @staticmethod
+    def plugin_description():
+        return "A testing plugin used to evaluate the array visualization."
+
     def __contains__(self, key):
         if (key == '/') or (key is None):
             log.debug("is root: %s" % key)

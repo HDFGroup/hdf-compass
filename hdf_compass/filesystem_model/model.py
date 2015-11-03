@@ -36,6 +36,14 @@ class Filesystem(compass_model.Store):
         Keys are absolute paths on the local file system.
     """
 
+    @staticmethod
+    def plugin_name():
+        return "Filesystem"
+
+    @staticmethod
+    def plugin_description():
+        return "A plugin used to browse local files and folders."
+
     def __contains__(self, key):
         return op.exists(key)
 

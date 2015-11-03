@@ -33,6 +33,7 @@ from hdf_compass.utils import url2path
 
 from . import hdf5dtype
 
+
 def get_json(endpoint, domain=None, uri=None):
                
     # try to do a GET from the domain
@@ -54,7 +55,8 @@ def get_json(endpoint, domain=None, uri=None):
     rsp_json = json.loads(rsp.text)
                     
     return rsp_json
-    
+
+
 def sort_key(name):
     """ Sorting key for names in an HDF5 group.
 
@@ -78,6 +80,13 @@ class HDF5RestStore(compass_model.Store):
             /datasets/<uuid>
             /datatypes/<uuid>
     """
+    @staticmethod
+    def plugin_name():
+        return "HDF5 Rest"
+
+    @staticmethod
+    def plugin_description():
+        return "A plugin used to access HDF Services."
 
     def __contains__(self, key):
         if key in self.f:

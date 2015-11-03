@@ -105,6 +105,19 @@ class Store(object):
 
     __nodeclasses = None
 
+    @staticmethod
+    def plugin_name():
+        """ Short name for the plugin. """
+        raise NotImplementedError
+
+    @staticmethod
+    def plugin_description():
+        """ Plugin description.
+
+        Return useful info about the plugin as the main functionalities, the author, the support email (if any)
+        """
+        raise NotImplementedError
+
     @classmethod
     def push(cls, nodeclass):
         """ Register a Node subclass.

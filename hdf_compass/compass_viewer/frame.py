@@ -23,6 +23,7 @@ import os
 import sys
 from datetime import date
 import wx
+import wx.richtext as rtc
 from wx.lib.pubsub import pub
 
 import logging
@@ -32,6 +33,7 @@ from .info import InfoPanel
 
 ID_OPEN_RESOURCE = wx.NewId()
 ID_CLOSE_FILE = wx.NewId()
+ID_PLUGIN_INFO = wx.NewId()
 
 MAX_RECENT_FILES = 8
 
@@ -112,6 +114,7 @@ class BaseFrame(wx.Frame):
         # moved to the main application menu by wxPython.
         help_menu = wx.Menu()
         help_menu.Append(wx.ID_HELP, "Online &Manual", "Open online documentation")
+        help_menu.Append(ID_PLUGIN_INFO, "&Plugin Info", "Information about the available plugins")
         help_menu.Append(wx.ID_ABOUT, "&About HDFCompass", "Information about this program")
         menubar.Append(help_menu, "&Help")
 
@@ -120,6 +123,7 @@ class BaseFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_file_open, id=wx.ID_OPEN)
         self.Bind(wx.EVT_MENU, self.on_resource_open, id=ID_OPEN_RESOURCE)
         self.Bind(wx.EVT_MENU, self.on_manual, id=wx.ID_HELP)
+        self.Bind(wx.EVT_MENU, self.on_plugin_info, id=ID_PLUGIN_INFO)
         self.Bind(wx.EVT_MENU, self.on_about, id=wx.ID_ABOUT)
         self.Bind(wx.EVT_MENU, self.on_exit, id=wx.ID_EXIT)
         self.Bind(wx.EVT_MENU, self.on_close, id=wx.ID_CLOSE)
@@ -143,6 +147,11 @@ class BaseFrame(wx.Frame):
         """ Open the url with the online documentation """
         import webbrowser
         webbrowser.open('http://hdf-compass.readthedocs.org/en/stable/')
+
+    def on_plugin_info(self, evt):
+        """ Open a tabs frame with info about the available plugins """
+        plug_info = PluginInfoFrame(self)
+        plug_info.Show()
 
     def on_about(self, evt):
         """ Display an "About" dialog """
@@ -430,3 +439,68 @@ class NodeFrame(BaseFrame):
         # Post it directly to the App, or Container will intercept it!
         pos = wx.GetTopLevelParent(self).GetPosition()
         wx.PostEvent(wx.GetApp(), CompassOpenEvent(node_new, pos=pos))
+
+
+class PluginInfoFrame(wx.Frame):
+    icon_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), 'icons'))
+
+    def __init__(self, parent):
+        # make that the plugin info is displayed in the middle of the screen
+        frame_w = 320
+        frame_h = 250
+        x = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X)//2 - frame_w//2
+        y = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)//2 - frame_h//2
+        wx.Frame.__init__(self, parent, title="Plugin Info", pos=(x, y), size=(frame_w, frame_h))
+
+        # Frame icon
+        ib = wx.IconBundle()
+        icon_32 = wx.EmptyIcon()
+        icon_32.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "favicon_32.png"), wx.BITMAP_TYPE_ANY))
+        ib.AddIcon(icon_32)
+        icon_48 = wx.EmptyIcon()
+        icon_48.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "favicon_48.png"), wx.BITMAP_TYPE_ANY))
+        ib.AddIcon(icon_48)
+        self.SetIcons(ib)
+
+        p = wx.Panel(self)
+        nb = wx.Notebook(p)
+
+        for store in compass_model.get_stores():
+            try:
+                print(store.plugin_name())
+                print(store.plugin_description())
+
+                pnl = wx.Panel(nb)
+                t = rtc.RichTextCtrl(pnl, -1, style=wx.TE_READONLY)
+                t.BeginFontSize(9)
+                t.BeginAlignment(wx.TEXT_ALIGNMENT_CENTRE)
+                t.BeginBold()
+                t.WriteText("Name: ")
+                t.EndBold()
+                t.BeginItalic()
+                t.WriteText(store.plugin_name())
+                t.EndItalic()
+                t.Newline()
+                t.Newline()
+                t.BeginBold()
+                t.WriteText("Description")
+                t.EndBold()
+                t.Newline()
+                t.BeginItalic()
+                t.WriteText(store.plugin_description())
+                t.EndItalic()
+                t.Newline()
+
+                #store.plugin_description(), style=wx.TE_MULTILINE|wx.TE_READONLY|wx.TE_CENTER)
+                szr = wx.BoxSizer()
+                szr.Add(t, 1, wx.ALL|wx.EXPAND, 5)
+                pnl.SetSizer(szr)
+                nb.AddPage(pnl, store.plugin_name())
+
+            except NotImplementedError:
+                # skip not implemented plugin name/description
+                log.debug("Not implemented name/description for %s" % store)
+
+        sizer = wx.BoxSizer()
+        sizer.Add(nb, 1, wx.ALL | wx.EXPAND, 3)
+        p.SetSizer(sizer)

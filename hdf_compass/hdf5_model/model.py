@@ -45,6 +45,13 @@ class HDF5Store(compass_model.Store):
 
     Keys are the full names of objects in the file.
     """
+    @staticmethod
+    def plugin_name():
+        return "HDF5"
+
+    @staticmethod
+    def plugin_description():
+        return "A plugin used to browse HDF5 files."
 
     file_extensions = {'HDF5 File': ['*.hdf5', '*.h5']}
 
