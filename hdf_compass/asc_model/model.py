@@ -34,6 +34,14 @@ from hdf_compass.utils import url2path
 class AsciiGrid(compass_model.Store):
     """ A "data store" represented by an ascii grid file. """
 
+    @staticmethod
+    def plugin_name():
+        return "Ascii Grid"
+
+    @staticmethod
+    def plugin_description():
+        return "A plugin used to browse Ascii Grid."
+
     file_extensions = {'ASC File': ['*.asc']}
 
     def __contains__(self, key):

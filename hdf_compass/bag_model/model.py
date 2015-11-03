@@ -45,6 +45,14 @@ class BAGStore(compass_model.Store):
 
     Keys are the full names of objects in the file.
     """
+    @staticmethod
+    def plugin_name():
+        return "BAG"
+
+    @staticmethod
+    def plugin_description():
+        return "A plugin used to browse Open Navigation Surface BAG files."
+
     file_extensions = {'BAG File': ['*.bag']}
 
     def __contains__(self, key):

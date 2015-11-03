@@ -34,6 +34,13 @@ def check_key(key, dataset):
 
 class Server(compass_model.Store):
     """ Represents the remote OpENDAP server to be accessed """
+    @staticmethod
+    def plugin_name():
+        return "OpENDAP"
+
+    @staticmethod
+    def plugin_description():
+        return "A plugin used to access OpENDAP Servers."
 
     def __contains__(self, key):
         if '/' not in key:
