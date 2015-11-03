@@ -45,7 +45,7 @@ You will need:
 * `h5py <https://github.com/h5py/h5py>`_ *[HDF plugin]*
 * `hydroffice.bag <https://bitbucket.org/ccomjhc/hyo_bag>`_ *[BAG plugin]*
 * `Pydap <https://github.com/robertodealmeida/pydap>`_ *[OPeNDAP plugin]*
-* `Requests <https://github.com/kennethreitz/requests>` _ *[HDF Rest API plugin]*
+* `Requests <https://github.com/kennethreitz/requests>`_ *[HDF Rest API plugin]*
 
 For packaging the app:
 
