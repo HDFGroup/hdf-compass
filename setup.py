@@ -107,7 +107,8 @@ setup_args['install_requires'] =\
         "h5py",
         "wxPython",
         "hydroffice.bag",
-        "pydap"
+        "pydap",
+        "requests"
     ]
 # hdf_compass namespace, packages and other files
 setup_args['namespace_packages'] = ['hdf_compass']
