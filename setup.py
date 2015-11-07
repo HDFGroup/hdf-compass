@@ -103,7 +103,7 @@ setup_args['setup_requires'] =\
 setup_args['install_requires'] =\
     [
         "numpy",
-        "matplotlib",
+        "matplotlib>=1.5",
         "cartopy",
         "h5py",
         "wxPython",
