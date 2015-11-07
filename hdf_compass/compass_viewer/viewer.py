@@ -31,7 +31,7 @@ from hdf_compass import compass_model
 from hdf_compass import utils
 
 from .events import ID_COMPASS_OPEN
-from . import container, array, keyvalue, image, frame, text
+from . import container, array, geo_surface, geo_array, keyvalue, image, frame, text
 
 __version__ = utils.__version__
 
@@ -119,6 +119,14 @@ def open_node(node, pos=None):
 
     if isinstance(node, compass_model.Container):
         f = container.ContainerFrame(node, pos=new_pos)
+        f.Show()
+
+    elif isinstance(node, compass_model.GeoSurface):
+        f = geo_surface.GeoSurfaceFrame(node, pos=new_pos)
+        f.Show()
+
+    elif isinstance(node, compass_model.GeoArray):
+        f = geo_array.GeoArrayFrame(node, pos=new_pos)
         f.Show()
 
     elif isinstance(node, compass_model.Array):
