@@ -40,8 +40,7 @@ def sort_key(name):
 
 
 class BAGStore(compass_model.Store):
-    """
-    Data store implementation using a BAG file (closely mimicking HDF5Store).
+    """ Data store implementation using a BAG file (closely mimicking HDF5Store).
 
     Keys are the full names of objects in the file.
     """
@@ -51,7 +50,12 @@ class BAGStore(compass_model.Store):
 
     @staticmethod
     def plugin_description():
-        return "A plugin used to browse Open Navigation Surface BAG files."
+        return """A plugin used to browse Open Navigation Surface BAG files.
+        It provides additional features that are not available with the general HDF5 plugin:
+        - View of metadata information as XML (+ content validation).
+        - Plot of elevation and uncertainty using their geographic extent/
+        The plugin is developed and maintained by G.Masetti [gmasetti@ccom.unh.edu].
+        """
 
     file_extensions = {'BAG File': ['*.bag']}
 
