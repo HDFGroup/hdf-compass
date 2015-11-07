@@ -380,6 +380,11 @@ class BAGElevation(compass_model.GeoSurface):
 
     @staticmethod
     def can_handle(store, key):
+        import matplotlib
+        # for GeoSurface we are using a matplotlib function present after 1.5.x
+        plt_maj, plt_min, _ = matplotlib.__version__.split('.')
+        if (int(plt_maj) == 1) and (int(plt_min) < 5):
+            return False
         return (key == "/BAG_root/elevation") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
 
     def __init__(self, store, key):

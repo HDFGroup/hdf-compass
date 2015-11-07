@@ -467,8 +467,8 @@ class PluginInfoFrame(wx.Frame):
 
         for store in compass_model.get_stores():
             try:
-                print(store.plugin_name())
-                print(store.plugin_description())
+                # log.debug(store.plugin_name())
+                # log.debug(store.plugin_description())
 
                 pnl = wx.Panel(nb)
                 t = rtc.RichTextCtrl(pnl, -1, style=wx.TE_READONLY)
