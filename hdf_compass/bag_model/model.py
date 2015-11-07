@@ -648,6 +648,10 @@ class BAGUncertaintyArray(compass_model.Array):
     """ Represents an uncertainty array. """
     class_kind = "BAG Uncertainty [array]"
 
+class BAGUncertaintyArray(compass_model.Array):
+    """ Represents an uncertainty array. """
+    class_kind = "BAG Uncertainty [array]"
+
     @staticmethod
     def can_handle(store, key):
         return (key == "/BAG_root/uncertainty") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
