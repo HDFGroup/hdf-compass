@@ -41,6 +41,7 @@ You will need:
 * `Python 2.7 <https://www.python.org/downloads/>`_ *(support for Python 3.4+ in progress)*
 * `NumPy <https://github.com/numpy/numpy>`_
 * `Matplotlib <https://github.com/matplotlib/matplotlib>`_
+* `Cartopy <https://github.com/SciTools/cartopy>`_
 * `wxPython Phoenix <https://github.com/wxWidgets/Phoenix>`_ *(2.9.5.0 or later)*
 * `h5py <https://github.com/h5py/h5py>`_ *[HDF plugin]*
 * `hydroffice.bag <https://bitbucket.org/ccomjhc/hyo_bag>`_ *[BAG plugin]*

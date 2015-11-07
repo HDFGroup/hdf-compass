@@ -61,7 +61,7 @@ if not os.path.exists(icon_file):
 
 a = Analysis(['HDFCompass.py'],
              pathex=[],
-             hiddenimports=[],
+             hiddenimports=['scipy.linalg.cython_blas', 'scipy.linalg.cython_lapack'],  # for cartopy
              excludes=["PySide"],  # exclude libraries from being bundled (in case that are installed)
              hookspath=None,
              runtime_hooks=None)
