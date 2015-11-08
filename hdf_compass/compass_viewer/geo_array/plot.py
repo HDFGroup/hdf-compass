@@ -94,6 +94,7 @@ class ContourPlotFrame(PlotFrame):
         # need to be set before calling the parent (need for plotting)
         self.colormap = "jet"
         self.cb = None  # matplotlib color-bar
+        self.surf = None
         self.xx = None
         self.yy = None
 
@@ -169,10 +170,10 @@ class ContourPlotFrame(PlotFrame):
         cols = self.data.shape[1]
         row_stride = rows // max_elements + 1
         col_stride = cols // max_elements + 1
-        data = self.data[::row_stride, ::col_stride]
-        self.xx = np.linspace(self.geo_extent[0], self.geo_extent[1], data.shape[1])
-        self.yy = np.linspace(self.geo_extent[2], self.geo_extent[3], data.shape[0])
-        img = self.axes.contourf(self.xx, self.yy, data, 25, cmap=plt.cm.get_cmap(self.colormap),
+        self.surf = self.data[::row_stride, ::col_stride]
+        self.xx = np.linspace(self.geo_extent[0], self.geo_extent[1], self.surf.shape[1])
+        self.yy = np.linspace(self.geo_extent[2], self.geo_extent[3], self.surf.shape[0])
+        img = self.axes.contourf(self.xx, self.yy, self.surf, 25, cmap=plt.cm.get_cmap(self.colormap),
                                  transform=ccrs.PlateCarree())
         self.axes.coastlines(resolution='50m', color='gray', linewidth=1)
         # add gridlines with labels only on the left and on the bottom
@@ -202,6 +203,8 @@ class ContourPlotFrame(PlotFrame):
         msg = str()
         if event.inaxes:
             x, y = event.xdata, event.ydata
-            z = self.data[self._find_nearest(self.yy, y), self._find_nearest(self.xx, x)]
+            id_y, id_x = self._find_nearest(self.yy, y), self._find_nearest(self.xx, x)
+            # log.debug("id: %f %f" % (id_y, id_x))
+            z = self.surf[id_y, id_x]
             msg = "x= %f, y= %f, z= %f" % (x, y, z)
         self.status_bar.SetStatusText(msg, 1)
