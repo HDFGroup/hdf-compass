@@ -4,6 +4,7 @@ Download additional data files from AWS
 
 from __future__ import absolute_import, division, print_function
 
+import os.path
 try:
     import wget
 
@@ -18,6 +19,7 @@ files = [
     'attrfile.h5',
     'craterlake.h5',
     'compound.h5',
+    'comp_complex.h5',
     'countries.h5',
     'hapmap_compressed.h5',
     'hdf5_test.h5',
@@ -36,6 +38,9 @@ files = [
 
 for filename in files:
     uri = 'https://s3.amazonaws.com/hdfgroup/data/hdf5test/' + filename
-    print("downloading: " + uri)
-    wget.download(uri, bar=wget.bar_thermometer)
+    print( uri)
+    if os.path.isfile(filename):
+        print(filename, "already downloaded - skipping")
+    else:
+        wget.download(uri, bar=wget.bar_thermometer)
 print("done!")
