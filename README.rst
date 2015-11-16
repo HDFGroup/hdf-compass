@@ -41,7 +41,7 @@ You will need:
 * `Python 2.7 <https://www.python.org/downloads/>`_ *(support for Python 3.4+ in progress)*
 * `NumPy <https://github.com/numpy/numpy>`_
 * `Matplotlib <https://github.com/matplotlib/matplotlib>`_
-* `wxPython Phoenix <https://github.com/wxWidgets/Phoenix>`_ *(2.9.5.0 or later)*
+* `wxPython Phoenix 3.0.0 <https://github.com/wxWidgets/Phoenix>`_ *(later releases have not been tested)*
 * `h5py <https://github.com/h5py/h5py>`_ *[HDF plugin]*
 * `hydroffice.bag <https://bitbucket.org/ccomjhc/hyo_bag>`_ *[BAG plugin]*
 * `Pydap <https://github.com/robertodealmeida/pydap>`_ *[OPeNDAP plugin]*
