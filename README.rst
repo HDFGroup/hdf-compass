@@ -25,7 +25,7 @@ and maximum extensibility through a plugin system for new formats.
 HDF Compass is written in Python, but ships as a native application on
 Windows, OS X, and Linux, by using PyInstaller and Py2App to package the app.
 
-Binary executables are available for Windows and Mac OS X (Yosemite or later) at
+Binary executables are available for Windows (Windows 7 or later) and Mac OS X (Yosemite or later) at
 the Project Page listed below.
 
 Bug reports and pull requests are welcome!  For non-trivial PRs please
