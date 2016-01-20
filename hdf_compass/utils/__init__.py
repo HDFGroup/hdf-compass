@@ -20,3 +20,4 @@ from .utils import is_darwin, is_win, is_linux, url2path, path2url, data_url
 
 
 __version__ = "0.6.0.dev1"
+

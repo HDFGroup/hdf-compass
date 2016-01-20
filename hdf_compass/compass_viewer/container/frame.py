@@ -30,6 +30,8 @@ from ..frame import NodeFrame
 from ..events import ID_COMPASS_OPEN
 from ..events import EVT_CONTAINER_SELECTION
 from .list import ContainerReportList, ContainerIconList
+from .tree import ContainerTree
+from .graph import ContainerGraph
 
 ID_GO_MENU_BACK = wx.NewId()
 ID_GO_MENU_NEXT = wx.NewId()
@@ -38,6 +40,8 @@ ID_GO_MENU_TOP = wx.NewId()
 
 ID_VIEW_MENU_LIST = wx.NewId()
 ID_VIEW_MENU_ICON = wx.NewId()
+ID_VIEW_MENU_TREE = wx.NewId()
+ID_VIEW_MENU_GRAPH = wx.NewId()
 
 
 class ContainerFrame(NodeFrame):
@@ -54,6 +58,8 @@ class ContainerFrame(NodeFrame):
         NodeFrame.__init__(self, node, size=(800, 400), title=node.display_title, pos=pos)
 
         view_menu = wx.Menu()
+        view_menu.Append(ID_VIEW_MENU_GRAPH, "Graph view")                
+        view_menu.Append(ID_VIEW_MENU_TREE, "Tree view")        
         view_menu.Append(ID_VIEW_MENU_LIST, "List view")
         view_menu.Append(ID_VIEW_MENU_ICON, "Icon view")
         self.add_menu(view_menu, "View")
@@ -84,6 +90,8 @@ class ContainerFrame(NodeFrame):
         self.Bind(wx.EVT_MENU, lambda evt: self.go_top(), id=ID_GO_MENU_TOP)
         self.Bind(wx.EVT_MENU, lambda evt: self.list_view(), id=ID_VIEW_MENU_LIST)
         self.Bind(wx.EVT_MENU, lambda evt: self.icon_view(), id=ID_VIEW_MENU_ICON)
+        self.Bind(wx.EVT_MENU, lambda evt: self.tree_view(), id=ID_VIEW_MENU_TREE)
+        self.Bind(wx.EVT_MENU, lambda evt: self.graph_view(), id=ID_VIEW_MENU_GRAPH)
 
         self.toolbar = self.CreateToolBar(wx.TB_HORIZONTAL | wx.NO_BORDER | wx.TB_FLAT | wx.TB_TEXT)
 
@@ -94,22 +102,25 @@ class ContainerFrame(NodeFrame):
         top_bmp = wx.Bitmap(os.path.join(self.icon_folder, "go_top_24.png"), wx.BITMAP_TYPE_ANY)
         icon_bmp = wx.Bitmap(os.path.join(self.icon_folder, "view_icon_24.png"), wx.BITMAP_TYPE_ANY)
         list_bmp = wx.Bitmap(os.path.join(self.icon_folder, "view_list_24.png"), wx.BITMAP_TYPE_ANY)
-
+        tree_bmp = wx.Bitmap(os.path.join(self.icon_folder, "view_tree_24.png"), wx.BITMAP_TYPE_ANY)
+        
         self.toolbar.SetToolBitmapSize(tsize)
         self.toolbar.AddLabelTool(ID_GO_MENU_BACK, "Back", back_bmp, shortHelp="New", longHelp="Long help for 'New'")
         self.toolbar.AddLabelTool(ID_GO_MENU_NEXT, "Next", next_bmp, shortHelp="New", longHelp="Long help for 'New'")
-        self.toolbar.AddSeparator()
+        self.toolbar.AddSeparator()        
         self.toolbar.AddLabelTool(ID_GO_MENU_UP, "Up", up_bmp, shortHelp="New", longHelp="Long help for 'New'")
-        self.toolbar.AddLabelTool(ID_GO_MENU_TOP, "Top", top_bmp, shortHelp="New", longHelp="Long help for 'New'")
+        self.toolbar.AddLabelTool(ID_GO_MENU_TOP, "Top", top_bmp, shortHelp="New", longHelp="Long help for 'New'")        
         self.toolbar.AddStretchableSpace()
+        self.toolbar.AddLabelTool(ID_VIEW_MENU_TREE, "Tree View", tree_bmp, shortHelp="Tree", longHelp="View in Tree")                
         self.toolbar.AddLabelTool(ID_VIEW_MENU_LIST, "List View", list_bmp, shortHelp="New",
-                                  longHelp="Long help for 'New'")
+                                  longHelp="View in List")
         self.toolbar.AddLabelTool(ID_VIEW_MENU_ICON, "Icon View", icon_bmp, shortHelp="New",
-                                  longHelp="Long help for 'New'")
+                                  longHelp="View in Icons")
 
         self.toolbar.Realize()
-
-        self.view = ContainerReportList(self, node)
+        self.view = ContainerGraph(self, node)
+        # self.view = ContainerTree(self, node)
+        # self.view = ContainerReportList(self, node)
 
         self.history = [node]
         self.history_ptr = 0
@@ -125,6 +136,18 @@ class ContainerFrame(NodeFrame):
         if not isinstance(self.view, ContainerIconList):
             self.view = ContainerIconList(self, self.history[self.history_ptr])
 
+    def tree_view(self):
+         """ Switch to tree view """
+         if not isinstance(self.view, ContainerTree):
+             self.view = ContainerTree(self, self.history[self.history_ptr])
+             self.update_view()
+
+    def graph_view(self):
+         """ Switch to graph view """
+         if not isinstance(self.view, ContainerTree):
+             self.view = ContainerGraph(self, self.history[self.history_ptr])
+             self.update_view()
+            
     # --- Begin history support functions -------------------------------------
 
     @property

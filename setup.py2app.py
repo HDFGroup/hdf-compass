@@ -51,6 +51,8 @@ PLIST = {   "CFBundleDocumentTypes": [ { "CFBundleTypeExtensions": ["hdf5","h5"]
 # ARGV emulation interacts badly with wxPython on Mac... it "eats" events
 # when the program starts up and causes windows not to be displayed.
 OPTIONS = { 'argv_emulation': False,
+            'includes': ['h5py', 'matplotlib'],
+            'packages': ['h5py', 'matplotlib'],            
             'excludes': ['scipy', 'PyQt4', 'mpi4py'],
             'includes': ['h5py', 'matplotlib'],
             'matplotlib_backends': ['wxagg',],
