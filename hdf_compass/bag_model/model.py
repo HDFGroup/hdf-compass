@@ -367,7 +367,7 @@ class BAGElevationGeoArray(compass_model.GeoArray):
 
     @property
     def extent(self):
-        """ Geographic extent as a tuple: (x_min, x_max, y_min, y_max) """
+        """ Geographic extent as a tuple: (lon_min, lon_max, lon_min, lon_max) """
         return self._meta.geo_extent()
 
     def __getitem__(self, args):
