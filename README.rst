@@ -25,7 +25,7 @@ and maximum extensibility through a plugin system for new formats.
 HDF Compass is written in Python, but ships as a native application on
 Windows, OS X, and Linux, by using PyInstaller and Py2App to package the app.
 
-Binary executables are available for Windows and Mac OS X (Yosemite or later) at
+Binary executables are available for Windows (Windows 7 or later) and Mac OS X (Yosemite or later) at
 the Project Page listed below.
 
 Bug reports and pull requests are welcome!  For non-trivial PRs please
@@ -41,7 +41,7 @@ You will need:
 * `Python 2.7 <https://www.python.org/downloads/>`_ *(support for Python 3.4+ in progress)*
 * `NumPy <https://github.com/numpy/numpy>`_
 * `Matplotlib <https://github.com/matplotlib/matplotlib>`_
-* `wxPython Phoenix 3.0.0 <https://github.com/wxWidgets/Phoenix>`_ *(later releases have not been tested)*
+* `wxPython Phoenix 3.0.2 <https://github.com/wxWidgets/Phoenix>`_ *(later releases have not been tested)*
 * `Cartopy <https://github.com/SciTools/cartopy>`_
 * `h5py <https://github.com/h5py/h5py>`_ *[HDF plugin]*
 * `hydroffice.bag <https://bitbucket.org/ccomjhc/hyo_bag>`_ *[BAG plugin]*
