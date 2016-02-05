@@ -105,6 +105,7 @@ class ContourPlotFrame(PlotFrame):
         self.cb = None  # matplotlib color-bar
         self.xx = None
         self.yy = None
+        self.surf = None
 
         PlotFrame.__init__(self, data, title)
 
@@ -181,12 +182,42 @@ class ContourPlotFrame(PlotFrame):
 
     def draw_figure(self):
         ls = LightSource(azdeg=315, altdeg=45)
-        blended_surface = ls.shade(self.data, cmap=self.colormap, vert_exag=5, blend_mode="overlay",
-                                   vmin=np.nanmin(self.data), vmax=np.nanmax(self.data))
+        self.surf = self.data
+
+        # try to plot the whole array
+        try:
+            blended_surface = ls.shade(self.surf, cmap=self.colormap, vert_exag=5, blend_mode=b"overlay",
+                                       vmin=np.nanmin(self.surf), vmax=np.nanmax(self.surf))
+        # too big, two attempts for sub-sampling
+        except MemoryError:
+            rows = self.data.shape[0]
+            cols = self.data.shape[1]
+
+            # 1st attempt: <= 1024x1024
+            try:
+                max_elements = 1024
+                row_stride = rows // max_elements + 1
+                col_stride = cols // max_elements + 1
+                self.surf = self.data[::row_stride, ::col_stride]
+                blended_surface = ls.shade(self.surf, cmap=self.colormap, vert_exag=5, blend_mode=b"overlay",
+                                           vmin=np.nanmin(self.surf), vmax=np.nanmax(self.surf))
+
+            except MemoryError:
+                # 2st attempt: <= 512x512
+                max_elements = 512
+                row_stride = rows // max_elements + 1
+                col_stride = cols // max_elements + 1
+                self.surf = self.data[::row_stride, ::col_stride]
+                blended_surface = ls.shade(self.surf, cmap=self.colormap, vert_exag=5, blend_mode=b"overlay",
+                                           vmin=np.nanmin(self.surf), vmax=np.nanmax(self.surf))
+
+            log.debug("too big: %s x %s > subsampled to %s x %s"
+                      % (self.data.shape[0], self.data.shape[1], self.surf.shape[0], self.surf.shape[1]))
+
         self.axes.coastlines(resolution='50m', color='gray', linewidth=1)
         img = self.axes.imshow(blended_surface, origin='lower', cmap=self.colormap,
                                extent=self.geo_extent, transform=ccrs.PlateCarree())
-        img.set_clim(vmin=np.nanmin(self.data), vmax=np.nanmax(self.data))
+        img.set_clim(vmin=np.nanmin(self.surf), vmax=np.nanmax(self.surf))
         # add gridlines with labels only on the left and on the bottom
         grl = self.axes.gridlines(crs=ccrs.PlateCarree(), color='gray', draw_labels=True)
         grl.xformatter = LONGITUDE_FORMATTER
