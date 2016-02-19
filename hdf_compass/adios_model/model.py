@@ -58,11 +58,12 @@ class ADIOSStore(compass_model.Store):
     file_extensions = {'ADIOS File': ['*.bp']}
 
     def __contains__(self, key):
-        return key in self.f.var
+        return (key in self.f.var) or (key == "/")
 
     @property
     def url(self):
         return self._url
+
 
     @property
     def display_name(self):
@@ -70,8 +71,7 @@ class ADIOSStore(compass_model.Store):
 
     @property
     def root(self):
-        # return container
-        return self
+        return self.r
 
     @property
     def valid(self):
@@ -101,6 +101,8 @@ class ADIOSStore(compass_model.Store):
         except:
             raise ValueError(url)
 
+        self.r = ADIOSGroup(self, "/")
+
     def close(self):
         self.f.close()
 
@@ -121,26 +123,30 @@ class ADIOSGroup(compass_model.Container):
 
     @staticmethod
     def can_handle(store, key):
-        return key in store and isinstance(store.f.vars[key], h5py.Group)
+        return True # key in store
 
     @property
     def _names(self):
-
         # Lazily build the list of names; this helps when browsing big files
         if self._xnames is None:
-
-            self._xnames = list(self._group)
+            self._xnames = self._group.keys()
 
             # Natural sort is expensive
-            if len(self._xnames) < 1000:
-                self._xnames.sort(key=sort_key)
+#            if len(self._xnames) < 1000:
+#                self._xnames.sort(key=sort_key)
 
         return self._xnames
 
     def __init__(self, store, key):
         self._store = store
         self._key = key
-        self._group = store.f[key]
+        if self._key == "/":
+            # build root group
+            print("adiosgroup: build root")
+            self._group = store.f.var
+        else:
+            self._group = store.f.var[key]
+ 
         self._xnames = None
 
     @property
@@ -171,12 +177,36 @@ class ADIOSGroup(compass_model.Container):
 
     def __iter__(self):
         for name in self._names:
-            yield self.store[pp.join(self.key, name)]
+            yield self.store.var[pp.join(self.key, name)]
 
     def __getitem__(self, idx):
         name = self._names[idx]
-        return self.store[pp.join(self.key, name)]
+        return ADIOSTestNode(self.store, name)
 
+class ADIOSTestNode(compass_model.Node):
+    def __init__(self, store, key):
+        self._store = store
+        self._key = key
+
+    @property
+    def key(self):
+        return self._key
+
+    @property
+    def store(self):
+        return self._store
+
+    @property
+    def display_name(self):
+        return self._key
+
+    @property
+    def display_title(self):
+        return self._key
+
+    @property
+    def description(self):
+        return ""
 
 class ADIOSDataset(compass_model.Array):
     """ Represents an HDF5 dataset. """
@@ -335,9 +365,9 @@ class ADIOSKV(compass_model.KeyValue):
         return self._obj.attrs[name]
 
 # Register handlers    
-ADIOSStore.push(ADIOSKV)
-ADIOSStore.push(ADIOSDataset)
-ADIOSStore.push(ADIOSText)
+#ADIOSStore.push(ADIOSKV)
+#ADIOSStore.push(ADIOSDataset)
+#ADIOSStore.push(ADIOSText)
 ADIOSStore.push(ADIOSGroup)
 
 compass_model.push(ADIOSStore)
