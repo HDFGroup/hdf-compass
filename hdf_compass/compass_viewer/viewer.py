@@ -236,14 +236,15 @@ def load_plugins():
     except ImportError:
         log.warning("Opendap plugin: NOT loaded")
     
-    from hdf_compass import hdf5rest_model    
-    try:
-        from hdf_compass import hdf5rest_model
-    except ImportError:
-        log.warning("HDF5 REST: plugin NOT loaded")
+#    from hdf_compass import hdf5rest_model    
+#    try:
+#        from hdf_compass import hdf5rest_model
+#    except ImportError:
+#        log.warning("HDF5 REST: plugin NOT loaded")
 
     try:
         from hdf_compass import adios_model
+        log.debug("loaded adios plugin")
     except ImportError:
         log.warning("ADIOS plugin: NOT loaded")
 

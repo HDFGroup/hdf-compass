@@ -58,7 +58,7 @@ class ADIOSStore(compass_model.Store):
     file_extensions = {'ADIOS File': ['*.bp']}
 
     def __contains__(self, key):
-        return key in self.f.vars
+        return key in self.f.var
 
     @property
     def url(self):
@@ -70,31 +70,34 @@ class ADIOSStore(compass_model.Store):
 
     @property
     def root(self):
-        return self['']
+        # return container
+        return self
 
     @property
     def valid(self):
         return bool(self.f)
 
-#    @staticmethod
-#    def can_handle(url):
-#        if not url.startswith('file://'):
-#            log.debug("able to handle %s? no, not starting with file://" % url)
-#            return False
-#        path = url2path(url)
-#        if not h5py.is_hdf5(path):
-#            log.debug("able to handle %s? no, not hdf5 file" % url)
-#            return False
-#        log.debug("able to handle %s? yes" % url)
-#        return True
+    @staticmethod
+    def can_handle(url):
+        if not url.startswith('file://'):
+            log.debug("able to handle %s? no, not starting with file://" % url)
+            return False
+        path = url2path(url)
+        try:
+            f = adios.file(url2path(url))
+            f.close()
+            log.debug("able to handle %s? yes" % url)
+            return True
+        except all:
+            log.debug("able to handle %s? no, failed to open with adios" % url)
+            return False
+
 
     def __init__(self, url):
- #       if not self.can_handle(url):
- #           raise ValueError(url)
         try:
             self._url = url
             path = url2path(url)
-            self.f = adios.File(path)
+            self.f = adios.file(path)
         except:
             raise ValueError(url)
 
