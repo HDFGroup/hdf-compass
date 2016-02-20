@@ -11,12 +11,8 @@
 ##############################################################################
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import logging
+from .frame import GeoArrayFrame
 
+import logging
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
-
-from .utils import is_darwin, is_win, is_linux, url2path, path2url, data_url
-
-
-__version__ = "0.6.0b2"

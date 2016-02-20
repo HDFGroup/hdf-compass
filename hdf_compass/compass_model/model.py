@@ -392,10 +392,67 @@ class Array(Node):
         return True
 
 
+class GeoArray(Node):
+    """ Represents a NumPy-style regular, rectangular array with a known geographic extent. """
+
+    __metaclass__ = ABCMeta
+
+    icons = {16:    os.path.join(icon_folder, "array_16.png"),
+             64:    os.path.join(icon_folder, "array_64.png")}
+
+    @property
+    def shape(self):
+        """ Shape tuple """
+        raise NotImplementedError
+
+    @property
+    def dtype(self):
+        """ Data type """
+        raise NotImplementedError
+
+    @property
+    def extent(self):
+        """ Geographic extent as a tuple: (x_min, x_max, y_min, y_max) """
+        raise NotImplementedError
+
+    def __getitem__(self, args):
+        """ Retrieve data elements """
+        raise NotImplementedError
+
+    def is_plottable(self):
+        """ To be overriden in case that there are cases in which the array is not plottable """
+        return True
+
+
+class GeoSurface(Node):
+    """ Represents a NumPy-style regular, rectangular surface with a known geographic extent. """
+
+    __metaclass__ = ABCMeta
+
+    icons = {16:    os.path.join(icon_folder, "array_16.png"),
+             64:    os.path.join(icon_folder, "array_64.png")}
+
+    @property
+    def shape(self):
+        """ Shape tuple """
+        raise NotImplementedError
+
+    @property
+    def dtype(self):
+        """ Data type """
+        raise NotImplementedError
+
+    def __getitem__(self, args):
+        """ Retrieve data elements """
+        raise NotImplementedError
+
+    def is_plottable(self):
+        """ To be overriden in case that there are cases in which the array is not plottable """
+        return True
+
+
 class Image(Node):
-    """
-    A single raster image.
-    """
+    """ A single raster image. """
 
     __metaclass__ = ABCMeta
 

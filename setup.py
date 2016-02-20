@@ -55,7 +55,7 @@ setup_args = dict()
 
 setup_args['name'] = 'hdf_compass'
 # The adopted versioning scheme follow PEP40
-setup_args['version'] = '0.6.0.dev1'
+setup_args['version'] = '0.6.0b2'
 setup_args['url'] = 'https://github.com/HDFGroup/hdf-compass/'
 setup_args['license'] = 'BSD-like license'
 setup_args['author'] = 'HDFGroup'
@@ -103,10 +103,11 @@ setup_args['setup_requires'] =\
 setup_args['install_requires'] =\
     [
         "numpy",
-        "matplotlib",
+        "matplotlib>=1.5",
+        "cartopy",
         "h5py",
         "wxPython",
-        "hydroffice.bag",
+        "hydroffice.bag>=0.2.5",
         "pydap",
         "requests"
     ]

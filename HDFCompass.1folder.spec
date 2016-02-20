@@ -51,6 +51,7 @@ def collect_pkg_data(package, include_py_files=False, subdir=None):
 
 pkg_data_hdf_compass = collect_pkg_data('hdf_compass')
 pkg_data_lxml = collect_pkg_data('lxml')  # temporary patch: https://github.com/pyinstaller/pyinstaller/issues/1613
+cartopy_aux = collect_pkg_data('cartopy')
 
 if is_darwin:
     icon_file = os.path.abspath('HDFCompass.icns')
@@ -61,7 +62,7 @@ if not os.path.exists(icon_file):
 
 a = Analysis(['HDFCompass.py'],
              pathex=[],
-             hiddenimports=[],
+             hiddenimports=['scipy.linalg.cython_blas', 'scipy.linalg.cython_lapack'],  # for cartopy
              excludes=["PySide"],  # exclude libraries from being bundled (in case that are installed)
              hookspath=None,
              runtime_hooks=None)
@@ -82,6 +83,7 @@ coll = COLLECT(exe,
                a.datas,
                pkg_data_hdf_compass,
                pkg_data_lxml,
+               cartopy_aux,
                strip=None,
                upx=True,
                name='HDFCompass')

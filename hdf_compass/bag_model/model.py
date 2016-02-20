@@ -40,8 +40,7 @@ def sort_key(name):
 
 
 class BAGStore(compass_model.Store):
-    """
-    Data store implementation using a BAG file (closely mimicking HDF5Store).
+    """ Data store implementation using a BAG file (closely mimicking HDF5Store).
 
     Keys are the full names of objects in the file.
     """
@@ -51,7 +50,12 @@ class BAGStore(compass_model.Store):
 
     @staticmethod
     def plugin_description():
-        return "A plugin used to browse Open Navigation Surface BAG files."
+        return """A plugin used to browse Open Navigation Surface BAG files.
+        It provides additional features that are not available with the general HDF5 plugin:
+        - View of metadata information as XML (+ content validation).
+        - Plot of elevation and uncertainty using their geographic extent/
+        The plugin is developed and maintained by G.Masetti [gmasetti@ccom.unh.edu].
+        """
 
     file_extensions = {'BAG File': ['*.bag']}
 
@@ -282,9 +286,9 @@ class BAGDataset(compass_model.Array):
         return True
 
 
-class BAGElevation(compass_model.Array):
+class BAGElevationArray(compass_model.Array):
     """ Represents a BAG elevation. """
-    class_kind = "BAG Elevation"
+    class_kind = "BAG Elevation [array]"
 
     @staticmethod
     def can_handle(store, key):
@@ -294,6 +298,146 @@ class BAGElevation(compass_model.Array):
         self._store = store
         self._key = key
         self._dset = store.f.elevation(mask_nan=True)
+
+    @property
+    def key(self):
+        return self._key
+
+    @property
+    def store(self):
+        return self._store
+
+    @property
+    def display_name(self):
+        return pp.basename(self.key)
+
+    @property
+    def description(self):
+        return 'Dataset "%s"' % (self.display_name,)
+
+    @property
+    def shape(self):
+        return self._dset.shape
+
+    @property
+    def dtype(self):
+        return self._dset.dtype
+
+    def __getitem__(self, args):
+        return self._dset[args]
+
+
+class BAGElevationGeoArray(compass_model.GeoArray):
+    """ Represents a BAG elevation. """
+    class_kind = "BAG Elevation [geo array]"
+
+    @staticmethod
+    def can_handle(store, key):
+        return (key == "/BAG_root/elevation") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
+
+    def __init__(self, store, key):
+        self._store = store
+        self._key = key
+        self._dset = store.f.elevation(mask_nan=True)
+        self._meta = store.f.populate_metadata()
+
+    @property
+    def key(self):
+        return self._key
+
+    @property
+    def store(self):
+        return self._store
+
+    @property
+    def display_name(self):
+        return pp.basename(self.key)
+
+    @property
+    def description(self):
+        return 'Dataset "%s"' % (self.display_name,)
+
+    @property
+    def shape(self):
+        return self._dset.shape
+
+    @property
+    def dtype(self):
+        return self._dset.dtype
+
+    @property
+    def extent(self):
+        """ Geographic extent as a tuple: (lon_min, lon_max, lon_min, lon_max) """
+        return self._meta.geo_extent()
+
+    def __getitem__(self, args):
+        return self._dset[args]
+
+
+class BAGElevation(compass_model.GeoSurface):
+    """ Represents a BAG elevation. """
+    class_kind = "BAG Elevation"
+
+    @staticmethod
+    def can_handle(store, key):
+        import matplotlib
+        # for GeoSurface we are using a matplotlib function present after 1.5.x
+        plt_maj, plt_min, _ = matplotlib.__version__.split('.')
+        if (int(plt_maj) == 1) and (int(plt_min) < 5):
+            return False
+        return (key == "/BAG_root/elevation") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
+
+    def __init__(self, store, key):
+        self._store = store
+        self._key = key
+        self._dset = store.f.elevation(mask_nan=True)
+        self._meta = store.f.populate_metadata()
+
+    @property
+    def key(self):
+        return self._key
+
+    @property
+    def store(self):
+        return self._store
+
+    @property
+    def display_name(self):
+        return pp.basename(self.key)
+
+    @property
+    def description(self):
+        return 'Dataset "%s"' % (self.display_name,)
+
+    @property
+    def shape(self):
+        return self._dset.shape
+
+    @property
+    def dtype(self):
+        return self._dset.dtype
+
+    @property
+    def extent(self):
+        """ Geographic extent as a tuple: (x_min, x_max, y_min, y_max) """
+        return self._meta.geo_extent()
+
+    def __getitem__(self, args):
+        return self._dset[args]
+
+
+class BAGUncertaintyArray(compass_model.Array):
+    """ Represents an uncertainty array. """
+    class_kind = "BAG Uncertainty [array]"
+
+    @staticmethod
+    def can_handle(store, key):
+        return (key == "/BAG_root/uncertainty") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
+
+    def __init__(self, store, key):
+        self._store = store
+        self._key = key
+        self._dset = store.f.uncertainty(mask_nan=True)
 
     @property
     def key(self):
@@ -498,21 +642,12 @@ class BAGMetadataXml(compass_model.Xml):
     @property
     def validation(self):
         """ Collect a message string with the result of the validation """
-        msg = str()
-
-        msg += "XML input source: %s\nValidation output: " % self.key
-        if self.store.f.validate_metadata():
-            msg += "VALID"
-        else:
-            msg += "INVALID\nReasons:\n"
-            for err_msg in self.store.f.meta_errors:
-                msg += " - %s\n" % err_msg
-        return msg
+        return self.store.f.validation_info()
 
 
-class BAGUncertainty(compass_model.Array):
-    """ Represents a BAG uncertainty. """
-    class_kind = "BAG Uncertainty"
+class BAGUncertaintyArray(compass_model.Array):
+    """ Represents an uncertainty array. """
+    class_kind = "BAG Uncertainty [array]"
 
     @staticmethod
     def can_handle(store, key):
@@ -546,6 +681,53 @@ class BAGUncertainty(compass_model.Array):
     @property
     def dtype(self):
         return self._dset.dtype
+
+    def __getitem__(self, args):
+        return self._dset[args]
+
+
+class BAGUncertainty(compass_model.GeoArray):
+    """ Represents a BAG uncertainty. """
+    class_kind = "BAG Uncertainty"
+
+    @staticmethod
+    def can_handle(store, key):
+        return (key == "/BAG_root/uncertainty") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
+
+    def __init__(self, store, key):
+        self._store = store
+        self._key = key
+        self._dset = store.f.uncertainty(mask_nan=True)
+        self._meta = store.f.populate_metadata()
+
+    @property
+    def key(self):
+        return self._key
+
+    @property
+    def store(self):
+        return self._store
+
+    @property
+    def display_name(self):
+        return pp.basename(self.key)
+
+    @property
+    def description(self):
+        return 'Dataset "%s"' % (self.display_name,)
+
+    @property
+    def shape(self):
+        return self._dset.shape
+
+    @property
+    def dtype(self):
+        return self._dset.dtype
+
+    @property
+    def extent(self):
+        """ Geographic extent as a tuple: (x_min, x_max, y_min, y_max) """
+        return self._meta.geo_extent()
 
     def __getitem__(self, args):
         return self._dset[args]
@@ -651,7 +833,10 @@ class BAGImage(compass_model.Image):
 # Register handlers
 BAGStore.push(BAGKV)
 BAGStore.push(BAGDataset)
+BAGStore.push(BAGElevationArray)
+BAGStore.push(BAGElevationGeoArray)
 BAGStore.push(BAGElevation)
+BAGStore.push(BAGUncertaintyArray)
 BAGStore.push(BAGUncertainty)
 BAGStore.push(BAGTrackinList)
 BAGStore.push(BAGMetadataRaw)
