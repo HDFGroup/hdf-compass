@@ -333,6 +333,11 @@ class BAGElevationGeoArray(compass_model.GeoArray):
 
     @staticmethod
     def can_handle(store, key):
+        # for GeoSurface we use cartopy that can be challenging to freeze on OSX to dependencies (i.e. geos)
+        try:
+            import cartopy.crs as ccrs
+        except ImportError:
+            return False
         return (key == "/BAG_root/elevation") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
 
     def __init__(self, store, key):
@@ -380,8 +385,13 @@ class BAGElevation(compass_model.GeoSurface):
 
     @staticmethod
     def can_handle(store, key):
-        import matplotlib
+        # for GeoSurface we use cartopy that can be challenging to freeze on OSX to dependencies (i.e. geos)
+        try:
+            import cartopy.crs as ccrs
+        except ImportError:
+            return False
         # for GeoSurface we are using a matplotlib function present after 1.5.x
+        import matplotlib
         plt_maj, plt_min, _ = matplotlib.__version__.split('.')
         if (int(plt_maj) == 1) and (int(plt_min) < 5):
             return False
@@ -692,6 +702,11 @@ class BAGUncertainty(compass_model.GeoArray):
 
     @staticmethod
     def can_handle(store, key):
+        # for GeoSurface we use cartopy that can be challenging to freeze on OSX to dependencies (i.e. geos)
+        try:
+            import cartopy.crs as ccrs
+        except ImportError:
+            return False
         return (key == "/BAG_root/uncertainty") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
 
     def __init__(self, store, key):
