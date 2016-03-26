@@ -19,9 +19,9 @@ import numpy as np
 import wx
 try:  # for GeoSurface we use cartopy that can be challenging to freeze on OSX to dependencies (i.e. geos)
     import cartopy.crs as ccrs
+    from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 except ImportError:
     pass
-from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
