@@ -104,7 +104,7 @@ setup_args['install_requires'] =\
     [
         "numpy",
         "matplotlib>=1.5",
-        "cartopy",
+        "cartopy[plotting]",
         "h5py",
         "wxPython",
         "hydroffice.bag>=0.2.5",
