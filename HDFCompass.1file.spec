@@ -50,7 +50,7 @@ def collect_pkg_data(package, include_py_files=False, subdir=None):
     return data_toc
 
 pkg_data_hdf_compass = collect_pkg_data('hdf_compass')
-cartopy_aux = None
+cartopy_aux = []
 try:  # for GeoArray we use cartopy that can be challenging to freeze on OSX to dependencies (i.e. geos)
     import cartopy.crs as ccrs
     cartopy_aux = collect_pkg_data('cartopy')
