@@ -220,7 +220,7 @@ def load_plugins():
         log.debug("lxml %s (libxml %s, libxslt %s)"
                   % (etree.__version__, ".".join(str(i) for i in etree.LIBXML_VERSION),
                      ".".join(str(i) for i in etree.LIBXSLT_VERSION)))
-    except ImportError:
+    except (ImportError, OSError):
         log.warning("BAG plugin: NOT loaded")
 
     try:
