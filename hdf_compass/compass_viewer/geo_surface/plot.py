@@ -20,7 +20,7 @@ import wx
 try:  # for GeoSurface we use cartopy that can be challenging to freeze on OSX to dependencies (i.e. geos)
     import cartopy.crs as ccrs
     from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
-except ImportError:
+except (ImportError, OSError):
     pass
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure

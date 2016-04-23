@@ -336,7 +336,7 @@ class BAGElevationGeoArray(compass_model.GeoArray):
         # for GeoSurface we use cartopy that can be challenging to freeze on OSX to dependencies (i.e. geos)
         try:
             import cartopy.crs as ccrs
-        except ImportError:
+        except (ImportError, OSError):
             return False
         return (key == "/BAG_root/elevation") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
 
@@ -388,7 +388,7 @@ class BAGElevation(compass_model.GeoSurface):
         # for GeoSurface we use cartopy that can be challenging to freeze on OSX to dependencies (i.e. geos)
         try:
             import cartopy.crs as ccrs
-        except ImportError:
+        except (ImportError, OSError):
             return False
         # for GeoSurface we are using a matplotlib function present after 1.5.x
         import matplotlib
@@ -705,7 +705,7 @@ class BAGUncertainty(compass_model.GeoArray):
         # for GeoSurface we use cartopy that can be challenging to freeze on OSX to dependencies (i.e. geos)
         try:
             import cartopy.crs as ccrs
-        except ImportError:
+        except (ImportError, OSError):
             return False
         return (key == "/BAG_root/uncertainty") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
 
