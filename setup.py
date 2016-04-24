@@ -33,11 +33,6 @@ from setuptools import setup, find_packages
 #                             Some helper stuff
 # ---------------------------------------------------------------------------
 
-if 'bdist_wininst' in sys.argv:
-    if len(sys.argv) > 2 and ('sdist' in sys.argv or 'bdist_rpm' in sys.argv):
-        print("Error: bdist_wininst must be run alone. Exiting.")
-        sys.exit(1)
-
 here = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -67,10 +62,7 @@ setup_args['author_email'] = 'help@hdfgroup.org'
 
 description = 'An experimental viewer program for HDF5 and related formats.'
 setup_args['description'] = description
-if 'bdist_wininst' in sys.argv:
-    setup_args['long_description'] = description
-else:
-    setup_args['long_description'] = txt_read('README.rst')
+setup_args['long_description'] = txt_read('README.rst')
 
 setup_args['classifiers'] = \
     [  # https://pypi.python.org/pypi?%3Aaction=list_classifiers

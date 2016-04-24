@@ -1,7 +1,7 @@
 HDF Compass
 ===========
 
-.. image:: https://badge.fury.io/py/hdf_compass.svg
+.. image:: https://badge.fury.io/py/v/hdf_compass.svg
     :target: https://badge.fury.io/py/hdf_compass
     :alt: PyPI Status
 

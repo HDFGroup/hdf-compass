@@ -50,6 +50,7 @@ def collect_pkg_data(package, include_py_files=False, subdir=None):
     return data_toc
 
 pkg_data_hdf_compass = collect_pkg_data('hdf_compass')
+pkg_data_bag = collect_pkg_data('hydroffice.bag')
 cartopy_aux = []
 try:  # for GeoArray we use cartopy that can be challenging to freeze on OSX to dependencies (i.e. geos)
     import cartopy.crs as ccrs
@@ -70,7 +71,7 @@ app_name = 'HDFCompass_' + version
 a = Analysis(['HDFCompass.py'],
              pathex=[],
              hiddenimports=['scipy.linalg.cython_blas', 'scipy.linalg.cython_lapack',
-             	'scipy.linalg', 'scipy.integrate'],  # for cartopy
+                            'scipy.linalg', 'scipy.integrate'],  # for cartopy
              excludes=["PySide"],  # exclude libraries from being bundled (in case that are installed)
              hookspath=None,
              runtime_hooks=None)
@@ -90,6 +91,7 @@ coll = COLLECT(exe,
                a.zipfiles,
                a.datas,
                pkg_data_hdf_compass,
+               pkg_data_bag,
                cartopy_aux,
                strip=None,
                upx=True,
