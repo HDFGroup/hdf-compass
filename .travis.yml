@@ -1,0 +1,78 @@
+# Based on: http://conda.pydata.org/docs/travis.html
+
+sudo: false
+
+# Travis-CI does not currently support Python and Mac OS X
+language: c
+
+os:
+  - linux
+  - osx
+
+env:
+  - PYTHON_VERSION=2.7
+  # - PYTHON_VERSION=3.4
+
+matrix:
+  allow_failures:
+  - os: osx
+
+before_install:
+  # Set the anaconda environment
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      if [[ "$PYTHON_VERSION" == "2.7" ]]; then
+        curl https://repo.continuum.io/miniconda/Miniconda-latest-MacOSX-x86_64.sh -o miniconda.sh;
+      else
+        curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o miniconda.sh;
+      fi
+    else
+      if [[ "$PYTHON_VERSION" == "2.7" ]]; then
+        wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
+      else
+        wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+      fi
+    fi
+
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a
+
+  # create and activate a test-environment
+  - conda create -q -n test-environment python=$PYTHON_VERSION
+  - source activate test-environment
+
+install:
+  - conda config --add channels hydroffice
+  - conda config --add channels SciTools
+  - conda config --add channels osgeo
+  - conda config --add channels IOOS
+  - conda config --add channels aaren
+  - conda config --add channels noaa-orr-erd
+  - conda config --add channels diffpy
+  - conda install -q h5py lxml numpy matplotlib pydap wxpython requests shapely proj4 geos cartopy setuptools gdal
+  - pip install --no-deps hydroffice.bag
+  - pip install --no-deps -e .
+
+script:
+  - "python -m unittest hdf_compass.array_model.test"
+  - "python -m unittest hdf_compass.asc_model.test"
+  - "python -m unittest hdf_compass.bag_model.test"
+  - "python -m unittest hdf_compass.filesystem_model.test"
+  - "python -m unittest hdf_compass.hdf5_model.test"
+  - "python -m unittest hdf_compass.opendap_model.test"
+
+after_script:
+  # If tests are successful, create a source distribution.
+  - python setup.py sdist
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      python setup.py bdist_wheel;
+    fi
+
+addons:
+  artifacts:
+    debug: true
+    paths:
+    - ./dist
