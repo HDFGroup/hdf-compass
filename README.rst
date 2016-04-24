@@ -13,8 +13,8 @@ HDF Compass
     :target: http://hdf-compass.readthedocs.org/en/latest/?badge=latest
     :alt: Latest Documentation Status
     
-.. image:: https://ci.appveyor.com/api/projects/status/iv12e3jucm9pvnus/branch/develop?svg=true
-    :target: https://ci.appveyor.com/project/gmasetti/hdf-compass-feb56/branch/develop
+.. image:: https://ci.appveyor.com/api/projects/status/tfg350xo8t7h70ix?svg=true
+    :target: https://ci.appveyor.com/project/giumas/hdf-compass
     :alt: AppVeyor Status
         
 Welcome to the project!  HDF Compass is an experimental viewer program for
