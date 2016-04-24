@@ -64,9 +64,13 @@ else:
 if not os.path.exists(icon_file):
     raise RuntimeError("invalid path to icon: %s" % icon_file)
 
+version = '0.6.0b3'
+app_name = 'HDFCompass_' + version
+
 a = Analysis(['HDFCompass.py'],
              pathex=[],
-             hiddenimports=['scipy.linalg.cython_blas', 'scipy.linalg.cython_lapack'],  # for cartopy
+             hiddenimports=['scipy.linalg.cython_blas', 'scipy.linalg.cython_lapack',
+             	'scipy.linalg', 'scipy.integrate'],  # for cartopy
              excludes=["PySide"],  # exclude libraries from being bundled (in case that are installed)
              hookspath=None,
              runtime_hooks=None)
@@ -75,8 +79,8 @@ pyz = PYZ(a.pure)
 exe = EXE(pyz,
           a.scripts,
           exclude_binaries=True,
-          name='HDFCompass',
-          debug=False,
+          name=app_name,
+          debug=True,
           strip=None,
           upx=True,
           console=True,
