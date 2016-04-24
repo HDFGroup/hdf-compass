@@ -31,7 +31,7 @@ install:
   - "python --version"
 
   # Install dependencies
-  - "conda install -q h5py lxml numpy matplotlib pydap wxpython request shapely"
+  - "conda install -q h5py lxml numpy matplotlib pydap wxpython requests shapely"
   - "pip install --no-dependencies hydroffice.bag cartopy[plotting] setuptools==19.2"
   - "pip install pyinstaller"
 
