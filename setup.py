@@ -97,7 +97,7 @@ setup_args['keywords'] = "data hdf bag ascii grid opendap"
 # requirements
 setup_args['setup_requires'] =\
     [
-        "setuptools",
+        "setuptools==19.2",
         "wheel",
     ]
 setup_args['install_requires'] =\
@@ -106,8 +106,8 @@ setup_args['install_requires'] =\
         "matplotlib>=1.5",
         "cartopy[plotting]",
         "h5py",
-        "wxPython",
-        "hydroffice.bag>=0.2.5",
+        "wxPython==3.0.2",
+        "hydroffice.bag>=0.2.10",
         "pydap",
         "requests"
     ]
