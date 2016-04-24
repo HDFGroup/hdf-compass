@@ -50,8 +50,12 @@ def collect_pkg_data(package, include_py_files=False, subdir=None):
     return data_toc
 
 pkg_data_hdf_compass = collect_pkg_data('hdf_compass')
-pkg_data_lxml = collect_pkg_data('lxml')  # temporary patch: https://github.com/pyinstaller/pyinstaller/issues/1613
-cartopy_aux = collect_pkg_data('cartopy')
+cartopy_aux = []
+try:  # for GeoArray we use cartopy that can be challenging to freeze on OSX to dependencies (i.e. geos)
+    import cartopy.crs as ccrs
+    cartopy_aux = collect_pkg_data('cartopy')
+except (ImportError, OSError):
+    pass
 
 if is_darwin:
     icon_file = os.path.abspath('HDFCompass.icns')
@@ -60,12 +64,13 @@ else:
 if not os.path.exists(icon_file):
     raise RuntimeError("invalid path to icon: %s" % icon_file)
 
-version = '0.6.0b2'
+version = '0.6.0b3'
 app_name = 'HDFCompass_' + version
 
 a = Analysis(['HDFCompass.py'],
              pathex=[],
-             hiddenimports=['scipy.linalg.cython_blas', 'scipy.linalg.cython_lapack'],  # for cartopy
+             hiddenimports=['scipy.linalg.cython_blas', 'scipy.linalg.cython_lapack',
+             	'scipy.linalg', 'scipy.integrate'],  # for cartopy
              excludes=["PySide"],  # exclude libraries from being bundled (in case that are installed)
              hookspath=None,
              runtime_hooks=None)
@@ -77,10 +82,9 @@ exe = EXE(pyz,
           a.zipfiles,
           a.datas,
           pkg_data_hdf_compass,
-          pkg_data_lxml,
           cartopy_aux,
           name=app_name,
-          debug=False,
+          debug=True,
           strip=None,
           upx=False,
           console=True,
