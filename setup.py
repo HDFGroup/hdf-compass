@@ -96,13 +96,16 @@ setup_args['install_requires'] =\
     [
         "numpy",
         "matplotlib>=1.5",
-        "cartopy[plotting]",
         "h5py",
         "wxPython==3.0.2",
-        "hydroffice.bag>=0.2.10",
-        "pydap",
         "requests"
     ]
+setup_args['extras_require'] =\
+    {
+        "GeoNodes": ["cartopy[plotting]", ],  # required for visualization of GeoArray and GeoSurface nodes
+        "BAG": ["hydroffice.bag>=0.2.10", ],  # required by BAG plugin
+        "OpenDAP": ["pydap", ],  # required by OpenDAP plugin
+    }
 # hdf_compass namespace, packages and other files
 setup_args['namespace_packages'] = ['hdf_compass']
 setup_args['packages'] = find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests", "*.test*",
