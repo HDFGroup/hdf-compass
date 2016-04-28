@@ -4,6 +4,7 @@ __pycache__/
 # build files
 /build
 /dist
+/*.eggs
 /*.egg
 /*.egg-info/
 /*.egg-link
