@@ -89,7 +89,7 @@ setup_args['keywords'] = "data hdf bag ascii grid opendap"
 # requirements
 setup_args['setup_requires'] =\
     [
-        "setuptools==19.2",
+        "setuptools",
         "wheel",
     ]
 setup_args['install_requires'] =\
