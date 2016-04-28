@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=HDFCompass
+GenericName=HDFCompass
+Comment=Viewer program for HDF5 and related formats
+TryExec=HDFCompass
+Exec=HDFCompass %f
+Categories=Development;Science;
+Keywords=Python;HDF;science;viewer;
+Icon=HDFCompass
+Terminal=false
+StartupNotify=true
+MimeType=text/x-python;
