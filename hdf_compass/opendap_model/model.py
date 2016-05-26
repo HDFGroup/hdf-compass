@@ -274,7 +274,7 @@ class Attributes(compass_model.KeyValue):
 
     @staticmethod
     def can_handle(store, key):
-        new_key = check_key(key, store.dataset)
+        new_key, new_dset = check_key(key, store.dataset)
         return new_key != ''
 
     def __init__(self, store, key):
