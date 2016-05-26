@@ -65,7 +65,7 @@ else:
 if not os.path.exists(icon_file):
     raise RuntimeError("invalid path to icon: %s" % icon_file)
 
-version = '0.6.0b5'
+version = '0.6.0b6'
 app_name = 'HDFCompass_' + version
 
 a = Analysis(['HDFCompass.py'],
