@@ -1,7 +1,7 @@
 HDF Compass
 ===========
 
-.. image:: https://badge.fury.io/py/v/hdf_compass.svg
+.. image:: https://badge.fury.io/py/hdf_compass.svg
     :target: https://badge.fury.io/py/hdf_compass
     :alt: PyPI Status
 
@@ -17,7 +17,7 @@ HDF Compass
     :target: https://ci.appveyor.com/project/giumas/hdf-compass
     :alt: AppVeyor Status
 
-.. image:: https://travis-ci.org/giumas/hdf-compass.svg?branch=master
+.. image:: https://travis-ci.org/giumas/hdf-compass.svg?branch=develop
     :target: https://travis-ci.org/giumas/hdf-compass
     :alt: Travis-CI Status
         
