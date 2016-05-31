@@ -1,0 +1,14 @@
+# Include the license file
+include COPYING
+include additional_legal/*.*
+
+include README.txt
+
+recursive-include tests *.*
+recursive-include docs *.*
+prune docs/_build
+
+include data/asc/*.*
+include data/bag/*.*
+include data/hdf5/*.*
+include data/hdf5/Download/download_data.py
