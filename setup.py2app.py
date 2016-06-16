@@ -46,7 +46,7 @@ PLIST = {   "CFBundleDocumentTypes": [ { "CFBundleTypeExtensions": ["hdf5","h5"]
                                       "CFBundleTypeRole": "Viewer"} ],
             "CFBundleIdentifer": "org.hdfgroup.compass",
             "CFBundleDisplayName": "HDFCompass",
-            "CFBundleVersion": "0.5.0" }
+            "CFBundleVersion": "0.6.1b1" }
 
 # ARGV emulation interacts badly with wxPython on Mac... it "eats" events
 # when the program starts up and causes windows not to be displayed.

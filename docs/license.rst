@@ -10,7 +10,7 @@ HDF Compass - Viewer for HDF5 and other file formats
 -----------------------------------------------------------------------------
 
 HDF Compass
-Copyright 2014-2015 by The HDF Group.
+Copyright 2014-2016 by The HDF Group.
 
 All rights reserved.
 
