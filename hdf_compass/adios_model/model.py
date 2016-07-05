@@ -22,7 +22,7 @@ import sys
 import os.path as op
 import posixpath as pp
 
-import adios
+import adios as ad
 
 import logging
 log = logging.getLogger(__name__)
@@ -35,7 +35,6 @@ from hdf_compass.utils import url2path
 
 def sort_key(name):
     """ Sorting key for names in an HDF5 group.
-
     We provide "natural" sort order; e.g. "7" comes before "12".
     """
     return [(int(''.join(g)) if k else ''.join(g)) for k, g in groupby(name, key=unicode.isdigit)]
@@ -58,12 +57,11 @@ class ADIOSStore(compass_model.Store):
     file_extensions = {'ADIOS File': ['*.bp']}
 
     def __contains__(self, key):
-        return (key in self.f.var) or (key == "/")
+        return key in self.f.var
 
     @property
     def url(self):
         return self._url
-
 
     @property
     def display_name(self):
@@ -82,24 +80,32 @@ class ADIOSStore(compass_model.Store):
         if not url.startswith('file://'):
             log.debug("able to handle %s? no, not starting with file://" % url)
             return False
-        path = url2path(url)
-        try:
-            f = adios.file(url2path(url))
-            f.close()
-            log.debug("able to handle %s? yes" % url)
-            return True
-        except all:
-            log.debug("able to handle %s? no, failed to open with adios" % url)
+        if not url.endswith('.bp'):
+            log.debug("able to handle %s? no, missing .bp ending" % url)
             return False
 
+        log.debug("able to handle %s? yes" % url)
+        return True
 
     def __init__(self, url):
         try:
             self._url = url
-            path = url2path(url)
-            self.f = adios.file(path)
+            path = url2path(url).encode("ascii")
+            self.f = ad.file(path)
+            
         except:
             raise ValueError(url)
+
+        keylist = self.f.var.keys()
+        for key in keylist:
+            if(not key.startswith("/")):
+                nkey = "/%s" % key
+                self.f.var[nkey] = self.f.var.pop(key)
+                key = nkey;
+
+            if(key != "/"):
+                pkey = pp.dirname(key)
+                self.f.var.update({pkey:None})
 
         self.r = ADIOSGroup(self, "/")
 
@@ -110,11 +116,13 @@ class ADIOSStore(compass_model.Store):
         # HDFCompass requires the parent of the root container be None
         if key == "" or key == "/":
             return None
+
         pkey = pp.dirname(key)
         if pkey == "":
             pkey = "/"
-        return self[pkey]
 
+        return pkey
+#        return self[pkey]
 
 class ADIOSGroup(compass_model.Container):
     """ Represents an HDF5 group, to be displayed in the browser view. """
@@ -123,14 +131,17 @@ class ADIOSGroup(compass_model.Container):
 
     @staticmethod
     def can_handle(store, key):
-        return True # key in store
+        if(key in store):
+            if(store.f.var[key] == None):
+                return True
+        return False
 
     @property
     def _names(self):
         # Lazily build the list of names; this helps when browsing big files
         if self._xnames is None:
-            self._xnames = self._group.keys()
-
+            self._xnames = list(map(lambda k:  op.basename(k), self._group.keys()))
+            
             # Natural sort is expensive
 #            if len(self._xnames) < 1000:
 #                self._xnames.sort(key=sort_key)
@@ -140,14 +151,14 @@ class ADIOSGroup(compass_model.Container):
     def __init__(self, store, key):
         self._store = store
         self._key = key
-        if self._key == "/":
-            # build root group
-            print("adiosgroup: build root")
-            self._group = store.f.var
-        else:
-            self._group = store.f.var[key]
- 
         self._xnames = None
+
+        self._group = {}
+        c = self._key.count('/')
+        for k in self._store.f.var.keys():
+            if(k.startswith(self._key) and k.count('/') <= c):
+                print("adios group add ", k)
+                self._group.update({k:store.f.var[k]})
 
     @property
     def key(self):
@@ -181,46 +192,27 @@ class ADIOSGroup(compass_model.Container):
 
     def __getitem__(self, idx):
         name = self._names[idx]
-        return ADIOSTestNode(self.store, name)
-
-class ADIOSTestNode(compass_model.Node):
-    def __init__(self, store, key):
-        self._store = store
-        self._key = key
-
-    @property
-    def key(self):
-        return self._key
-
-    @property
-    def store(self):
-        return self._store
-
-    @property
-    def display_name(self):
-        return self._key
-
-    @property
-    def display_title(self):
-        return self._key
-
-    @property
-    def description(self):
-        return ""
+        key = pp.join(self._key, name)
+        print("ADIOS group getitem ", key, "\n")
+        return self._store[key]
 
 class ADIOSDataset(compass_model.Array):
-    """ Represents an HDF5 dataset. """
+    """ Represents an ADIOS dataset. """
 
     class_kind = "ADIOS Dataset"
 
     @staticmethod
     def can_handle(store, key):
-        return key in store and isinstance(store.f[key], h5py.Dataset)
+        if(key in store):
+            if(key != "/"):
+                return isinstance(store.f.var[key], ad.var)
+        return False
 
     def __init__(self, store, key):
         self._store = store
         self._key = key
-        self._dset = store.f[key]
+        print(key)
+        self._dset = store.f.var[key]
 
     @property
     def key(self):
@@ -232,7 +224,7 @@ class ADIOSDataset(compass_model.Array):
 
     @property
     def display_name(self):
-        return pp.basename(self.key)
+        return self._key
 
     @property
     def description(self):
@@ -247,6 +239,7 @@ class ADIOSDataset(compass_model.Array):
         return self._dset.dtype
 
     def __getitem__(self, args):
+        print(args, self._dset.shape)
         return self._dset[args]
 
     def is_plottable(self):
@@ -258,7 +251,6 @@ class ADIOSDataset(compass_model.Array):
             return False
         return True
 
-
 class ADIOSText(compass_model.Text):
     """ Represents a text array (both ASCII and UNICODE). """
 
@@ -268,10 +260,10 @@ class ADIOSText(compass_model.Text):
     def can_handle(store, key):
         if key in store and isinstance(store.f[key], h5py.Dataset):
             if store.f[key].dtype.kind == 'S':
-                # log.debug("ASCII String (characters: %d)" % DATA[key].dtype.itemsize)
+                log.debug("ASCII String (characters: %d)" % DATA[key].dtype.itemsize)
                 return True
             if store.f[key].dtype.kind == 'U':
-                # log.debug("Unicode String (characters: %d)" % DATA[key].dtype.itemsize)
+                log.debug("Unicode String (characters: %d)" % DATA[key].dtype.itemsize)
                 return True
 
         return False
@@ -279,7 +271,8 @@ class ADIOSText(compass_model.Text):
     def __init__(self, store, key):
         self._store = store
         self._key = key
-        self.data = store.f[key]
+        self.data = "qiwjeiqowheo";
+#        self.data = store.f[key]
 
     @property
     def key(self):
@@ -291,39 +284,15 @@ class ADIOSText(compass_model.Text):
 
     @property
     def display_name(self):
-        return pp.basename(self.key)
+        return "displayname"
 
     @property
     def description(self):
         return 'Text "%s"' % (self.display_name,)
 
     @property
-    def shape(self):
-        return self.data.shape
-
-    @property
     def text(self):
-        txt = str()
-
-        if len(self.shape) == 0:
-            # print(type(self.data))
-            txt += str(self.data[()])
-
-        elif len(self.shape) == 1:
-            for el in self.data:
-                txt += el + ", \n"
-
-        elif len(self.shape) == 2:
-            for i in range(self.shape[0]):
-                for j in range(self.shape[1]):
-                    txt += self.data[i, j] + ", "
-                txt += "\n"
-
-        else:
-            txt = ">> display of more than 2D string array not implemented <<"
-
-        return txt
-
+        return self.data;
 
 class ADIOSKV(compass_model.KeyValue):
     """ A KeyValue node used for HDF5 attributes. """
@@ -365,9 +334,9 @@ class ADIOSKV(compass_model.KeyValue):
         return self._obj.attrs[name]
 
 # Register handlers    
-#ADIOSStore.push(ADIOSKV)
-#ADIOSStore.push(ADIOSDataset)
-#ADIOSStore.push(ADIOSText)
 ADIOSStore.push(ADIOSGroup)
+#ADIOSStore.push(ADIOSKV)
+ADIOSStore.push(ADIOSDataset)
+#ADIOSStore.push(ADIOSText)
 
 compass_model.push(ADIOSStore)
