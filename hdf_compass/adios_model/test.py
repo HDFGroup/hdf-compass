@@ -19,7 +19,7 @@ from hdf_compass.utils import data_url
 
 import os
 
-url = os.path.join(data_url(), "adios", "temp.bp")
+url = os.path.join(data_url(), "adios", "adios_test.bp")
 
 s = store(ADIOSStore, url)
 c = container(ADIOSStore, url, ADIOSGroup, "")

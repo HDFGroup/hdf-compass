@@ -69,7 +69,7 @@ class ADIOSStore(compass_model.Store):
 
     @property
     def root(self):
-        return self.r
+        return self['/']
 
     @property
     def valid(self):
@@ -121,8 +121,7 @@ class ADIOSStore(compass_model.Store):
         if pkey == "":
             pkey = "/"
 
-        return pkey
-#        return self[pkey]
+        return self[pkey]
 
 class ADIOSGroup(compass_model.Container):
     """ Represents an HDF5 group, to be displayed in the browser view. """
@@ -143,8 +142,8 @@ class ADIOSGroup(compass_model.Container):
             self._xnames = list(map(lambda k:  op.basename(k), self._group.keys()))
             
             # Natural sort is expensive
-#            if len(self._xnames) < 1000:
-#                self._xnames.sort(key=sort_key)
+            if len(self._xnames) < 1000:
+                self._xnames.sort()
 
         return self._xnames
 
@@ -155,9 +154,11 @@ class ADIOSGroup(compass_model.Container):
 
         self._group = {}
         c = self._key.count('/')
+        if(self._key != "/"):
+            c = c+1
+
         for k in self._store.f.var.keys():
-            if(k.startswith(self._key) and k.count('/') <= c):
-                print("adios group add ", k)
+            if(k.startswith(self._key) and k.count('/') <= c and k != self._key):
                 self._group.update({k:store.f.var[k]})
 
     @property
@@ -177,7 +178,7 @@ class ADIOSGroup(compass_model.Container):
 
     @property
     def display_title(self):
-        return "%s %s" % (self.store.display_name, self.key)
+        return "%s %s" % (self.store.display_name, self._key)
 
     @property
     def description(self):
@@ -188,12 +189,11 @@ class ADIOSGroup(compass_model.Container):
 
     def __iter__(self):
         for name in self._names:
-            yield self.store.var[pp.join(self.key, name)]
+            yield self.store.var[pp.join(self._key, name)]
 
     def __getitem__(self, idx):
         name = self._names[idx]
         key = pp.join(self._key, name)
-        print("ADIOS group getitem ", key, "\n")
         return self._store[key]
 
 class ADIOSDataset(compass_model.Array):
@@ -211,7 +211,6 @@ class ADIOSDataset(compass_model.Array):
     def __init__(self, store, key):
         self._store = store
         self._key = key
-        print(key)
         self._dset = store.f.var[key]
 
     @property
@@ -224,7 +223,7 @@ class ADIOSDataset(compass_model.Array):
 
     @property
     def display_name(self):
-        return self._key
+        return pp.basename(self._key)
 
     @property
     def description(self):
@@ -239,7 +238,6 @@ class ADIOSDataset(compass_model.Array):
         return self._dset.dtype
 
     def __getitem__(self, args):
-        print(args, self._dset.shape)
         return self._dset[args]
 
     def is_plottable(self):
