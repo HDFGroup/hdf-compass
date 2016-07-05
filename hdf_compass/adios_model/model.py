@@ -203,10 +203,10 @@ class ADIOSDataset(compass_model.Array):
 
     @staticmethod
     def can_handle(store, key):
-        if(key in store):
-            if(key != "/"):
-                return isinstance(store.f.var[key], ad.var)
-        return False
+        if(key != "/" and key in store and isinstance(store.f.var[key], ad.var)):
+            return True
+        else:
+            return False
 
     def __init__(self, store, key):
         self._store = store
@@ -256,21 +256,19 @@ class ADIOSText(compass_model.Text):
 
     @staticmethod
     def can_handle(store, key):
-        if key in store and isinstance(store.f[key], h5py.Dataset):
-            if store.f[key].dtype.kind == 'S':
+        if(key != "/" and key in store and isinstance(store.f.var[key], ad.var)):
+            if store.f.var[key].dtype.kind == 'S':
                 log.debug("ASCII String (characters: %d)" % DATA[key].dtype.itemsize)
                 return True
-            if store.f[key].dtype.kind == 'U':
+            if store.f.var[key].dtype.kind == 'U':
                 log.debug("Unicode String (characters: %d)" % DATA[key].dtype.itemsize)
                 return True
-
         return False
 
     def __init__(self, store, key):
         self._store = store
         self._key = key
-        self.data = "qiwjeiqowheo";
-#        self.data = store.f[key]
+        self.data = store.f.var[key]
 
     @property
     def key(self):
@@ -293,18 +291,21 @@ class ADIOSText(compass_model.Text):
         return self.data;
 
 class ADIOSKV(compass_model.KeyValue):
-    """ A KeyValue node used for HDF5 attributes. """
+    """ A KeyValue node used for ADIOS attributes. """
 
-    class_kind = "HDF5 Attributes"
+    class_kind = "ADIOS Attributes"
 
     @staticmethod
     def can_handle(store, key):
-        return key in store.f
+        if(key != "/" and key in store and store.f.var[key] != None):
+            return True
+        else:
+            return False
 
     def __init__(self, store, key):
         self._store = store
         self._key = key
-        self._obj = store.f[key]
+        self._obj = store.f.var[key]
         self._names = self._obj.attrs.keys()
 
     @property
@@ -329,12 +330,13 @@ class ADIOSKV(compass_model.KeyValue):
         return self._names[:]
 
     def __getitem__(self, name):
-        return self._obj.attrs[name]
+        a = self._obj.attrs[name]
+        return a.value
 
 # Register handlers    
 ADIOSStore.push(ADIOSGroup)
-#ADIOSStore.push(ADIOSKV)
+ADIOSStore.push(ADIOSKV)
 ADIOSStore.push(ADIOSDataset)
-#ADIOSStore.push(ADIOSText)
+ADIOSStore.push(ADIOSText)
 
 compass_model.push(ADIOSStore)
