@@ -57,7 +57,12 @@ class ADIOSStore(compass_model.Store):
     file_extensions = {'ADIOS File': ['*.bp']}
 
     def __contains__(self, key):
-        return key in self.f.var
+        key = key.encode("ascii")
+        keylist = self.f.var.keys()
+        for k in keylist:
+            if(len(op.commonprefix([key, k])) > 0):
+                return True
+        return False
 
     @property
     def url(self):
@@ -69,7 +74,7 @@ class ADIOSStore(compass_model.Store):
 
     @property
     def root(self):
-        return self['/']
+        return self["/"]
 
     @property
     def valid(self):
@@ -92,22 +97,8 @@ class ADIOSStore(compass_model.Store):
             self._url = url
             path = url2path(url).encode("ascii")
             self.f = ad.file(path)
-            
         except:
             raise ValueError(url)
-
-        keylist = self.f.var.keys()
-        for key in keylist:
-            if(not key.startswith("/")):
-                nkey = "/%s" % key
-                self.f.var[nkey] = self.f.var.pop(key)
-                key = nkey;
-
-            if(key != "/"):
-                pkey = pp.dirname(key)
-                self.f.var.update({pkey:None})
-
-        self.r = ADIOSGroup(self, "/")
 
     def close(self):
         self.f.close()
@@ -130,8 +121,7 @@ class ADIOSGroup(compass_model.Container):
 
     @staticmethod
     def can_handle(store, key):
-        if(key in store):
-            if(store.f.var[key] == None):
+        if(key in store and isinstance(store.f[key.encode("ascii")], ad.group)):
                 return True
         return False
 
@@ -139,8 +129,24 @@ class ADIOSGroup(compass_model.Container):
     def _names(self):
         # Lazily build the list of names; this helps when browsing big files
         if self._xnames is None:
-            self._xnames = list(map(lambda k:  op.basename(k), self._group.keys()))
-            
+            self._xnames = []
+            c = self._key.count('/')
+            if(self._key != "/"):
+                c = c + 1
+
+            print(self._key)
+
+            keylist = self._store.f.var.keys()
+            for k in keylist:
+                if(not k.startswith("/")):
+                    k = "/%s" % k
+
+                while(k != self._key and k != "/"):
+                    print(self._key, k)
+                    if(k.startswith(self._key) and k.count('/') <= c and not k in self._xnames):
+                        self._xnames.append(k)
+                    k = pp.dirname(k)
+
             # Natural sort is expensive
             if len(self._xnames) < 1000:
                 self._xnames.sort()
@@ -149,17 +155,10 @@ class ADIOSGroup(compass_model.Container):
 
     def __init__(self, store, key):
         self._store = store
-        self._key = key
         self._xnames = None
-
-        self._group = {}
-        c = self._key.count('/')
-        if(self._key != "/"):
-            c = c+1
-
-        for k in self._store.f.var.keys():
-            if(k.startswith(self._key) and k.count('/') <= c and k != self._key):
-                self._group.update({k:store.f.var[k]})
+        if(not key.startswith("/")):
+            key = "/%s" % key
+        self._key = key
 
     @property
     def key(self):
@@ -185,7 +184,7 @@ class ADIOSGroup(compass_model.Container):
         return 'Group "%s" (%d members)' % (self.display_name, len(self))
 
     def __len__(self):
-        return len(self._group)
+        return len(self._names)
 
     def __iter__(self):
         for name in self._names:
@@ -193,7 +192,7 @@ class ADIOSGroup(compass_model.Container):
 
     def __getitem__(self, idx):
         name = self._names[idx]
-        key = pp.join(self._key, name)
+        key = op.join(self._key, name)
         return self._store[key]
 
 class ADIOSDataset(compass_model.Array):
@@ -203,7 +202,7 @@ class ADIOSDataset(compass_model.Array):
 
     @staticmethod
     def can_handle(store, key):
-        if(key != "/" and key in store and isinstance(store.f.var[key], ad.var)):
+        if(key in store and isinstance(store.f[key.encode("ascii")], ad.var)):
             return True
         else:
             return False
@@ -211,7 +210,7 @@ class ADIOSDataset(compass_model.Array):
     def __init__(self, store, key):
         self._store = store
         self._key = key
-        self._dset = store.f.var[key]
+        self._dset = store.f[key.encode("ascii")]
 
     @property
     def key(self):
@@ -256,11 +255,12 @@ class ADIOSText(compass_model.Text):
 
     @staticmethod
     def can_handle(store, key):
-        if(key != "/" and key in store and isinstance(store.f.var[key], ad.var)):
-            if store.f.var[key].dtype.kind == 'S':
+        key = key.encode("ascii")
+        if(key in store and isinstance(store.f[key], ad.var)):
+            if store.f[key].dtype.kind == 'S':
                 log.debug("ASCII String (characters: %d)" % DATA[key].dtype.itemsize)
                 return True
-            if store.f.var[key].dtype.kind == 'U':
+            if store.f[key].dtype.kind == 'U':
                 log.debug("Unicode String (characters: %d)" % DATA[key].dtype.itemsize)
                 return True
         return False
@@ -268,7 +268,7 @@ class ADIOSText(compass_model.Text):
     def __init__(self, store, key):
         self._store = store
         self._key = key
-        self.data = store.f.var[key]
+        self.data = store.f[key.encode("ascii")]
 
     @property
     def key(self):
@@ -297,7 +297,8 @@ class ADIOSKV(compass_model.KeyValue):
 
     @staticmethod
     def can_handle(store, key):
-        if(key != "/" and key in store and store.f.var[key] != None):
+        return False
+        if(key in store and len(store.f[key.encode("ascii")].attrs)>0):
             return True
         else:
             return False
@@ -305,8 +306,8 @@ class ADIOSKV(compass_model.KeyValue):
     def __init__(self, store, key):
         self._store = store
         self._key = key
-        self._obj = store.f.var[key]
-        self._names = self._obj.attrs.keys()
+        self._obj = store.f[key.encode("ascii")]
+        self._names = list(map(lambda k : "/" not in k, self._obj.attrs.keys()))
 
     @property
     def key(self):
@@ -318,7 +319,7 @@ class ADIOSKV(compass_model.KeyValue):
 
     @property
     def display_name(self):
-        n = pp.basename(self.key)
+        n = pp.basename(self._key)
         return n if n != '' else '/'
 
     @property
@@ -330,7 +331,7 @@ class ADIOSKV(compass_model.KeyValue):
         return self._names[:]
 
     def __getitem__(self, name):
-        a = self._obj.attrs[name]
+        a = self._obj[name.encode("ascii")].attrs
         return a.value
 
 # Register handlers    
