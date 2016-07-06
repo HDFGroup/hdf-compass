@@ -39,7 +39,6 @@ def sort_key(name):
     """
     return [(int(''.join(g)) if k else ''.join(g)) for k, g in groupby(name, key=unicode.isdigit)]
 
-
 class ADIOSStore(compass_model.Store):
     """
     Data store implementation using an ADIOS file.
@@ -134,8 +133,6 @@ class ADIOSGroup(compass_model.Container):
             if(self._key != "/"):
                 c = c + 1
 
-            print(self._key)
-
             keylist = self._store.f.var.keys()
             for k in keylist:
                 if(not k.startswith("/")):
@@ -152,6 +149,7 @@ class ADIOSGroup(compass_model.Container):
                 self._xnames.sort()
 
         return self._xnames
+
 
     def __init__(self, store, key):
         self._store = store
@@ -297,17 +295,20 @@ class ADIOSKV(compass_model.KeyValue):
 
     @staticmethod
     def can_handle(store, key):
-        return False
-        if(key in store and len(store.f[key.encode("ascii")].attrs)>0):
+        if(key in store):
             return True
         else:
             return False
 
     def __init__(self, store, key):
         self._store = store
-        self._key = key
         self._obj = store.f[key.encode("ascii")]
-        self._names = list(map(lambda k : "/" not in k, self._obj.attrs.keys()))
+        if(not key.startswith("/")):
+            key = "/%s" % key
+        self._key = key
+        self._names = list(filter(lambda k: '/' not in k, self._obj.attrs.keys()))
+
+        print(self._names)
 
     @property
     def key(self):
@@ -328,15 +329,15 @@ class ADIOSKV(compass_model.KeyValue):
 
     @property
     def keys(self):
-        return self._names[:]
+        return self._names
 
     def __getitem__(self, name):
-        a = self._obj[name.encode("ascii")].attrs
+        a = self._obj.attrs[name.encode("ascii")]
         return a.value
 
-# Register handlers    
-ADIOSStore.push(ADIOSGroup)
+# Register handlers
 ADIOSStore.push(ADIOSKV)
+ADIOSStore.push(ADIOSGroup)
 ADIOSStore.push(ADIOSDataset)
 ADIOSStore.push(ADIOSText)
 
