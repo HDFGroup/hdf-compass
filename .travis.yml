@@ -55,6 +55,7 @@ install:
   - conda install -q h5py lxml numpy matplotlib pydap wxpython requests shapely proj4 geos cartopy setuptools gdal
   - pip install --no-deps hydroffice.bag
   - pip install --no-deps -e .
+  - pip install adios
 
 script:
   - "python -m unittest hdf_compass.array_model.test"
