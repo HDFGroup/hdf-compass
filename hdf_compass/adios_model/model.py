@@ -22,7 +22,7 @@ import sys
 import os.path as op
 import posixpath as pp
 
-import adios as ad
+import adios
 
 import logging
 log = logging.getLogger(__name__)
@@ -32,12 +32,6 @@ log.addHandler(logging.NullHandler())
 from hdf_compass import compass_model
 from hdf_compass.utils import url2path
 
-
-def sort_key(name):
-    """ Sorting key for names in an HDF5 group.
-    We provide "natural" sort order; e.g. "7" comes before "12".
-    """
-    return [(int(''.join(g)) if k else ''.join(g)) for k, g in groupby(name, key=unicode.isdigit)]
 
 class ADIOSStore(compass_model.Store):
     """
@@ -56,11 +50,17 @@ class ADIOSStore(compass_model.Store):
     file_extensions = {'ADIOS File': ['*.bp']}
 
     def __contains__(self, key):
-        key = key.encode("ascii")
-        keylist = self.f.var.keys()
-        for k in keylist:
-            if(len(op.commonprefix([key, k])) > 0):
-                return True
+        if(self.valid):
+            if(not key.startswith("/") and key != ""):
+                key = "/%s" % key
+            key = key.encode("ascii")
+            keylist = self.f.var.keys()
+            for k in keylist:
+                if(not k.startswith("/") and k != ""):
+                    k = "/%s" % k
+                k = k.encode("ascii")
+                if(k.startswith(key)):
+                    return True
         return False
 
     @property
@@ -77,14 +77,14 @@ class ADIOSStore(compass_model.Store):
 
     @property
     def valid(self):
-        return bool(self.f)
+        return self._valid
 
     @staticmethod
     def can_handle(url):
-        if not url.startswith('file://'):
+        if(not url.startswith('file://')):
             log.debug("able to handle %s? no, not starting with file://" % url)
             return False
-        if not url.endswith('.bp'):
+        if(not url.endswith('.bp')):
             log.debug("able to handle %s? no, missing .bp ending" % url)
             return False
 
@@ -95,12 +95,17 @@ class ADIOSStore(compass_model.Store):
         try:
             self._url = url
             path = url2path(url).encode("ascii")
-            self.f = ad.file(path)
+            self.f = adios.file(path)
+            self._valid = True
         except:
-            raise ValueError(url)
-
+            self._valid = False
+    
     def close(self):
-        self.f.close()
+        if(self.valid):
+            self.f.close()
+            self._valid = False
+        else:
+            print("ADIOS: can't close invalid file")
 
     def get_parent(self, key):
         # HDFCompass requires the parent of the root container be None
@@ -114,16 +119,14 @@ class ADIOSStore(compass_model.Store):
         return self[pkey]
 
 class ADIOSGroup(compass_model.Container):
-    """ Represents an HDF5 group, to be displayed in the browser view. """
+    """ Represents an ADIOS group, to be displayed in the browser view. """
 
     class_kind = "ADIOS Group"
 
     @staticmethod
     def can_handle(store, key):
-        if(key in store and isinstance(store.f[key.encode("ascii")], ad.group)):
-                return True
-        return False
-
+        return (key in store and isinstance(store.f[key.encode("ascii")], adios.group))
+ 
     @property
     def _names(self):
         # Lazily build the list of names; this helps when browsing big files
@@ -139,8 +142,7 @@ class ADIOSGroup(compass_model.Container):
                     k = "/%s" % k
 
                 while(k != self._key and k != "/"):
-                    print(self._key, k)
-                    if(k.startswith(self._key) and k.count('/') <= c and not k in self._xnames):
+                    if(k.startswith(self._key) and k.count('/') == c and not k in self._xnames):
                         self._xnames.append(k)
                     k = pp.dirname(k)
 
@@ -154,7 +156,7 @@ class ADIOSGroup(compass_model.Container):
     def __init__(self, store, key):
         self._store = store
         self._xnames = None
-        if(not key.startswith("/")):
+        if((not key.startswith("/")) and key != ""):
             key = "/%s" % key
         self._key = key
 
@@ -186,11 +188,11 @@ class ADIOSGroup(compass_model.Container):
 
     def __iter__(self):
         for name in self._names:
-            yield self.store.var[pp.join(self._key, name)]
+            yield self.store[pp.join(self._key, name).encode("ascii")]
 
     def __getitem__(self, idx):
         name = self._names[idx]
-        key = op.join(self._key, name)
+        key = op.join(self._key, name).encode("ascii")
         return self._store[key]
 
 class ADIOSDataset(compass_model.Array):
@@ -200,10 +202,7 @@ class ADIOSDataset(compass_model.Array):
 
     @staticmethod
     def can_handle(store, key):
-        if(key in store and isinstance(store.f[key.encode("ascii")], ad.var)):
-            return True
-        else:
-            return False
+        return (key in store and isinstance(store.f[key.encode("ascii")], adios.var))
 
     def __init__(self, store, key):
         self._store = store
@@ -254,7 +253,7 @@ class ADIOSText(compass_model.Text):
     @staticmethod
     def can_handle(store, key):
         key = key.encode("ascii")
-        if(key in store and isinstance(store.f[key], ad.var)):
+        if(key in store and isinstance(store.f[key], adios.var)):
             if store.f[key].dtype.kind == 'S':
                 log.debug("ASCII String (characters: %d)" % DATA[key].dtype.itemsize)
                 return True
@@ -286,7 +285,7 @@ class ADIOSText(compass_model.Text):
 
     @property
     def text(self):
-        return self.data;
+        return self.data[()];
 
 class ADIOSKV(compass_model.KeyValue):
     """ A KeyValue node used for ADIOS attributes. """
@@ -295,20 +294,15 @@ class ADIOSKV(compass_model.KeyValue):
 
     @staticmethod
     def can_handle(store, key):
-        if(key in store):
-            return True
-        else:
-            return False
+        return (key in store)
 
     def __init__(self, store, key):
         self._store = store
         self._obj = store.f[key.encode("ascii")]
-        if(not key.startswith("/")):
+        if((not key.startswith("/")) and key != ""):
             key = "/%s" % key
         self._key = key
         self._names = list(filter(lambda k: '/' not in k, self._obj.attrs.keys()))
-
-        print(self._names)
 
     @property
     def key(self):
@@ -342,3 +336,4 @@ ADIOSStore.push(ADIOSDataset)
 ADIOSStore.push(ADIOSText)
 
 compass_model.push(ADIOSStore)
+

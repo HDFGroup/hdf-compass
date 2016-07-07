@@ -63,6 +63,7 @@ script:
   - "python -m unittest hdf_compass.filesystem_model.test"
   - "python -m unittest hdf_compass.hdf5_model.test"
   - "python -m unittest hdf_compass.opendap_model.test"
+  - "python -m unittest hdf_compass.adios_model.test"
 
 after_script:
   # If tests are successful, create a source distribution.
