@@ -80,7 +80,7 @@ install:
   # python packages
   - conda install -q h5py lxml numpy matplotlib pydap wxpython requests shapely proj4 geos cartopy setuptools gdal
   - pip install --no-deps hydroffice.bag
-  - pip install adios
+  - pip install --no-deps 'git+https://github.com/ornladios/ADIOS.git#egg=adios&subdirectory=wrappers/numpy'
   - pip install --no-deps -e .
 
 script:
