@@ -24,6 +24,7 @@ matrix:
 
 cache:
   apt: true
+  brew: true
   directories:
     - $HOME/.cache/adios
 
@@ -57,7 +58,7 @@ before_install:
 install:
   # MPI on OSX
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      brew install openmpi;
+      travis_wait brew install openmpi;
     fi
   # ADIOS C library
   - export LD_LIBRARY_PATH=$ADIOS_ROOT/lib:$LD_LIBRARY_PATH
