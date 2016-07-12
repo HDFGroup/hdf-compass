@@ -22,6 +22,7 @@ import numpy as np
 
 import os
 import logging
+import numpy
 
 log = logging.getLogger(__name__)
 
@@ -36,7 +37,8 @@ ArraySelectionEvent, EVT_ARRAY_SELECTED = NewCommandEvent()
 
 # Menu and button IDs
 ID_VIS_MENU_PLOT = wx.NewId()
-
+ID_VIS_MENU_COPY = wx.NewId()
+ID_VIS_MENU_EXPORT = wx.NewId()
 
 class ArrayFrame(NodeFrame):
     """
@@ -79,6 +81,8 @@ class ArrayFrame(NodeFrame):
         if self.node.is_plottable():
             self.Bind(wx.EVT_MENU, self.on_plot, id=ID_VIS_MENU_PLOT)
 
+        self.Bind(wx.EVT_MENU, self.on_copy, id=ID_VIS_MENU_COPY)
+
         # Workaround for wxPython bug (see SlicerPanel.enable_spinctrls)
         ID_WORKAROUND_TIMER = wx.NewId()
         self.Bind(wx.EVT_TIMER, self.on_workaround_timer, id=ID_WORKAROUND_TIMER)
@@ -89,6 +93,8 @@ class ArrayFrame(NodeFrame):
         """ Set up the toolbar at the top of the window. """
         t_size = (24, 24)
         plot_bmp = wx.Bitmap(os.path.join(self.icon_folder, "viz_plot_24.png"), wx.BITMAP_TYPE_ANY)
+        copy_bmp = plot_bmp
+        export_bmp = plot_bmp
 
         self.toolbar = self.CreateToolBar(wx.TB_HORIZONTAL | wx.NO_BORDER | wx.TB_FLAT | wx.TB_TEXT)
 
@@ -106,10 +112,14 @@ class ArrayFrame(NodeFrame):
             self.Bind(wx.EVT_SPINCTRL, self.on_dimSpin)
             
         self.toolbar.AddStretchableSpace()
+
+        self.toolbar.AddLabelTool(ID_VIS_MENU_COPY, "Copy", copy_bmp)
+        self.toolbar.AddLabelTool(ID_VIS_MENU_EXPORT, "Export", export_bmp)
         if self.node.is_plottable():
             self.toolbar.AddLabelTool(ID_VIS_MENU_PLOT, "Plot Data", plot_bmp,
                                       shortHelp="Plot data in a popup window",
                                       longHelp="Plot the array data in a popup window")
+
         self.toolbar.Realize()
 
     def on_sliced(self, evt):
@@ -127,13 +137,22 @@ class ArrayFrame(NodeFrame):
 
     def on_plot(self, evt):
         """ User has chosen to plot the current selection """
+        data, names, line = self.get_selected_data()
+        if line:
+            f = LinePlotFrame(data, names)
+            f.Show()
+        else:
+            f = ContourPlotFrame(data)
+            f.Show()
+
+    def get_selected_data(self):
         cols = self.grid.GetSelectedCols()
         rows = self.grid.GetSelectedRows()
         rank = len(self.node.shape)
-
+        
         # Scalar data can't be line-plotted.
         if rank == 0:
-            return
+            return [data], []
 
         # Get data currently in the grid
         if rank > 1 and self.node.dtype.names is None:
@@ -158,13 +177,11 @@ class ArrayFrame(NodeFrame):
 
         # Columns in the view are selected
         if len(cols) != 0:
-
             # The data is compound
             if self.node.dtype.names is not None:
                 names = [self.grid.GetColLabelValue(x) for x in cols]
                 data = [data[n] for n in names]
-                f = LinePlotFrame(data, names)
-                f.Show()
+                return data, names, True
 
             # Plot multiple columns independently
             else:
@@ -172,19 +189,14 @@ class ArrayFrame(NodeFrame):
                     data = [data[(slice(None, None, None),c)] for c in cols]
 
                 names = ["Col %d" % c for c in cols] if len(data) > 1 else None
-
-                f = LinePlotFrame(data, names)
-                f.Show()
-
+                return data, names, True
 
         # Rows in view are selected
         elif len(rows) != 0:
             
             data = [data[(r,)] for r in rows]
             names = ["Row %d" % r for r in rows] if len(data) > 1 else None
-
-            f = LinePlotFrame(data, names)
-            f.Show()
+            return data, names, True
         
         # No row or column selection.  Plot everything  
         else:
@@ -192,18 +204,30 @@ class ArrayFrame(NodeFrame):
             if self.node.dtype.names is not None:
                 names = [self.grid.GetColLabelValue(x) for x in xrange(self.grid.GetNumberCols())]
                 data = [data[n] for n in names]
-                f = LinePlotFrame(data, names)
-                f.Show()
+                return data, names, True
 
             # Plot 1D
             elif rank == 1:
-                f = LinePlotFrame([data])
-                f.Show()
+                return [data], [], True
 
             # Plot 2D
             else:
-                f = ContourPlotFrame(data)
-                f.Show()
+                return data, [], False
+
+    def on_copy(self, evt):
+        """ User has chosen to copy the current selection to the clipboard """
+        data, name, line = self.get_selected_data()
+        string = ""
+        for row in data:
+            for a in row:
+                string += str(a) + "\t"
+            string += "\n"
+
+        clipdata = wx.TextDataObject()
+        clipdata.SetText(string)
+        wx.TheClipboard.Open()
+        wx.TheClipboard.SetData(clipdata)
+        wx.TheClipboard.Close()
 
     def on_workaround_timer(self, evt):
         """ See slicer.enable_spinctrls docs """
