@@ -252,7 +252,7 @@ Arrays
 .. method:: Array.__getitem__(indices)
 
     Retrieve data from the array, using the standard array-slicing syntax
-    ``data = array[idx1, idx2, idx3].  *indices* are the slicing arguments.
+    ``data = array[idx1, idx2, idx3]``.  *indices* are the slicing arguments.
     Only integer indexes and slice objects (representing ranges) are
     supported.
 
