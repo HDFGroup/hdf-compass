@@ -30,6 +30,7 @@ from .plot import LinePlotFrame, ContourPlotFrame
 # Indicates that the slicing selection may have changed.
 # These events are emitted by the SlicerPanel.
 ArraySlicedEvent, EVT_ARRAY_SLICED = NewCommandEvent()
+ArraySelectionEvent, EVT_ARRAY_SELECTED = NewCommandEvent()
 
 # Menu and button IDs
 ID_VIS_MENU_PLOT = wx.NewId()
@@ -60,17 +61,22 @@ class ArrayFrame(NodeFrame):
         # Initialize the toolbar
         self.init_toolbar()
 
+        self.selecter = SelectionPanel(self, node.shape, node.dtype.fields is not None)
         # The Slicer is the panel with indexing controls
         self.slicer = SlicerPanel(self, node.shape, node.dtype.fields is not None)
         # Create the grid array
-        self.grid = ArrayGrid(self, node, self.slicer)
+        self.grid = ArrayGrid(self, node, self.selecter, self.slicer)
         # Sizer for slicer and grid
         gridsizer = wx.BoxSizer(wx.VERTICAL)
-        gridsizer.Add(self.slicer, 0, wx.EXPAND)
+        if len(node.shape) > 1:
+            gridsizer.Add(self.selecter, 0, wx.EXPAND)
+        if len(node.shape) > 2:
+            gridsizer.Add(self.slicer, 0, wx.EXPAND)
         gridsizer.Add(self.grid, 1, wx.EXPAND)
         self.view = gridsizer
 
         self.Bind(EVT_ARRAY_SLICED, self.on_sliced)
+        self.Bind(EVT_ARRAY_SELECTED, self.on_selected)
         if self.node.is_plottable():
             self.Bind(wx.EVT_MENU, self.on_plot, id=ID_VIS_MENU_PLOT)
 
@@ -98,6 +104,18 @@ class ArrayFrame(NodeFrame):
     def on_sliced(self, evt):
         """ User has chosen to display a different part of the dataset. """
         self.grid.Refresh()
+        
+    def on_selected(self, evt):
+        """ User has chosen to display a different part of the dataset. """
+        idx = 0
+        for x in self.selecter.indices:
+            self.slicer.set_spin_max(idx, self.node.shape[x]-1)
+            idx = idx + 1
+        
+        self.grid.ResetView()
+        # table = ArrayTable(self.node, self.selecter, self.slicer)
+        # self.grid.SetTable(table, True)
+        # self.grid.ForceRefresh()
 
     def on_plot(self, evt):
         """ User has chosen to plot the current selection """
@@ -167,8 +185,124 @@ class ArrayFrame(NodeFrame):
     def on_workaround_timer(self, evt):
         """ See slicer.enable_spinctrls docs """
         self.timer.Destroy()
+        self.selecter.enable_spinctrls()
         self.slicer.enable_spinctrls()
 
+
+class SelectionPanel(wx.Panel):
+    """
+    Holds controls for data access.
+
+    Consult the "indices" property, which returns a tuple of indices that
+    prefix the array.  This will be RANK-2 elements long, unless hasfields
+    is true, in which case it will be RANK-1 elements long.
+    """
+
+    @property
+    def indices(self):
+        """ A tuple of integer indices appropriate for slicing.
+
+        Will be RANK-2 elements long, RANK-1 if compound data is in use
+        (hasfields == True).
+        """
+        l = []
+        for x in xrange(len(self.shape)):
+            if x == self.row or x == self.col:
+                continue    
+            l.append(x)
+        return tuple(l)
+        
+    @property
+    def row(self):
+        """ A tuple of integer indices appropriate for slicing.
+
+        Will be RANK-2 elements long, RANK-1 if compound data is in use
+        (hasfields == True).
+        """
+        return self.spincontrols[0].GetValue()
+        
+    @property
+    def col(self):
+        """ A tuple of integer indices appropriate for slicing.
+
+        Will be RANK-2 elements long, RANK-1 if compound data is in use
+        (hasfields == True).
+        """
+        return self.spincontrols[1].GetValue()
+
+    def __init__(self, parent, shape, hasfields):
+        """ Create a new slicer panel.
+
+        parent:     The wxPython parent window
+        shape:      Shape of the data to visualize
+        hasfields:  If True, the data is compound and the grid can only
+                    display one axis.  So, we should display an extra spinbox.
+        """
+        wx.Panel.__init__(self, parent)
+
+        self.shape = shape
+        self.hasfields = hasfields
+        self.spincontrols = []
+
+        # Rank of the underlying array
+        rank = len(shape)
+
+        # Rank displayable in the grid.  If fields are present, they occupy
+        # the columns, so the data displayed is actually 1-D.
+        visible_rank = 1 if hasfields else 2
+
+        sizer = wx.BoxSizer(wx.HORIZONTAL)  # Will arrange the SpinCtrls
+
+        if rank > 1:
+            infotext = wx.StaticText(self, wx.ID_ANY, "Dimension Selection: ")
+            sizer.Add(infotext, 0, flag=wx.EXPAND | wx.ALL, border=10)
+            
+            rowText = wx.StaticText(self, wx.ID_ANY, "Row: ")
+            sizer.Add(rowText, 0, flag=wx.EXPAND | wx.ALL, border=10)
+            rowSpin = wx.SpinCtrl(self, max=rank - 1, value=str(0), min=0, name="rowSpin")
+            sizer.Add(rowSpin, 0, flag=wx.EXPAND | wx.ALL, border=10)
+            rowSpin.Disable()
+            lastRow = 0;
+            self.spincontrols.append(rowSpin)
+            
+            columnText = wx.StaticText(self, wx.ID_ANY, "Column: ")
+            sizer.Add(columnText, 0, flag=wx.EXPAND | wx.ALL, border=10)
+            colSpin = wx.SpinCtrl(self, max=rank - 1, value=str(1), min=0, name="colSpin")
+            sizer.Add(colSpin, 0, flag=wx.EXPAND | wx.ALL, border=10)
+            colSpin.Disable()
+            lastRow = 1;
+            self.spincontrols.append(colSpin)
+
+        self.SetSizer(sizer)
+
+        self.Bind(wx.EVT_SPINCTRL, self.on_spin)
+
+    def enable_spinctrls(self):
+        """ Unlock the spin controls.
+
+        Because of a bug in wxPython on Mac, by default the first spin control
+        has bizarre contents (and control focus) when the panel starts up.
+        Call this after a short delay (e.g. 100 ms) to enable indexing.
+        """
+        for sc in self.spincontrols:
+            sc.Enable()
+
+    def on_spin(self, evt):
+        """ Spinbox value changed; notify parent to refresh the grid. """
+        pos = evt.GetPosition()
+        idx = 0
+        
+        if evt.GetEventObject() == self.spincontrols[0]:
+            idx = 1
+
+        if pos == self.spincontrols[idx].GetValue():
+            if (pos > 0) :
+                pos =  pos - 1
+            else:
+                pos = pos + 1
+            self.spincontrols[idx].SetValue(pos)
+        
+        wx.PostEvent(self, ArraySelectionEvent(self.GetId()))
 
 class SlicerPanel(wx.Panel):
     """
@@ -210,7 +344,7 @@ class SlicerPanel(wx.Panel):
         visible_rank = 1 if hasfields else 2
 
         sizer = wx.BoxSizer(wx.HORIZONTAL)  # Will arrange the SpinCtrls
-
+                
         if rank > visible_rank:
             infotext = wx.StaticText(self, wx.ID_ANY, "Array Indexing: ")
             sizer.Add(infotext, 0, flag=wx.EXPAND | wx.ALL, border=10)
@@ -235,6 +369,9 @@ class SlicerPanel(wx.Panel):
         for sc in self.spincontrols:
             sc.Enable()
 
+    def set_spin_max(self, idx, max):
+        self.spincontrols[idx].SetRange(0, max)
+        
     def on_spin(self, evt):
         """ Spinbox value changed; notify parent to refresh the grid. """
         wx.PostEvent(self, ArraySlicedEvent(self.GetId()))
@@ -247,20 +384,66 @@ class ArrayGrid(wx.grid.Grid):
     Cell contents and appearance are handled by the table model in ArrayTable.
     """
 
-    def __init__(self, parent, node, slicer):
+    def __init__(self, parent, node, selecter, slicer):
         wx.grid.Grid.__init__(self, parent)
-        table = ArrayTable(node, slicer)
+        table = ArrayTable(node, selecter, slicer)
         self.SetTable(table, True)
 
         # Column selection is always allowed
         selmode = wx.grid.Grid.wxGridSelectColumns
-
+        
         # Row selection is forbidden for compound types, and for
         # scalar/1-D datasets
         if node.dtype.names is None and len(node.shape) > 1:
             selmode |= wx.grid.Grid.wxGridSelectRows
-
+        
         self.SetSelectionMode(selmode)
+           
+    def ResetView(self):
+            """Trim/extend the grid if needed"""
+            rowChange = self.GetTable().GetRowsCount() - self.GetNumberRows()
+            colChange = self.GetTable().GetColsCount() - self.GetNumberCols()
+            if rowChange != 0 or colChange != 0:
+                self.ClearGrid()
+                locker = wx.grid.GridUpdateLocker(self)
+                if rowChange > 0:
+                    msg = wx.grid.GridTableMessage(
+                        self.GetTable(),
+                        wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED,
+                        rowChange
+                    )
+                    self.ProcessTableMessage(msg)
+                elif rowChange < 0:
+                    msg = wx.grid.GridTableMessage(
+                        self.GetTable(),
+                        wx.grid.GRIDTABLE_NOTIFY_ROWS_DELETED,
+                        0,
+                        -rowChange
+                    )
+                    self.ProcessTableMessage(msg)
+                    
+                if colChange > 0:
+                    msg = wx.grid.GridTableMessage(
+                        self.GetTable(),
+                        wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
+                        colChange
+                    )
+                    self.ProcessTableMessage(msg)
+                elif colChange < 0:
+                    msg = wx.grid.GridTableMessage(
+                        self.GetTable(),
+                        wx.grid.GRIDTABLE_NOTIFY_COLS_DELETED,
+                        0,
+                        -colChange
+                    )
+                    self.ProcessTableMessage(msg)
+
+            # The scroll bars aren't resized (at least on windows)
+            # Jiggling the size of the window rescales the scrollbars
+            # h,w = self.GetSize()
+            # self.SetSize((h+1, w))
+            # self.SetSize((h, w))
+            self.ForceRefresh()
 
 
 class LRUTileCache(object):
@@ -330,7 +513,7 @@ class ArrayTable(wx.grid.PyGridTableBase):
     the number of rows, columns and their values.
     """
 
-    def __init__(self, node, slicer):
+    def __init__(self, node, selecter, slicer):
         """ Create a new Table instance for use with a grid control.
 
         node:     An compass_model.Array implementation instance.
@@ -340,6 +523,7 @@ class ArrayTable(wx.grid.PyGridTableBase):
         wx.grid.PyGridTableBase.__init__(self)
 
         self.node = node
+        self.selecter = selecter
         self.slicer = slicer
 
         self.rank = len(node.shape)
@@ -351,7 +535,9 @@ class ArrayTable(wx.grid.PyGridTableBase):
         """ Callback for number of rows displayed by the grid control """
         if self.rank == 0:
             return 1
-        return self.node.shape[-1]
+        elif self.rank == 1:
+            return self.node.shape[0]
+        return self.node.shape[self.selecter.row]
 
     def GetNumberCols(self):
         """ Callback for number of columns displayed by the grid control.
@@ -362,7 +548,7 @@ class ArrayTable(wx.grid.PyGridTableBase):
             return len(self.names)
         if self.rank < 2:
             return 1
-        return self.node.shape[-2]
+        return self.node.shape[self.selecter.col]
 
     def GetValue(self, row, col):
         """ Callback which provides data to the Grid.
@@ -383,12 +569,26 @@ class ArrayTable(wx.grid.PyGridTableBase):
                 return data
             return data[self.names[col]]
 
-        # ND case.  Watch out for compound mode!
-        if self.names is None:
-            args = self.slicer.indices + (col, row)
-        else:
-            args = self.slicer.indices + (row,)
 
+        l = []
+        for x in xrange(self.rank):
+            if x == self.selecter.row:
+                l.append(row)
+            elif x == self.selecter.col:
+                l.append(col)
+            else:
+                idx = 0
+                for y in self.selecter.indices:
+                    if y == x:
+                        l.append(self.slicer.indices[idx])
+                        break
+                    idx = idx + 1
+        # ND case.  Watch out for compound mode!
+        # if self.names is None:
+        #     args = self.slicer.indices + (col, row)
+        # else:
+        #     args = self.slicer.indices + (row,)
+        args = tuple(l)
         data = self.cache[args]
         if self.names is None:
             return data
