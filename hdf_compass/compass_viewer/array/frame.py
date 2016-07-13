@@ -232,12 +232,29 @@ class ArrayFrame(NodeFrame):
 
     def on_export(self, evt):
         """ User has chosen to export the current selection to a CSV-File """
-        data, name, line = self.get_selected_data()
-        string = ""
-        for row in data:
-            for a in row:
-                string += str(a) + "; "
-            string += "\n"
+
+        wc_string = "CSV files (*.csv)|*.csv"
+        dlg = wx.FileDialog(self, "Export", wildcard=wc_string, 
+            style=wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
+        if dlg.ShowModal() != wx.ID_OK:
+            return
+        path = dlg.GetPath()
+
+        try:
+            f = open(path, "w")
+
+            data, name, line = self.get_selected_data()
+            for row in data:
+                string = ""
+                for a in row:
+                    string += str(a) + "; "
+                string += "\n"
+                f.write(string)
+            f.close()
+        except:
+            dlg = wx.MessageDialog(self, "Unable to write file %s" % path, "Error", wx.OK | wx.ICON_WARNING)
+            dlg.ShowModal()
+            dlg.Destroy()
 
     def on_workaround_timer(self, evt):
         """ See slicer.enable_spinctrls docs """
