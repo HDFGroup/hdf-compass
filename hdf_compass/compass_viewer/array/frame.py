@@ -123,9 +123,6 @@ class ArrayFrame(NodeFrame):
 
         self.toolbar.Realize()
 
-    def on_sliced(self, evt):
-        """ User has chosen to display a different part of the dataset. """
-        self.grid.Refresh()
         
     def on_selected(self, evt):
         """ User has chosen to display a different part of the dataset. """
@@ -136,17 +133,14 @@ class ArrayFrame(NodeFrame):
         
         self.grid.ResetView()
 
-    def on_plot(self, evt):
-        """ User has chosen to plot the current selection """
-        data, names, line = self.get_selected_data()
-        if line:
-            f = LinePlotFrame(data, names)
-            f.Show()
-        else:
-            f = ContourPlotFrame(data)
-            f.Show()
-
     def get_selected_data(self):
+        """
+        function to get the selected data in an array
+        returns (data, names, line)
+            data: array of sliced data
+            names: name array for plots
+            line: bool-value, True if 1D-Line, False if 2D
+        """
         cols = self.grid.GetSelectedCols()
         rows = self.grid.GetSelectedRows()
         rank = len(self.node.shape)
@@ -214,6 +208,20 @@ class ArrayFrame(NodeFrame):
             # Plot 2D
             else:
                 return data, [], False
+
+    def on_sliced(self, evt):
+        """ User has chosen to display a different part of the dataset. """
+        self.grid.Refresh()
+
+    def on_plot(self, evt):
+        """ User has chosen to plot the current selection """
+        data, names, line = self.get_selected_data()
+        if line:
+            f = LinePlotFrame(data, names)
+            f.Show()
+        else:
+            f = ContourPlotFrame(data)
+            f.Show()
 
     def on_copy(self, evt):
         """ User has chosen to copy the current selection to the clipboard """
