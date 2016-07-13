@@ -226,7 +226,7 @@ def load_plugins():
     try:
         from hdf_compass import asc_model
     except ImportError:
-        log.warning("Ascii grid: plugin NOT loaded")
+        log.warning("Ascii grid plugin: NOT loaded")
 
     try:
         from hdf_compass import opendap_model
@@ -240,7 +240,7 @@ def load_plugins():
     try:
         from hdf_compass import hdf5rest_model
     except ImportError:
-        log.warning("HDF5 REST: plugin NOT loaded")
+        log.warning("HDF5 REST plugin: NOT loaded")
 
 
 def run():
