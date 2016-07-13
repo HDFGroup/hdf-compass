@@ -82,6 +82,7 @@ class ArrayFrame(NodeFrame):
             self.Bind(wx.EVT_MENU, self.on_plot, id=ID_VIS_MENU_PLOT)
 
         self.Bind(wx.EVT_MENU, self.on_copy, id=ID_VIS_MENU_COPY)
+        self.Bind(wx.EVT_MENU, self.on_export, id=ID_VIS_MENU_EXPORT)
 
         # Workaround for wxPython bug (see SlicerPanel.enable_spinctrls)
         ID_WORKAROUND_TIMER = wx.NewId()
@@ -93,8 +94,8 @@ class ArrayFrame(NodeFrame):
         """ Set up the toolbar at the top of the window. """
         t_size = (24, 24)
         plot_bmp = wx.Bitmap(os.path.join(self.icon_folder, "viz_plot_24.png"), wx.BITMAP_TYPE_ANY)
-        copy_bmp = plot_bmp
-        export_bmp = plot_bmp
+        copy_bmp = wx.Bitmap(os.path.join(self.icon_folder, "viz_copy_24.png"), wx.BITMAP_TYPE_ANY)
+        export_bmp = wx.Bitmap(os.path.join(self.icon_folder, "save_24.png"), wx.BITMAP_TYPE_ANY)
 
         self.toolbar = self.CreateToolBar(wx.TB_HORIZONTAL | wx.NO_BORDER | wx.TB_FLAT | wx.TB_TEXT)
 
@@ -228,6 +229,15 @@ class ArrayFrame(NodeFrame):
         wx.TheClipboard.Open()
         wx.TheClipboard.SetData(clipdata)
         wx.TheClipboard.Close()
+
+    def on_export(self, evt):
+        """ User has chosen to export the current selection to a CSV-File """
+        data, name, line = self.get_selected_data()
+        string = ""
+        for row in data:
+            for a in row:
+                string += str(a) + "; "
+            string += "\n"
 
     def on_workaround_timer(self, evt):
         """ See slicer.enable_spinctrls docs """
