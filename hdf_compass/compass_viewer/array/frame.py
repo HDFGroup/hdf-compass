@@ -51,6 +51,8 @@ class ArrayFrame(NodeFrame):
     3. An ArrayGrid, which displays the data in a spreadsheet-like view.
     """
 
+    last_open_csv = os.getcwd()
+
     def __init__(self, node, pos=None):
         """ Create a new array viewer to display the node. """
         NodeFrame.__init__(self, node, size=(800, 400), title=node.display_name, pos=pos)
@@ -242,11 +244,12 @@ class ArrayFrame(NodeFrame):
         """ User has chosen to export the current selection to a CSV-File """
 
         wc_string = "CSV files (*.csv)|*.csv"
-        dlg = wx.FileDialog(self, "Export", wildcard=wc_string, 
-            style=wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
+        dlg = wx.FileDialog(self, "Export", wildcard=wc_string,
+        defaultDir=ArrayFrame.last_open_csv, style=wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
         if dlg.ShowModal() != wx.ID_OK:
             return
         path = dlg.GetPath()
+        ArrayFrame.last_open_csv = os.path.dirname(path)
 
         try:
             f = open(path, "w")
