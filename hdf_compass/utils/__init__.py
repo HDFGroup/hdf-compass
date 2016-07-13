@@ -19,4 +19,4 @@ log.addHandler(logging.NullHandler())
 from .utils import is_darwin, is_win, is_linux, url2path, path2url, data_url
 
 
-__version__ = "0.6.1b1"
+__version__ = "0.7.0b1"
