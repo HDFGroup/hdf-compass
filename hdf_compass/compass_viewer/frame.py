@@ -19,14 +19,14 @@ here.
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import logging
 import os
-import sys
 from datetime import date
+
 import wx
 import wx.richtext as rtc
 from wx.lib.pubsub import pub
 
-import logging
 log = logging.getLogger(__name__)
 
 from .info import InfoPanel
@@ -38,14 +38,13 @@ ID_PLUGIN_INFO = wx.NewId()
 MAX_RECENT_FILES = 8
 
 from hdf_compass import compass_model
-from hdf_compass.utils import __version__, is_darwin, url2path, path2url
+from hdf_compass.utils import __version__, is_darwin, path2url
 from .events import CompassOpenEvent
 
 open_frames = 0  # count the open frames
 
 
 class BaseFrame(wx.Frame):
-
     """
     Base class for all frames used in HDF Compass.
 
@@ -88,12 +87,12 @@ class BaseFrame(wx.Frame):
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('HDFCompass')
         self.urlhistory = wx.FileHistory(MAX_RECENT_FILES)
         self.config = wx.Config("HDFCompass", style=wx.CONFIG_USE_LOCAL_FILE)
-        self.urlhistory.Load(self.config) 
+        self.urlhistory.Load(self.config)
         menubar = wx.MenuBar()
 
         # File menu
         fm = wx.Menu()
-        
+
         # Open Recent Menu
         recent = wx.Menu()
         self.urlhistory.UseMenu(recent)
@@ -104,12 +103,12 @@ class BaseFrame(wx.Frame):
         fm.AppendMenu(wx.ID_ANY, "O&pen Recent", recent)
 
         fm.AppendSeparator()
- 
+
         fm.Append(wx.ID_CLOSE, "&Close Window\tCtrl-W")
         fm.Append(ID_CLOSE_FILE, "Close &File\tShift-Ctrl-W")
         fm.Enable(ID_CLOSE_FILE, False)
         fm.Append(wx.ID_EXIT, "E&xit", " Terminate the program")
-        
+
         menubar.Append(fm, "&File")
 
         # Help menu; note that on the Mac, the About entry is automatically
@@ -178,9 +177,9 @@ class BaseFrame(wx.Frame):
                     continue
                 for key in store.file_extensions:
                     s = "{name} ({pattern_c})|{pattern_sc}".format(
-                        name=key, 
+                        name=key,
                         pattern_c=",".join(store.file_extensions[key]),
-                        pattern_sc=";".join(store.file_extensions[key]) )
+                        pattern_sc=";".join(store.file_extensions[key]))
                     if s.startswith("HDF"):
                         hdf_filter_string.append(s)
                     else:
@@ -189,10 +188,11 @@ class BaseFrame(wx.Frame):
             filter_string.append('All Files (*.*)|*.*')
             pipe = "|"
             return pipe.join(filter_string)
-            
+
         wc_string = make_filter_string()
-        
-        dlg = wx.FileDialog(self, "Open Local File", wildcard=wc_string, defaultDir=BaseFrame.last_open_path, style=wx.FD_OPEN|wx.FD_FILE_MUST_EXIST)
+
+        dlg = wx.FileDialog(self, "Open Local File", wildcard=wc_string, defaultDir=BaseFrame.last_open_path,
+                            style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
         if dlg.ShowModal() != wx.ID_OK:
             return
         path = dlg.GetPath()
@@ -201,13 +201,13 @@ class BaseFrame(wx.Frame):
 
         url = path2url(path)
         self.open_url(url)
-    
+
     def on_url_history(self, evt):
         """ Opens url from history """
         fileNum = evt.GetId() - wx.ID_FILE1
         url = self.urlhistory.GetHistoryFile(fileNum)
         self.open_url(url, fileNum)
-            
+
     def on_resource_open(self, evt):
         """ Request to open a URL via the File menu """
         dlg = wx.TextEntryDialog(self, 'Enter resource URL:')
@@ -221,17 +221,17 @@ class BaseFrame(wx.Frame):
         dlg.Destroy()
         self.open_url(url)
 
-    def open_url(self, url, fileNum=-1):
+    def open_url(self, url, file_num=-1):
         """ Opens url and saves it to history """
         from . import can_open_store, open_store
         if can_open_store(url):
-            self.urlhistory.AddFileToHistory(url) # add url to top of list
+            self.urlhistory.AddFileToHistory(url)  # add url to top of list
             self.urlhistory.Save(self.config)
             self.config.Flush()
             open_store(url)
         else:
-            if (fileNum >= 0) and (fileNum < MAX_RECENT_FILES):
-                self.urlhistory.RemoveFileFromHistory(fileNum)
+            if (file_num >= 0) and (file_num < MAX_RECENT_FILES):
+                self.urlhistory.RemoveFileFromHistory(file_num)
                 self.urlhistory.Save(self.config)
                 self.config.Flush()
             dlg = wx.MessageDialog(self, 'The following url could not be opened:\n\n%s' % url,
@@ -254,7 +254,6 @@ class InitFrame(BaseFrame):
     """
 
     def __init__(self):
-        
         style = wx.DEFAULT_FRAME_STYLE & (~wx.RESIZE_BORDER) & (~wx.MAXIMIZE_BOX)
         title = "HDF Compass"
         super(InitFrame, self).__init__(size=(552, 247), title=title, style=style)
@@ -269,8 +268,8 @@ class InitFrame(BaseFrame):
             mu = mb.GetMenu(0)
             mu.Enable(wx.ID_CLOSE, False)
         self.Center()
-            
-            
+
+
 class NodeFrame(BaseFrame):
     """ Base class for any frame which displays a Node instance.
 
@@ -314,7 +313,7 @@ class NodeFrame(BaseFrame):
                 cls._close(store)
                 del cls._stores[store]
             else:
-                cls._stores[store] = val-1
+                cls._stores[store] = val - 1
         except KeyError:
             pass
 
@@ -387,9 +386,9 @@ class NodeFrame(BaseFrame):
             self._menu_handlers[id_] = h
             wm.Append(id_, "Reopen as " + h.class_kind)
             self.Bind(wx.EVT_MENU, self.on_menu_reopen, id=id_)
-            
+
         self.GetMenuBar().Insert(1, wm, "&Window")
-        
+
         self.__node = node
         self.__view = None
         self.__info = InfoPanel(self)
@@ -425,9 +424,9 @@ class NodeFrame(BaseFrame):
 
     def on_menu_reopen(self, evt):
         """ Called when one of the "Reopen As" menu items is clicked """
-        
+
         # The "Reopen As" submenu ID
-        id_ = evt.GetId()               
+        id_ = evt.GetId()
 
         # Present node
         node_being_opened = self.node
@@ -452,8 +451,8 @@ class PluginInfoFrame(wx.Frame):
         # make that the plugin info is displayed in the middle of the screen
         frame_w = 320
         frame_h = 250
-        x = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X)//2 - frame_w//2
-        y = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)//2 - frame_h//2
+        x = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X) // 2 - frame_w // 2
+        y = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y) // 2 - frame_h // 2
         wx.Frame.__init__(self, parent, title="Plugin Info", pos=(x, y), size=(frame_w, frame_h))
 
         # Frame icon
@@ -495,9 +494,9 @@ class PluginInfoFrame(wx.Frame):
                 t.EndItalic()
                 t.Newline()
 
-                #store.plugin_description(), style=wx.TE_MULTILINE|wx.TE_READONLY|wx.TE_CENTER)
+                # store.plugin_description(), style=wx.TE_MULTILINE|wx.TE_READONLY|wx.TE_CENTER)
                 szr = wx.BoxSizer()
-                szr.Add(t, 1, wx.ALL|wx.EXPAND, 5)
+                szr.Add(t, 1, wx.ALL | wx.EXPAND, 5)
                 pnl.SetSizer(szr)
                 nb.AddPage(pnl, store.plugin_name())
 
