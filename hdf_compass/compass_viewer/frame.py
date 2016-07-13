@@ -61,6 +61,8 @@ class BaseFrame(wx.Frame):
     icon_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), 'icons'))
     open_frames = 0  # count the number of frames
 
+    last_open_path = os.getcwd()
+
     def __init__(self, **kwds):
         """ Constructor; any keywords are passed on to wx.Frame.
         """
@@ -190,10 +192,12 @@ class BaseFrame(wx.Frame):
             
         wc_string = make_filter_string()
         
-        dlg = wx.FileDialog(self, "Open Local File", wildcard=wc_string, style=wx.FD_OPEN|wx.FD_FILE_MUST_EXIST)
+        dlg = wx.FileDialog(self, "Open Local File", wildcard=wc_string, defaultDir=BaseFrame.last_open_path, style=wx.FD_OPEN|wx.FD_FILE_MUST_EXIST)
         if dlg.ShowModal() != wx.ID_OK:
             return
         path = dlg.GetPath()
+
+        BaseFrame.last_open_path = os.path.dirname(path)
 
         url = path2url(path)
         self.open_url(url)
