@@ -242,6 +242,13 @@ def load_plugins():
     except ImportError:
         log.warning("HDF5 REST: plugin NOT loaded")
 
+    try:
+        from hdf_compass import adios_model
+        import adios
+        log.debug("ADIOS %s" % adios.__version__)
+    except ImportError:
+        log.warning("ADIOS plugin: NOT loaded")
+
 
 def run():
     """ Run HDFCompass.  Handles all command-line arguments, etc. """

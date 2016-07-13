@@ -120,3 +120,9 @@ Compass source code.
       Copyright and license information: additional_legal/PyDAP_Copyright_and_License.txt
       Original source: http://www.pydap.org/license.html
       License type: BSD-style license
+
+    ADIOS
+      Provided by: ADIOS Developers (ORNL), and contributors
+      Copyright and license information: additional_legal/ADIOS_Copyrights_and_Licenses.txt
+      Original source: https://www.olcf.ornl.gov/center-projects/adios/
+      License type: BSD-style license
