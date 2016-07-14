@@ -262,7 +262,7 @@ class SlicerPanel(wx.Panel):
                     display one axis.  So, we should display an extra spinbox.
         """
         wx.Panel.__init__(self, parent)
-
+        self.parent = parent
         self.shape = shape
         self.hasfields = hasfields
         self.spincontrols = []
@@ -281,7 +281,10 @@ class SlicerPanel(wx.Panel):
             sizer.Add(infotext, 0, flag=wx.EXPAND | wx.ALL, border=10)
 
             for idx in xrange(rank - visible_rank):
-                sc = wx.SpinCtrl(self, max=shape[idx] - 1, value="0", min=0)
+                maxVal = shape[idx] - 1
+                if not hasfields:
+                    maxVal = shape[self.parent.indices[idx]] - 1
+                sc = wx.SpinCtrl(self, max=maxVal, value="0", min=0)
                 sizer.Add(sc, 0, flag=wx.EXPAND | wx.ALL, border=10)
                 sc.Disable()
                 self.spincontrols.append(sc)
