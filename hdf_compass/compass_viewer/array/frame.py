@@ -40,6 +40,13 @@ ID_VIS_MENU_PLOT = wx.NewId()
 ID_VIS_MENU_COPY = wx.NewId()
 ID_VIS_MENU_EXPORT = wx.NewId()
 
+def gen_csv(data, delimiters):
+    """ converts any N-dimensional array to a CSV-string """
+    if(type(data) == numpy.ndarray or type(data) == list):
+        return "".join(map(lambda x: "%s%s" % (gen_csv(x,delimiters[1:]),delimiters[0]), data))
+    else:
+        return str(data)
+
 class ArrayFrame(NodeFrame):
     """
     Top-level frame displaying objects of type compass_model.Array.
@@ -52,6 +59,7 @@ class ArrayFrame(NodeFrame):
     """
 
     last_open_csv = os.getcwd()
+    csv_delimiters = ['\n', ';']
 
     def __init__(self, node, pos=None):
         """ Create a new array viewer to display the node. """
@@ -149,7 +157,7 @@ class ArrayFrame(NodeFrame):
         
         # Scalar data can't be line-plotted.
         if rank == 0:
-            return [data], []
+            return None, None, True
 
         # Get data currently in the grid
         if rank > 1 and self.node.dtype.names is None:
@@ -218,21 +226,20 @@ class ArrayFrame(NodeFrame):
     def on_plot(self, evt):
         """ User has chosen to plot the current selection """
         data, names, line = self.get_selected_data()
-        if line:
-            f = LinePlotFrame(data, names)
-            f.Show()
-        else:
-            f = ContourPlotFrame(data)
-            f.Show()
+        if data != None:
+            if line:
+                f = LinePlotFrame(data, names)
+                f.Show()
+            else:
+                f = ContourPlotFrame(data)
+                f.Show()
 
     def on_copy(self, evt):
         """ User has chosen to copy the current selection to the clipboard """
-        data, name, line = self.get_selected_data()
-        string = ""
-        for row in data:
-            for a in row:
-                string += str(a) + "\t"
-            string += "\n"
+        data, names, line = self.get_selected_data()
+        string = gen_csv(data, ArrayFrame.csv_delimiters)
+
+        print(string)
 
         clipdata = wx.TextDataObject()
         clipdata.SetText(string)
@@ -253,14 +260,9 @@ class ArrayFrame(NodeFrame):
 
         try:
             f = open(path, "w")
-
-            data, name, line = self.get_selected_data()
-            for row in data:
-                string = ""
-                for a in row:
-                    string += str(a) + "; "
-                string += "\n"
-                f.write(string)
+            data, names, line = self.get_selected_data()
+            string = gen_csv(data, ArrayFrame.csv_delimiters)
+            f.write(string)
             f.close()
         except:
             dlg = wx.MessageDialog(self, "Unable to write file %s" % path, "Error", wx.OK | wx.ICON_WARNING)
