@@ -51,6 +51,7 @@ You will need:
 * `hydroffice.bag <https://bitbucket.org/ccomjhc/hyo_bag>`_ *[BAG plugin]*
 * `Pydap <https://github.com/robertodealmeida/pydap>`_ *[OPeNDAP plugin]*
 * `Requests <https://github.com/kennethreitz/requests>`_ *[HDF Rest API plugin]*
+* `adios <https://github.com/ornladios/ADIOS>`_ *[ADIOS Plugin]* (Linux/OSX only)
 
 For packaging the app:
 
@@ -78,8 +79,8 @@ Packaging on OS X
 
     ``$ python setup.py py2app``
     
-Packaging on Windows
---------------------
+Packaging on Windows & Linux
+----------------------------
 
 Single-file:
 
