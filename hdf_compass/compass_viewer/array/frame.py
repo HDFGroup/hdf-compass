@@ -18,6 +18,8 @@ import wx
 import wx.grid
 from wx.lib.newevent import NewCommandEvent
 
+import numpy as np
+
 import os
 import logging
 
@@ -127,10 +129,32 @@ class ArrayFrame(NodeFrame):
         """ User has chosen to plot the current selection """
         cols = self.grid.GetSelectedCols()
         rows = self.grid.GetSelectedRows()
+        rank = len(self.node.shape)
 
         # Scalar data can't be line-plotted.
-        if len(self.node.shape) == 0:
+        if rank == 0:
             return
+
+        # Get data currently in the grid
+        if rank > 1 and self.node.dtype.names is None:
+            args = []
+            for x in xrange(rank):
+                if x == self.row:
+                    args.append(slice(None, None, None))
+                elif x == self.col:
+                    args.append(slice(None, None, None))
+                else:
+                    idx = 0
+                    for y in self.indices:
+                        if y == x:
+                            args.append(self.slicer.indices[idx])
+                            break
+                        idx = idx + 1
+            data = self.node[tuple(args)]
+            if self.row > self.col:
+                data = np.transpose(data)
+        else:
+            data = self.node[self.slicer.indices]
 
         # Columns in the view are selected
         if len(cols) != 0:
@@ -138,17 +162,14 @@ class ArrayFrame(NodeFrame):
             # The data is compound
             if self.node.dtype.names is not None:
                 names = [self.grid.GetColLabelValue(x) for x in cols]
-                data = self.node[self.slicer.indices]  # -> 1D compound array
                 data = [data[n] for n in names]
                 f = LinePlotFrame(data, names)
                 f.Show()
 
             # Plot multiple columns independently
             else:
-                if len(self.node.shape) == 1:
-                    data = [self.node[self.slicer.indices]]
-                else:
-                    data = [self.node[self.slicer.indices + (c,)] for c in cols]
+                if rank > 1:
+                    data = [data[(slice(None, None, None),c)] for c in cols]
 
                 names = ["Col %d" % c for c in cols] if len(data) > 1 else None
 
@@ -158,19 +179,15 @@ class ArrayFrame(NodeFrame):
 
         # Rows in view are selected
         elif len(rows) != 0:
-
-            data = [self.node[self.slicer.indices + (slice(None, None, None), r)] for r in rows]
+            
+            data = [data[(r,)] for r in rows]
             names = ["Row %d" % r for r in rows] if len(data) > 1 else None
 
             f = LinePlotFrame(data, names)
             f.Show()
-
-
-        # No row or column selection.  Plot everything
+        
+        # No row or column selection.  Plot everything  
         else:
-
-            data = self.node[self.slicer.indices]
-
             # The data is compound
             if self.node.dtype.names is not None:
                 names = [self.grid.GetColLabelValue(x) for x in xrange(self.grid.GetNumberCols())]
@@ -179,7 +196,7 @@ class ArrayFrame(NodeFrame):
                 f.Show()
 
             # Plot 1D
-            elif len(self.node.shape) == 1:
+            elif rank == 1:
                 f = LinePlotFrame([data])
                 f.Show()
 
@@ -262,7 +279,7 @@ class SlicerPanel(wx.Panel):
                     display one axis.  So, we should display an extra spinbox.
         """
         wx.Panel.__init__(self, parent)
-
+        self.parent = parent
         self.shape = shape
         self.hasfields = hasfields
         self.spincontrols = []
@@ -281,7 +298,10 @@ class SlicerPanel(wx.Panel):
             sizer.Add(infotext, 0, flag=wx.EXPAND | wx.ALL, border=10)
 
             for idx in xrange(rank - visible_rank):
-                sc = wx.SpinCtrl(self, max=shape[idx] - 1, value="0", min=0)
+                maxVal = shape[idx] - 1
+                if not hasfields:
+                    maxVal = shape[self.parent.indices[idx]] - 1
+                sc = wx.SpinCtrl(self, max=maxVal, value="0", min=0)
                 sizer.Add(sc, 0, flag=wx.EXPAND | wx.ALL, border=10)
                 sc.Disable()
                 self.spincontrols.append(sc)
