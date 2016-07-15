@@ -43,7 +43,7 @@ ID_VIS_MENU_EXPORT = wx.NewId()
 def gen_csv(data, delimiters):
     """ converts any N-dimensional array to a CSV-string """
     if(type(data) == numpy.ndarray or type(data) == list):
-        return "".join(map(lambda x: "%s%s" % (gen_csv(x,delimiters[1:]),delimiters[0]), data))
+        return delimiters[0].join(map(lambda x: gen_csv(x,delimiters[1:]), data))
     else:
         return str(data)
 
@@ -59,7 +59,8 @@ class ArrayFrame(NodeFrame):
     """
 
     last_open_csv = os.getcwd()
-    csv_delimiters = ['\n', ';']
+    csv_delimiters_copy = ['\n', '\t']
+    csv_delimiters_export = ['\n', ',']
 
     def __init__(self, node, pos=None):
         """ Create a new array viewer to display the node. """
@@ -237,9 +238,7 @@ class ArrayFrame(NodeFrame):
     def on_copy(self, evt):
         """ User has chosen to copy the current selection to the clipboard """
         data, names, line = self.get_selected_data()
-        string = gen_csv(data, ArrayFrame.csv_delimiters)
-
-        print(string)
+        string = gen_csv(data, ArrayFrame.csv_delimiters_copy)
 
         clipdata = wx.TextDataObject()
         clipdata.SetText(string)
@@ -261,7 +260,7 @@ class ArrayFrame(NodeFrame):
         try:
             f = open(path, "w")
             data, names, line = self.get_selected_data()
-            string = gen_csv(data, ArrayFrame.csv_delimiters)
+            string = gen_csv(data, ArrayFrame.csv_delimiters_export)
             f.write(string)
             f.close()
         except:
