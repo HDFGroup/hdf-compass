@@ -22,6 +22,7 @@ import numpy as np
 
 import os
 import logging
+import numpy
 
 log = logging.getLogger(__name__)
 
@@ -36,7 +37,15 @@ ArraySelectionEvent, EVT_ARRAY_SELECTED = NewCommandEvent()
 
 # Menu and button IDs
 ID_VIS_MENU_PLOT = wx.NewId()
+ID_VIS_MENU_COPY = wx.NewId()
+ID_VIS_MENU_EXPORT = wx.NewId()
 
+def gen_csv(data, delimiters):
+    """ converts any N-dimensional array to a CSV-string """
+    if(type(data) == numpy.ndarray or type(data) == list):
+        return delimiters[0].join(map(lambda x: gen_csv(x,delimiters[1:]), data))
+    else:
+        return str(data)
 
 class ArrayFrame(NodeFrame):
     """
@@ -48,6 +57,10 @@ class ArrayFrame(NodeFrame):
     2. SlicerPanel, with controls for changing what's displayed.
     3. An ArrayGrid, which displays the data in a spreadsheet-like view.
     """
+
+    last_open_csv = os.getcwd()
+    csv_delimiters_copy = ['\n', '\t']
+    csv_delimiters_export = ['\n', ',']
 
     def __init__(self, node, pos=None):
         """ Create a new array viewer to display the node. """
@@ -79,6 +92,9 @@ class ArrayFrame(NodeFrame):
         if self.node.is_plottable():
             self.Bind(wx.EVT_MENU, self.on_plot, id=ID_VIS_MENU_PLOT)
 
+        self.Bind(wx.EVT_MENU, self.on_copy, id=ID_VIS_MENU_COPY)
+        self.Bind(wx.EVT_MENU, self.on_export, id=ID_VIS_MENU_EXPORT)
+
         # Workaround for wxPython bug (see SlicerPanel.enable_spinctrls)
         ID_WORKAROUND_TIMER = wx.NewId()
         self.Bind(wx.EVT_TIMER, self.on_workaround_timer, id=ID_WORKAROUND_TIMER)
@@ -89,6 +105,8 @@ class ArrayFrame(NodeFrame):
         """ Set up the toolbar at the top of the window. """
         t_size = (24, 24)
         plot_bmp = wx.Bitmap(os.path.join(self.icon_folder, "viz_plot_24.png"), wx.BITMAP_TYPE_ANY)
+        copy_bmp = wx.Bitmap(os.path.join(self.icon_folder, "viz_copy_24.png"), wx.BITMAP_TYPE_ANY)
+        export_bmp = wx.Bitmap(os.path.join(self.icon_folder, "save_24.png"), wx.BITMAP_TYPE_ANY)
 
         self.toolbar = self.CreateToolBar(wx.TB_HORIZONTAL | wx.NO_BORDER | wx.TB_FLAT | wx.TB_TEXT)
 
@@ -106,15 +124,16 @@ class ArrayFrame(NodeFrame):
             self.Bind(wx.EVT_SPINCTRL, self.on_dimSpin)
             
         self.toolbar.AddStretchableSpace()
+
+        self.toolbar.AddLabelTool(ID_VIS_MENU_COPY, "Copy", copy_bmp)
+        self.toolbar.AddLabelTool(ID_VIS_MENU_EXPORT, "Export", export_bmp)
         if self.node.is_plottable():
             self.toolbar.AddLabelTool(ID_VIS_MENU_PLOT, "Plot Data", plot_bmp,
                                       shortHelp="Plot data in a popup window",
                                       longHelp="Plot the array data in a popup window")
+
         self.toolbar.Realize()
 
-    def on_sliced(self, evt):
-        """ User has chosen to display a different part of the dataset. """
-        self.grid.Refresh()
         
     def on_selected(self, evt):
         """ User has chosen to display a different part of the dataset. """
@@ -125,15 +144,21 @@ class ArrayFrame(NodeFrame):
         
         self.grid.ResetView()
 
-    def on_plot(self, evt):
-        """ User has chosen to plot the current selection """
+    def get_selected_data(self):
+        """
+        function to get the selected data in an array
+        returns (data, names, line)
+            data: array of sliced data
+            names: name array for plots
+            line: bool-value, True if 1D-Line, False if 2D
+        """
         cols = self.grid.GetSelectedCols()
         rows = self.grid.GetSelectedRows()
         rank = len(self.node.shape)
-
+        
         # Scalar data can't be line-plotted.
         if rank == 0:
-            return
+            return None, None, True
 
         # Get data currently in the grid
         if rank > 1 and self.node.dtype.names is None:
@@ -158,13 +183,11 @@ class ArrayFrame(NodeFrame):
 
         # Columns in the view are selected
         if len(cols) != 0:
-
             # The data is compound
             if self.node.dtype.names is not None:
                 names = [self.grid.GetColLabelValue(x) for x in cols]
                 data = [data[n] for n in names]
-                f = LinePlotFrame(data, names)
-                f.Show()
+                return data, names, True
 
             # Plot multiple columns independently
             else:
@@ -172,19 +195,14 @@ class ArrayFrame(NodeFrame):
                     data = [data[(slice(None, None, None),c)] for c in cols]
 
                 names = ["Col %d" % c for c in cols] if len(data) > 1 else None
-
-                f = LinePlotFrame(data, names)
-                f.Show()
-
+                return data, names, True
 
         # Rows in view are selected
         elif len(rows) != 0:
             
             data = [data[(r,)] for r in rows]
             names = ["Row %d" % r for r in rows] if len(data) > 1 else None
-
-            f = LinePlotFrame(data, names)
-            f.Show()
+            return data, names, True
         
         # No row or column selection.  Plot everything  
         else:
@@ -192,18 +210,94 @@ class ArrayFrame(NodeFrame):
             if self.node.dtype.names is not None:
                 names = [self.grid.GetColLabelValue(x) for x in xrange(self.grid.GetNumberCols())]
                 data = [data[n] for n in names]
-                f = LinePlotFrame(data, names)
-                f.Show()
+                return data, names, True
 
             # Plot 1D
             elif rank == 1:
-                f = LinePlotFrame([data])
-                f.Show()
+                return [data], [], True
 
             # Plot 2D
             else:
+                return data, [], False
+
+    def on_sliced(self, evt):
+        """ User has chosen to display a different part of the dataset. """
+        self.grid.Refresh()
+
+    def on_plot(self, evt):
+        """ User has chosen to plot the current selection """
+        data, names, line = self.get_selected_data()
+        if data != None:
+            if line:
+                f = LinePlotFrame(data, names)
+                f.Show()
+            else:
                 f = ContourPlotFrame(data)
                 f.Show()
+
+    def on_copy(self, evt):
+        """ User has chosen to copy the current selection to the clipboard """
+
+        # Calculate number of selected cells
+        cols = self.grid.GetSelectedCols()
+        rows = self.grid.GetSelectedRows()
+
+        if len(self.node.shape) > 1:
+            nr = self.node.shape[self.row]
+            nc = self.node.shape[self.col]
+        else:
+            nr = self.node.shape[0]
+            nc = 1
+
+        l = len(cols) * nr
+        if l == 0:
+            l = len(rows) * nc
+
+        if l == 0:
+            l = nc * nr
+
+        # Display warning if too much
+        if l > 20000:
+            dlg = wx.MessageDialog(self,
+            "Do you really want to copy {} cells to the clipboard?\n"
+            "This operation could take a while.".format(l),
+            'Copy', wx.YES_NO | wx.ICON_WARNING)
+
+            result = dlg.ShowModal()
+
+            if result == wx.ID_NO:
+                return
+
+        data, names, line = self.get_selected_data()
+        string = gen_csv(data, ArrayFrame.csv_delimiters_copy)
+
+        clipdata = wx.TextDataObject()
+        clipdata.SetText(string)
+        wx.TheClipboard.Open()
+        wx.TheClipboard.SetData(clipdata)
+        wx.TheClipboard.Close()
+
+    def on_export(self, evt):
+        """ User has chosen to export the current selection to a CSV-File """
+
+        wc_string = "CSV files (*.csv)|*.csv"
+        dlg = wx.FileDialog(self, "Export", wildcard=wc_string,
+        defaultDir=ArrayFrame.last_open_csv, style=wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
+        if dlg.ShowModal() != wx.ID_OK:
+            return
+        path = dlg.GetPath()
+        ArrayFrame.last_open_csv = os.path.dirname(path)
+
+        try:
+            f = open(path, "w")
+            data, names, line = self.get_selected_data()
+            string = gen_csv(data, ArrayFrame.csv_delimiters_export)
+            f.write(string)
+            f.close()
+        except:
+            dlg = wx.MessageDialog(self, "Unable to write file %s" % path, "Error", wx.OK | wx.ICON_WARNING)
+            dlg.ShowModal()
+            dlg.Destroy()
 
     def on_workaround_timer(self, evt):
         """ See slicer.enable_spinctrls docs """
