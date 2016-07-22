@@ -237,6 +237,37 @@ class ArrayFrame(NodeFrame):
 
     def on_copy(self, evt):
         """ User has chosen to copy the current selection to the clipboard """
+
+        # Calculate number of selected cells
+        cols = self.grid.GetSelectedCols()
+        rows = self.grid.GetSelectedRows()
+
+        if len(self.node.shape) > 1:
+            nr = self.node.shape[self.row]
+            nc = self.node.shape[self.col]
+        else:
+            nr = self.node.shape[0]
+            nc = 1
+
+        l = len(cols) * nr
+        if l == 0:
+            l = len(rows) * nc
+
+        if l == 0:
+            l = nc * nr
+
+        # Display warning if too much
+        if l > 20000:
+            dlg = wx.MessageDialog(self,
+            "Do you really want to copy {} cells to the clipboard?\n"
+            "This operation could take a while.".format(l),
+            'Copy', wx.YES_NO | wx.ICON_WARNING)
+
+            result = dlg.ShowModal()
+
+            if result == wx.ID_NO:
+                return
+
         data, names, line = self.get_selected_data()
         string = gen_csv(data, ArrayFrame.csv_delimiters_copy)
 
