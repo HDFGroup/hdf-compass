@@ -56,10 +56,6 @@ before_install:
   - source activate test-environment
 
 install:
-  # MPI on OSX
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      travis_wait brew install openmpi;
-    fi
   # ADIOS C library
   - export LD_LIBRARY_PATH=$ADIOS_ROOT/lib:$LD_LIBRARY_PATH
   - export PATH=$ADIOS_ROOT/bin:$PATH
@@ -69,10 +65,10 @@ install:
       travis_retry git clone --depth=50 --branch=master https://github.com/ornladios/ADIOS.git $ADIOS_ROOT/src &&
       cd $ADIOS_ROOT/src &&
       ./autogen.sh &&
-      CFLAGS="-fPIC -g" ./configure --enable-static --disable-shared --prefix=$ADIOS_ROOT --with-mxml=/usr --with-zlib=/usr --disable-fortran &&
+      CFLAGS="-fPIC -g" ./configure --enable-static --disable-shared --prefix=$ADIOS_ROOT --with-mxml=/usr --with-zlib=/usr --disable-fortran --without-mpi &&
       make && make install &&
       cd - &&
-      rm -rf src;
+      rm -rf $ADIOS_ROOT/src;
     fi
   # other libraries
   - conda config --add channels hydroffice
@@ -112,4 +108,3 @@ addons:
   apt:
     packages:
     - libmxml-dev
-    - libopenmpi-dev
