@@ -27,7 +27,7 @@ applications like HDFView.  Strong emphasis is placed on clean minimal design,
 and maximum extensibility through a plugin system for new formats.
 
 HDF Compass is written in Python, but ships as a native application on
-Windows, OS X, and Linux, by using PyInstaller and Py2App to package the app.
+Windows, OS X, and Linux, by using PyInstaller to package the app.
 
 Binary executables are available for Windows (Windows 7 or later) and Mac OS X (Yosemite or later) at
 the Project Page listed below.
@@ -55,8 +55,7 @@ You will need:
 
 For packaging the app:
 
-* `PyInstaller <https://github.com/pyinstaller/pyinstaller>`_ (Linux & Windows, experimental for OS X) *(>= 3.0)*
-* `Py2App <https://bitbucket.org/ronaldoussoren/py2app>`_ (OS X)
+* `PyInstaller <https://github.com/pyinstaller/pyinstaller>`_ *(>= 3.0)*
 
 
 Running the Program  
@@ -73,14 +72,10 @@ build of python...".  In this case use the pythonw command:
            
 Note: on Mac, HDF Compass doesn't create an initial window, use the system Application
 menu to open a file or remote resource.
-    
-Packaging on OS X
------------------
 
-    ``$ python setup.py py2app``
-    
-Packaging on Windows & Linux
-----------------------------
+
+Packaging
+---------
 
 Single-file:
 
@@ -89,7 +84,8 @@ Single-file:
 Single-folder (useful for debugging the ``pyinstaller`` settings):
 
     ``$ pyinstaller --clean -y HDFCompass.1folder.spec``
-    
+
+
 Other info
 ----------
 
