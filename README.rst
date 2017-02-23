@@ -49,7 +49,7 @@ You will need:
 * `Cartopy <https://github.com/SciTools/cartopy>`_
 * `h5py <https://github.com/h5py/h5py>`_ *[HDF plugin]*
 * `hydroffice.bag <https://bitbucket.org/ccomjhc/hyo_bag>`_ *[BAG plugin]*
-* `Pydap <https://github.com/robertodealmeida/pydap>`_ *[OPeNDAP plugin]*
+* `Pydap <https://github.com/robertodealmeida/pydap>`_ *[OPeNDAP plugin]* (<3.2)
 * `Requests <https://github.com/kennethreitz/requests>`_ *[HDF Rest API plugin]*
 * `adios <https://github.com/ornladios/ADIOS>`_ *[ADIOS Plugin]* (Linux/OSX only)
 
