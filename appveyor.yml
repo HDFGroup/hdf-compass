@@ -36,7 +36,6 @@ install:
   - "conda create -q -n test-environment python=%PYTHON_VERSION%"
   - conda config --add channels hydroffice
   - conda config --add channels SciTools
-  - conda config --add channels osgeo
   - conda config --add channels IOOS
   - conda config --add channels aaren
   - conda config --add channels noaa-orr-erd

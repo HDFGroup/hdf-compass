@@ -1,8 +1,6 @@
 # Based on: http://conda.pydata.org/docs/travis.html
 
-# trusty beta
-dist: trusty
-sudo: required
+sudo: false
 
 # Travis-CI does not currently support Python and Mac OS X
 language: c
@@ -12,8 +10,8 @@ os:
   - osx
 
 env:
-  global:
-    - ADIOS_ROOT: $HOME/.cache/adios
+#  global:
+#    - ADIOS_ROOT: $HOME/.cache/adios
   matrix:
     - PYTHON_VERSION=3.6
 
@@ -24,8 +22,8 @@ matrix:
 cache:
   apt: true
   brew: true
-  directories:
-    - $HOME/.cache/adios
+#  directories:
+#    - $HOME/.cache/adios
 
 before_install:
   # Set the anaconda environment
@@ -55,24 +53,24 @@ before_install:
   - source activate test-environment
 
 install:
-  # ADIOS C library
-  - export LD_LIBRARY_PATH=$ADIOS_ROOT/lib:$LD_LIBRARY_PATH
-  - export PATH=$ADIOS_ROOT/bin:$PATH
-  - ADIOS_FOUND=$(which adios_config >/dev/null && { echo 0; } || { echo 1; })
-  - if [ $ADIOS_FOUND -ne 0 ]; then
-      mkdir -p $ADIOS_ROOT &&
-      travis_retry git clone --depth=50 --branch=master https://github.com/ornladios/ADIOS.git $ADIOS_ROOT/src &&
-      cd $ADIOS_ROOT/src &&
-      ./autogen.sh &&
-      CFLAGS="-fPIC -g" ./configure --enable-static --disable-shared --prefix=$ADIOS_ROOT --with-mxml=/usr --with-zlib=/usr --disable-fortran --without-mpi &&
-      make && make install &&
-      cd - &&
-      rm -rf $ADIOS_ROOT/src;
-    fi
+#  # ADIOS C library
+#  - export LD_LIBRARY_PATH=$ADIOS_ROOT/lib:$LD_LIBRARY_PATH
+#  - export PATH=$ADIOS_ROOT/bin:$PATH
+#  - ADIOS_FOUND=$(which adios_config >/dev/null && { echo 0; } || { echo 1; })
+#  - if [ $ADIOS_FOUND -ne 0 ]; then
+#      mkdir -p $ADIOS_ROOT &&
+#      travis_retry git clone --depth=50 --branch=master https://github.com/ornladios/ADIOS.git $ADIOS_ROOT/src &&
+#      cd $ADIOS_ROOT/src &&
+#      ./autogen.sh &&
+#      CFLAGS="-fPIC -g" ./configure --enable-static --disable-shared --prefix=$ADIOS_ROOT --with-mxml=/usr --with-zlib=/usr --disable-fortran --without-mpi &&
+#      make && make install &&
+#      cd - &&
+#      rm -rf $ADIOS_ROOT/src;
+#    fi
   # other libraries
+  - conda config --add channels conda-forge
   - conda config --add channels hydroffice
   - conda config --add channels SciTools
-  - conda config --add channels osgeo
   - conda config --add channels IOOS
   - conda config --add channels aaren
   - conda config --add channels noaa-orr-erd

@@ -50,7 +50,7 @@ setup_args = dict()
 
 setup_args['name'] = 'hdf_compass'
 # The adopted versioning scheme follow PEP40
-setup_args['version'] = '0.7.0b1'
+setup_args['version'] = '0.7.0b2'
 setup_args['url'] = 'https://github.com/HDFGroup/hdf-compass/'
 setup_args['license'] = 'BSD-like license'
 setup_args['author'] = 'HDFGroup'
@@ -103,9 +103,9 @@ setup_args['install_requires'] =\
 setup_args['extras_require'] =\
     {
         "GeoNodes": ["cartopy[plotting]", ],  # required for visualization of GeoArray and GeoSurface nodes
-        "BAG": ["hydroffice.bag>=0.2.10", ],  # required by BAG plugin
-        "OpenDAP": ["pydap<3.2", ],  # required by OpenDAP plugin, there is an issue
-                                     # with pydap 3.2: https://github.com/pydap/pydap/issues/66
+        "BAG": ["hydroffice.bag>=0.4.0", ],  # required by BAG plugin
+        "OpenDAP": ["pydap>=3.2", ],  # required by OpenDAP plugin, there is an issue
+                                      # with pydap 3.2: https://github.com/pydap/pydap/issues/66
         "ADIOS": ["adios>=1.9.1b19", ],  # required by ADIOS plugin
     }
 # hdf_compass namespace, packages and other files
