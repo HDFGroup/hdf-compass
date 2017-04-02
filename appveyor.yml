@@ -34,12 +34,7 @@ install:
   - conda update -q conda
   - conda info -a
   - "conda create -q -n test-environment python=%PYTHON_VERSION%"
-  - conda config --add channels hydroffice
-  - conda config --add channels SciTools
-  - conda config --add channels IOOS
-  - conda config --add channels aaren
-  - conda config --add channels noaa-orr-erd
-  - conda config --add channels diffpy
+  - conda config --add channels conda-forge
   - activate test-environment
 
   # Check that we have the expected version of Python
