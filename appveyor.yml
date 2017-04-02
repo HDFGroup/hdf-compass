@@ -54,9 +54,9 @@ build_script:
 test_script:
   - "python -m unittest hdf_compass.array_model.test"
   - "python -m unittest hdf_compass.asc_model.test"
-  - "python -m unittest hdf_compass.bag_model.test"
+#  - "python -m unittest hdf_compass.bag_model.test"
   - "python -m unittest hdf_compass.filesystem_model.test"
-  - "python -m unittest hdf_compass.hdf5_model.test"
+#  - "python -m unittest hdf_compass.hdf5_model.test"
 #  - "python -m unittest hdf_compass.opendap_model.test"
 
 after_test:

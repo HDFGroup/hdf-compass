@@ -77,15 +77,15 @@ install:
     else
       pip install --no-deps 'https://wxpython.org/Phoenix/snapshot-builds/wxPython_Phoenix-3.0.3.dev2832+e3fbb9f.tar.gz';
     fi
-  - pip install --no-deps 'git+https://github.com/ornladios/ADIOS.git#egg=adios&subdirectory=wrappers/numpy'
+#  - pip install --no-deps 'git+https://github.com/ornladios/ADIOS.git#egg=adios&subdirectory=wrappers/numpy'
   - pip install --no-deps -e .
 
 script:
   - "python -m unittest hdf_compass.array_model.test"
   - "python -m unittest hdf_compass.asc_model.test"
-  - "python -m unittest hdf_compass.bag_model.test"
+#  - "python -m unittest hdf_compass.bag_model.test"
   - "python -m unittest hdf_compass.filesystem_model.test"
-  - "python -m unittest hdf_compass.hdf5_model.test"
+#  - "python -m unittest hdf_compass.hdf5_model.test"
 #  - "python -m unittest hdf_compass.opendap_model.test"
 #  - "python -m unittest hdf_compass.adios_model.test"
 
