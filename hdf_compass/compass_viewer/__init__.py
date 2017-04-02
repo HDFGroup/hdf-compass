@@ -9,10 +9,8 @@
 # distribution tree.  If you do not have access to this file, you may        #
 # request a copy from help@hdfgroup.org.                                     #
 ##############################################################################
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-from .viewer import run, can_open_store, open_store, CompassApp
+from hdf_compass.compass_viewer.viewer import run, can_open_store, open_store, CompassApp
 
 import logging
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())

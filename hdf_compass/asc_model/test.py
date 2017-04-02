@@ -9,8 +9,6 @@
 # distribution tree.  If you do not have access to this file, you may        #
 # request a copy from help@hdfgroup.org.                                     #
 ##############################################################################
-from __future__ import absolute_import, division, print_function
-
 import os
 
 from hdf_compass.compass_model.test import store

@@ -17,19 +17,17 @@ This frame is a simple browser view with back/forward/up controls.
 
 Currently list and icon views are supported.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import wx
 import os
 
 import logging
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 from hdf_compass import compass_model
-from ..frame import NodeFrame
-from ..events import ID_COMPASS_OPEN
-from ..events import EVT_CONTAINER_SELECTION
-from .list import ContainerReportList, ContainerIconList
+from hdf_compass.compass_viewer.frame import NodeFrame
+from hdf_compass.compass_viewer.events import ID_COMPASS_OPEN
+from hdf_compass.compass_viewer.events import EVT_CONTAINER_SELECTION
+from hdf_compass.compass_viewer.container.list import ContainerReportList, ContainerIconList
 
 ID_GO_MENU_BACK = wx.NewId()
 ID_GO_MENU_NEXT = wx.NewId()
@@ -96,16 +94,14 @@ class ContainerFrame(NodeFrame):
         list_bmp = wx.Bitmap(os.path.join(self.icon_folder, "view_list_24.png"), wx.BITMAP_TYPE_ANY)
 
         self.toolbar.SetToolBitmapSize(tsize)
-        self.toolbar.AddLabelTool(ID_GO_MENU_BACK, "Back", back_bmp, shortHelp="New", longHelp="Long help for 'New'")
-        self.toolbar.AddLabelTool(ID_GO_MENU_NEXT, "Next", next_bmp, shortHelp="New", longHelp="Long help for 'New'")
+        self.toolbar.AddTool(ID_GO_MENU_BACK, "back", back_bmp)
+        self.toolbar.AddTool(ID_GO_MENU_NEXT, "next", next_bmp)
         self.toolbar.AddSeparator()
-        self.toolbar.AddLabelTool(ID_GO_MENU_UP, "Up", up_bmp, shortHelp="New", longHelp="Long help for 'New'")
-        self.toolbar.AddLabelTool(ID_GO_MENU_TOP, "Top", top_bmp, shortHelp="New", longHelp="Long help for 'New'")
+        self.toolbar.AddTool(ID_GO_MENU_UP, "up", up_bmp)
+        self.toolbar.AddTool(ID_GO_MENU_TOP, "top", top_bmp)
         self.toolbar.AddStretchableSpace()
-        self.toolbar.AddLabelTool(ID_VIEW_MENU_LIST, "List View", list_bmp, shortHelp="New",
-                                  longHelp="Long help for 'New'")
-        self.toolbar.AddLabelTool(ID_VIEW_MENU_ICON, "Icon View", icon_bmp, shortHelp="New",
-                                  longHelp="Long help for 'New'")
+        self.toolbar.AddTool(ID_VIEW_MENU_LIST, "list", list_bmp)
+        self.toolbar.AddTool(ID_VIEW_MENU_ICON, "icon", icon_bmp)
 
         self.toolbar.Realize()
 
@@ -206,7 +202,7 @@ class ContainerFrame(NodeFrame):
         new windows.
         """
         new_node = evt.node
-        log.debug("Got request to open node: %s" % new_node.key)
+        logger.debug("Got request to open node: %s" % new_node.key)
         if isinstance(new_node, compass_model.Container):
             self.go(new_node)
         else:

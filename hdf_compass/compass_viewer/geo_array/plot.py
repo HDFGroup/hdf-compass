@@ -8,12 +8,13 @@
 # the file COPYING, which can be found at the root of the source code        #
 # distribution tree.  If you do not have access to this file, you may        #
 # request a copy from help@hdfgroup.org.                                     #
+#                                                                            #
+# author: gmasetti@ccom.unh.edu                                              #
 ##############################################################################
 
 """
 Matplotlib window with toolbar.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import numpy as np
 import wx
@@ -28,9 +29,9 @@ from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
 from matplotlib.backends.backend_wx import NavigationToolbar2Wx as NavigationToolbar
 
 import logging
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
-from ..frame import BaseFrame
+from hdf_compass.compass_viewer.frame import BaseFrame
 
 ID_VIEW_CMAP_JET = wx.NewId()  # default
 ID_VIEW_CMAP_BONE = wx.NewId()
@@ -50,7 +51,7 @@ class PlotFrame(BaseFrame):
     def __init__(self, data, title="a title"):
         """ Create a new Matplotlib plotting window for a 1D line plot """
 
-        log.debug(self.__class__.__name__)
+        logger.debug(self.__class__.__name__)
         BaseFrame.__init__(self, id=wx.ID_ANY, title=title, size=(800, 400))
 
         self.data = data
@@ -93,7 +94,7 @@ class LinePlotFrame(PlotFrame):
 class ContourPlotFrame(PlotFrame):
     def __init__(self, data, extent, names=None, title="Contour Map"):
         self.geo_extent = extent
-        log.debug("Extent: %f, %f, %f, %f" % self.geo_extent)
+        logger.debug("Extent: %f, %f, %f, %f" % self.geo_extent)
         # need to be set before calling the parent (need for plotting)
         self.colormap = "jet"
         self.cb = None  # matplotlib color-bar
@@ -129,37 +130,37 @@ class ContourPlotFrame(PlotFrame):
         self.canvas.Bind(wx.EVT_ENTER_WINDOW, self.change_cursor)
 
     def on_cmap_jet(self, evt):
-        log.debug("cmap: jet")
+        logger.debug("cmap: jet")
         self.colormap = "jet"
         self._refresh_plot()
 
     def on_cmap_bone(self, evt):
-        log.debug("cmap: bone")
+        logger.debug("cmap: bone")
         self.colormap = "bone"
         self._refresh_plot()
 
     def on_cmap_gist_earth(self, evt):
-        log.debug("cmap: gist_earth")
+        logger.debug("cmap: gist_earth")
         self.colormap = "gist_earth"
         self._refresh_plot()
 
     def on_cmap_ocean(self, evt):
-        log.debug("cmap: ocean")
+        logger.debug("cmap: ocean")
         self.colormap = "ocean"
         self._refresh_plot()
 
     def on_cmap_rainbow(self, evt):
-        log.debug("cmap: rainbow")
+        logger.debug("cmap: rainbow")
         self.colormap = "rainbow"
         self._refresh_plot()
 
     def on_cmap_rdylgn(self, evt):
-        log.debug("cmap: RdYlGn")
+        logger.debug("cmap: RdYlGn")
         self.colormap = "RdYlGn"
         self._refresh_plot()
 
     def on_cmap_winter(self, evt):
-        log.debug("cmap: winter")
+        logger.debug("cmap: winter")
         self.colormap = "winter"
         self._refresh_plot()
 
@@ -174,6 +175,11 @@ class ContourPlotFrame(PlotFrame):
         row_stride = rows // max_elements + 1
         col_stride = cols // max_elements + 1
         self.surf = self.data[::row_stride, ::col_stride]
+        is_empty = np.isnan(self.surf).all()
+        logger.debug("empty: %s" % is_empty)
+        if is_empty:
+            wx.MessageBox("Nothing to plot!", "Geo Array", wx.OK, self)
+            return
         self.xx = np.linspace(self.geo_extent[0], self.geo_extent[1], self.surf.shape[1])
         self.yy = np.linspace(self.geo_extent[2], self.geo_extent[3], self.surf.shape[0])
         img = self.axes.contourf(self.xx, self.yy, self.surf, 25, cmap=plt.cm.get_cmap(self.colormap),
@@ -195,7 +201,7 @@ class ContourPlotFrame(PlotFrame):
         self.cb.ax.tick_params(labelsize=8)
 
     def change_cursor(self, event):
-        self.canvas.SetCursor(wx.StockCursor(wx.CURSOR_CROSS))
+        self.canvas.SetCursor(wx.Cursor(wx.CURSOR_CROSS))
 
     @staticmethod
     def _find_nearest(arr, value):
@@ -204,10 +210,14 @@ class ContourPlotFrame(PlotFrame):
 
     def update_status_bar(self, event):
         msg = str()
-        if event.inaxes:
+
+        is_empty = np.isnan(self.surf).all()
+
+        if event.inaxes and not is_empty:
             x, y = event.xdata, event.ydata
             id_y, id_x = self._find_nearest(self.yy, y), self._find_nearest(self.xx, x)
             # log.debug("id: %f %f" % (id_y, id_x))
             z = self.surf[id_y, id_x]
             msg = "x= %f, y= %f, z= %f" % (x, y, z)
+
         self.status_bar.SetStatusText(msg, 1)

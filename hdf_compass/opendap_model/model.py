@@ -9,8 +9,6 @@
 # distribution tree.  If you do not have access to this file, you may        #
 # request a copy from help@hdfgroup.org.                                     #
 ##############################################################################
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import posixpath as pp
 
 import numpy as np
@@ -19,8 +17,8 @@ from pydap.client import open_url
 from pydap.proxy import ArrayProxy
 
 import logging
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 from hdf_compass import compass_model
 
@@ -55,10 +53,10 @@ class Server(compass_model.Store):
     def can_handle(url):
         try:
             flag = isinstance(open_url(url), dap.model.DatasetType)
-            log.debug("able to handle %s? %r" % (url, flag))
+            logger.debug("able to handle %s? %r" % (url, flag))
             return flag
         except Exception:
-            log.debug("able to handle %s? no" % url)
+            logger.debug("able to handle %s? no" % url)
             return False
 
     def __init__(self, url):
@@ -252,10 +250,10 @@ class Base(compass_model.Array):
 
     def is_plottable(self):
         if self.dtype.kind == 'S':
-            log.debug("Not plottable since ASCII String (characters: %d)" % self.dtype.itemsize)
+            logger.debug("Not plottable since ASCII String (characters: %d)" % self.dtype.itemsize)
             return False
         if self.dtype.kind == 'U':
-            log.debug("Not plottable since Unicode String (characters: %d)" % self.dtype.itemsize)
+            logger.debug("Not plottable since Unicode String (characters: %d)" % self.dtype.itemsize)
             return False
         return True
 

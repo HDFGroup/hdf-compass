@@ -8,12 +8,12 @@
 # the file COPYING, which can be found at the root of the source code        #
 # distribution tree.  If you do not have access to this file, you may        #
 # request a copy from help@hdfgroup.org.                                     #
+#                                                                            #
+# author: gmasetti@ccom.unh.edu                                              #
 ##############################################################################
 """
 Implementation of compass_model classes for BAG files.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 from itertools import groupby
 import sys
 import os.path as op
@@ -28,7 +28,7 @@ from hdf_compass import compass_model
 from hdf_compass.utils import url2path
 
 import logging
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def sort_key(name):
@@ -36,7 +36,7 @@ def sort_key(name):
 
     We provide "natural" sort order; e.g. "7" comes before "12".
     """
-    return [(int(''.join(g)) if k else ''.join(g)) for k, g in groupby(name, key=unicode.isdigit)]
+    return [(int(''.join(g)) if k else ''.join(g)) for k, g in groupby(name, key=str.isdigit)]
 
 
 class BAGStore(compass_model.Store):
@@ -81,15 +81,15 @@ class BAGStore(compass_model.Store):
     @staticmethod
     def can_handle(url):
         if not url.startswith('file://'):
-            log.debug("able to handle %s? no, invalid url" % url)
+            logger.debug("able to handle %s? no, invalid url" % url)
             return False
 
         path = url2path(url)
         if not is_bag(path):
-            log.debug("able to handle %s? no, not a BAG" % url)
+            logger.debug("able to handle %s? no, not a BAG" % url)
             return False
 
-        log.debug("able to handle %s? yes" % url)
+        logger.debug("able to handle %s? yes" % url)
         return True
 
     def __init__(self, url):
@@ -278,10 +278,10 @@ class BAGDataset(compass_model.Array):
 
     def is_plottable(self):
         if self.dtype.kind == 'S':
-            log.debug("Not plottable since ASCII String (characters: %d)" % self.dtype.itemsize)
+            logger.debug("Not plottable since ASCII String (characters: %d)" % self.dtype.itemsize)
             return False
         if self.dtype.kind == 'U':
-            log.debug("Not plottable since Unicode String (characters: %d)" % self.dtype.itemsize)
+            logger.debug("Not plottable since Unicode String (characters: %d)" % self.dtype.itemsize)
             return False
         return True
 
@@ -560,10 +560,10 @@ class BAGMetadataRaw(compass_model.Array):
 
     def is_plottable(self):
         if self.dtype.kind == 'S':
-            log.debug("Not plottable since ASCII String (characters: %d)" % self.dtype.itemsize)
+            logger.debug("Not plottable since ASCII String (characters: %d)" % self.dtype.itemsize)
             return False
         if self.dtype.kind == 'U':
-            log.debug("Not plottable since Unicode String (characters: %d)" % self.dtype.itemsize)
+            logger.debug("Not plottable since Unicode String (characters: %d)" % self.dtype.itemsize)
             return False
         return True
 
@@ -583,7 +583,7 @@ class BAGMetadataText(compass_model.Text):
         try:
             self._dset = store.f.metadata(as_string=True, as_pretty_xml=True)
         except BAGError as e:
-            log.warning("unable to retrieve metadata as xml")
+            logger.warning("unable to retrieve metadata as xml")
             self._dset = ""
 
     @property
@@ -626,7 +626,7 @@ class BAGMetadataXml(compass_model.Xml):
         try:
             self._dset = store.f.metadata(as_string=True, as_pretty_xml=True)
         except BAGError as e:
-            log.warning("unable to retrieve metadata as xml")
+            logger.warning("unable to retrieve metadata as xml")
             self._dset = ""
 
     @property
@@ -757,7 +757,7 @@ class BAGKV(compass_model.KeyValue):
         return key in store.f
 
     def __init__(self, store, key):
-        log.debug("init")
+        logger.debug("init")
         self._store = store
         self._key = key
         self._obj = store.f[key]
@@ -782,7 +782,7 @@ class BAGKV(compass_model.KeyValue):
 
     @property
     def keys(self):
-        return self._names[:]
+        return self._names
 
     def __getitem__(self, name):
         return self._obj.attrs[name]
@@ -806,7 +806,7 @@ class BAGImage(compass_model.Image):
         return True
 
     def __init__(self, store, key):
-        log.debug("init")
+        logger.debug("init")
         self._store = store
         self._key = key
         self._obj = store.f[key]

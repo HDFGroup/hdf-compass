@@ -17,15 +17,13 @@ directories and the ASCII grid data respectively.
 See: http://en.wikipedia.org/wiki/Esri_grid for a description of
 the file format
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import os.path as op
 import linecache
 
 import numpy as np
 
 import logging
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 from hdf_compass import compass_model
 from hdf_compass.utils import url2path
@@ -68,18 +66,18 @@ class AsciiGrid(compass_model.Store):
     @staticmethod
     def can_handle(url):
         if not url.startswith('file://'):
-            log.debug("able to handle %s? no, not starting with file://" % url)
+            logger.debug("able to handle %s? no, not starting with file://" % url)
             return False
         if not url.endswith('.asc'):
-            log.debug("able to handle %s? no, missing .asc extension" % url)
+            logger.debug("able to handle %s? no, missing .asc extension" % url)
             return False
 
         first_line = open(url2path(url)).readline()
         if first_line.split()[0].upper() != "NCOLS":
-            log.debug("able to handle %s? no, invalid first line" % url)
+            logger.debug("able to handle %s? no, invalid first line" % url)
             return False
 
-        log.debug("able to handle %s? yes" % url)
+        logger.debug("able to handle %s? yes" % url)
         return True
 
     def __init__(self, url):

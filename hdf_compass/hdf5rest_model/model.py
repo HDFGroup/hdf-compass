@@ -13,8 +13,6 @@
 """
 Implementation of compass_model classes for HDF5 REST API.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 from itertools import groupby
 import sys
 import os.path as op
@@ -24,14 +22,12 @@ import requests
 import numpy as np
 
 import logging
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
-# Py2App can't successfully import otherwise
 from hdf_compass import compass_model
 from hdf_compass.utils import url2path
-
-from . import hdf5dtype
+from hdf_compass.hdf5rest_model import hdf5dtype
 
 
 def get_json(endpoint, domain=None, uri=None):
@@ -45,10 +41,10 @@ def get_json(endpoint, domain=None, uri=None):
     if domain is not None:        
         headers['host'] = domain
     
-    log.debug("GET: " + req)
+    logger.debug("GET: " + req)
      
     rsp = requests.get(req, headers=headers, verify=False)
-    log.debug("RSP: " + str(rsp.status_code) + ':' + rsp.text)
+    logger.debug("RSP: " + str(rsp.status_code) + ':' + rsp.text)
     
     if rsp.status_code != 200:
         raise IOError(rsp.reason)  
@@ -108,16 +104,16 @@ class HDF5RestStore(compass_model.Store):
         try:
             link_json = self.get(pkey_uri + "/links/" + linkname)
             if link_json["class"] == "H5L_TYPE_HARD":
-                log.debug("add key to store:" + key)
+                logger.debug("add key to store:" + key)
                 self.f[key] = '/' + link_json["collection"] + '/' + link_json["id"]
                 contains = True
             else:
-                pass # todo support soft/external links
+                pass  # todo support soft/external links
             
         except IOError:
             # invalid link
             # todo - verify it is a 404
-            log.debug("invalid key:"+key)
+            logger.debug("invalid key:"+key)
         return contains
         
      
@@ -144,7 +140,7 @@ class HDF5RestStore(compass_model.Store):
 
     @staticmethod
     def can_handle(url):
-        log.debug("hdf5rest can_handle: " + url)
+        logger.debug("hdf5rest can_handle: " + url)
         try:
             flag = True
             rsp_json = get_json(url)
@@ -152,10 +148,10 @@ class HDF5RestStore(compass_model.Store):
                 if key not in rsp_json:
                     flag = False
                     break
-            log.debug("able to handle %s? %r" % (url, flag))
+            logger.debug("able to handle %s? %r" % (url, flag))
             return flag
         except Exception:
-            log.debug("able to handle %s? no" % url)
+            logger.debug("able to handle %s? no" % url)
             return False
         return True
         
@@ -253,17 +249,17 @@ class HDF5RestGroup(compass_model.Container):
             rsp = self.store.get(self._uri + "/links")
             self._xnames = []
             links = rsp["links"]
-            log.debug("got %d links for key: %s" % (len(links), self._key))
+            logger.debug("got %d links for key: %s" % (len(links), self._key))
             for link in links:
                 name = link["title"]
                 self._xnames.append(name)
                 link_key = pp.join(self.key, name)
                 if link_key not in self.store.f:
                     if link["class"] == "H5L_TYPE_HARD":
-                        log.debug("add key to store:" + link_key)
+                        logger.debug("add key to store:" + link_key)
                         self.store.f[link_key] = '/' + link["collection"] + '/' + link["id"]
                     else:
-                        pass # todo support soft/external links
+                        pass  # todo support soft/external links
 
             # Natural sort is expensive
             if len(self._xnames) < 1000:
@@ -278,7 +274,7 @@ class HDF5RestGroup(compass_model.Container):
         self._xnames = None
         rsp = store.get(self._uri)
         self._count = rsp["linkCount"]
-        log.debug("new group node: " + self._key)
+        logger.debug("new group node: " + self._key)
         self.get_names()
 
     @property
@@ -366,7 +362,7 @@ class HDF5RestDataset(compass_model.Array):
         return self._dtype
 
     def __getitem__(self, args):
-         log.debug("getitem: " + str(args))
+         logger.debug("getitem: " + str(args))
          req = self._uri + "/value"
          rank = len(self._shape)
          if rank > 0:
@@ -396,10 +392,10 @@ class HDF5RestDataset(compass_model.Array):
 
     def is_plottable(self):
         if self.dtype.kind == 'S':
-            log.debug("Not plottable since ASCII String (characters: %d)" % self.dtype.itemsize)
+            logger.debug("Not plottable since ASCII String (characters: %d)" % self.dtype.itemsize)
             return False
         if self.dtype.kind == 'U':
-            log.debug("Not plottable since Unicode String (characters: %d)" % self.dtype.itemsize)
+            logger.debug("Not plottable since Unicode String (characters: %d)" % self.dtype.itemsize)
             return False
         return True
 
@@ -462,9 +458,6 @@ class HDF5RestKV(compass_model.KeyValue):
         arr_dtype = hdf5dtype.createDataType(type_json)
         arr = np.array(value_json, dtype=arr_dtype)
         return arr
-
-
-
 
 # Register handlers    
 HDF5RestStore.push(HDF5RestKV)

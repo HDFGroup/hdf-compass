@@ -14,8 +14,6 @@
 # Run test, from hdf-compass directory::
 # python -m unittest hdf_compass.my_model.test
 #
-from __future__ import absolute_import, division, print_function
-
 from hdf_compass.compass_model.test import container, store
 from hdf_compass.hdf5rest_model import HDF5RestGroup, HDF5RestStore
 from hdf_compass.utils import data_url

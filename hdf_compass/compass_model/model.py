@@ -68,14 +68,12 @@ of Image, and register it with the other person's class:
 Of course, this assumes you know enough about the internals of the other
 person's Store to make your new class useful.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 from abc import ABCMeta, abstractmethod, abstractproperty
 import os
 import logging
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 _stores = []
 
@@ -132,7 +130,7 @@ class Store(object):
     @abstractmethod
     def __contains__(self, key):
         """ Check if a key is valid. """
-        log.error("to be overloaded")
+        logger.error("to be overloaded")
 
     def __getitem__(self, key):
         """ Return a Node instance  for *key*.

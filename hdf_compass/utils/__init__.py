@@ -9,14 +9,12 @@
 # distribution tree.  If you do not have access to this file, you may        #
 # request a copy from help@hdfgroup.org.                                     #
 ##############################################################################
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
-from .utils import is_darwin, is_win, is_linux, url2path, path2url, data_url
+from hdf_compass.utils.utils import is_darwin, is_win, is_linux, url2path, path2url, data_url
 
 
-__version__ = "0.7.0b1"
+__version__ = "0.7.0b2"

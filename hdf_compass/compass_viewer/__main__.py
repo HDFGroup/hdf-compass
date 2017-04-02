@@ -9,8 +9,6 @@
 # distribution tree.  If you do not have access to this file, you may        #
 # request a copy from help@hdfgroup.org.                                     #
 ##############################################################################
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 
 
@@ -33,6 +31,6 @@ ch.setFormatter(ch_formatter)
 # ch.addFilter(LoggingFilter())  # uncomment to activate the logging filter
 logger.addHandler(ch)
 
-from . import run
+from hdf_compass.compass_viewer.viewer import run
 
 run()

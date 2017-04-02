@@ -9,10 +9,9 @@
 # distribution tree.  If you do not have access to this file, you may        #
 # request a copy from help@hdfgroup.org.                                     #
 ##############################################################################
-from __future__ import absolute_import, division, print_function, unicode_literals
 
-from .model import Server, Dataset, Structure, Attributes, Base
+from hdf_compass.opendap_model.model import Server, Dataset, Structure, Attributes, Base
 
 import logging
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())

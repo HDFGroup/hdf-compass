@@ -8,9 +8,9 @@
 # the file COPYING, which can be found at the root of the source code        #
 # distribution tree.  If you do not have access to this file, you may        #
 # request a copy from help@hdfgroup.org.                                     #
+#                                                                            #
+# author: gmasetti@ccom.unh.edu                                              #
 ##############################################################################
-from __future__ import absolute_import, division, print_function
-
 import os
 
 from hdf_compass.compass_model.test import store, container

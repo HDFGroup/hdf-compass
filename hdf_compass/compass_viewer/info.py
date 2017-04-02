@@ -13,12 +13,10 @@
 """
 Defines the left-hand side information panel used to display context info.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import wx
 
 import logging
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 from hdf_compass import compass_model
 from hdf_compass.utils import is_win
@@ -73,7 +71,7 @@ class InfoPanel(wx.Panel):
         self.prop_text.SetLabel(describe(node))
 
         if self.static_bitmap is not None:
-            self.sizer.Remove(self.static_bitmap)
+            self.sizer.Detach(self.static_bitmap)
             self.static_bitmap.Destroy()
 
         # We load the PNG icon directly from the appropriate Node class
@@ -105,17 +103,17 @@ def describe(node):
                 num_keys = len(kv_node.keys)
                 if num_keys > 0:
                     desc += "\n%d %s\n" % (len(kv_node.keys), type(kv_node).class_kind)
-            
+
     return desc
 
 
 def dtype_text(dt):
     """ String description appropriate for a NumPy dtype """
 
-    log.debug("dtype kind: %s, size: %d" % (dt.kind, dt.itemsize))
+    logger.debug("dtype kind: %s, size: %d" % (dt.kind, dt.itemsize))
 
     if dt.names is not None:
-        log.debug("dtype names: %s" % ",".join(n for n in dt.names))
+        logger.debug("dtype names: %s" % ",".join(n for n in dt.names))
         return "Compound (%d fields)" % len(dt.names)
     if dt.kind == 'f':
         return "%d-byte floating point" % dt.itemsize

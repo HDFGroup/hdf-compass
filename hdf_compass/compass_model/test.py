@@ -41,11 +41,9 @@ To run unittest, which discovers classes "store_tests" and "container_tests":
 
 """
 
-from __future__ import absolute_import, division, print_function
-
 import unittest as ut
 
-from . import Node, Store
+from hdf_compass.compass_model import Node, Store
 
 
 # --- Public API --------------------------------------------------------------
@@ -104,11 +102,11 @@ class _TestStore(ut.TestCase):
 
     def test_url(self):
         """ Verify store.url produces a string """
-        self.assertIsInstance(self.store.url, basestring)
+        self.assertIsInstance(self.store.url, str)
 
     def test_display_name(self):
         """ Verify store.display_name produces a string. """
-        self.assertIsInstance(self.store.display_name, basestring)
+        self.assertIsInstance(self.store.display_name, str)
 
     def test_root(self):
         """ Verify store.root exists and has no parent """
@@ -163,9 +161,9 @@ class _TestNode(ut.TestCase):
         Required sizes: 16x16 and 64x64
         """
         import os
-        for key, val in self.node_cls.icons.iteritems():
+        for key, val in self.node_cls.icons.items():
             self.assertIsInstance(key, int)
-            self.assertIsInstance(val, unicode)
+            self.assertIsInstance(val, str)
             self.assertTrue(os.path.exists(val))
 
         # required resolutions
@@ -174,7 +172,7 @@ class _TestNode(ut.TestCase):
 
     def test_class_kind(self):
         """ class_kind is present, and a string """
-        self.assertIsInstance(self.node_cls.class_kind, basestring)
+        self.assertIsInstance(self.node_cls.class_kind, str)
 
     def test_can_handle(self):
         """ can_handle() consistency check """
@@ -197,7 +195,7 @@ class _TestNode(ut.TestCase):
 
     def test_display_name(self):
         """ display_name exists and is a string """
-        self.assertIsInstance(self.node.display_name, basestring)
+        self.assertIsInstance(self.node.display_name, str)
 
 
 class _TestContainer(_TestNode):
@@ -210,7 +208,7 @@ class _TestContainer(_TestNode):
 
     def test_getitem(self):
         """ __getitem__ works properly """
-        for idx in xrange(len(self.node)):
+        for idx in range(len(self.node)):
             out = self.node[idx]
             self.assertIsInstance(out, Node)
 

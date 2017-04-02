@@ -12,16 +12,14 @@
 """
 Handles list and icon view for Container display.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import wx
 
 import logging
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 from hdf_compass import compass_model
-from ..events import CompassOpenEvent
-from ..events import ContainerSelectionEvent
+from hdf_compass.compass_viewer.events import CompassOpenEvent
+from hdf_compass.compass_viewer.events import ContainerSelectionEvent
 
 ID_CONTEXT_MENU_OPEN = wx.NewId()
 ID_CONTEXT_MENU_OPENWINDOW = wx.NewId()

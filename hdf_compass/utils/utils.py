@@ -12,13 +12,11 @@
 """
 Implementation of utils and helper functions
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import sys
 import os
 
 import logging
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 is_darwin = sys.platform == 'darwin'
 is_win = sys.platform == 'win32'

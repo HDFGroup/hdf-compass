@@ -8,21 +8,21 @@
 # the file COPYING, which can be found at the root of the source code        #
 # distribution tree.  If you do not have access to this file, you may        #
 # request a copy from help@hdfgroup.org.                                     #
+#                                                                            #
+# author: gmasetti@ccom.unh.edu                                              #
 ##############################################################################
 
 """
 Implements a viewer frame for compass_model.Array.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 
 import wx
 import wx.stc as stc
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
-from ..frame import BaseFrame
+from hdf_compass.compass_viewer.frame import BaseFrame
 
 
 if wx.Platform == '__WXMSW__':
@@ -112,8 +112,12 @@ class XmlStc(stc.StyledTextCtrl):
         # Selection background
         self.SetSelBackground(1, '#66CCFF')
 
-        self.SetSelBackground(True, wx.SystemSettings_GetColour(wx.SYS_COLOUR_HIGHLIGHT))
-        self.SetSelForeground(True, wx.SystemSettings_GetColour(wx.SYS_COLOUR_HIGHLIGHTTEXT))
+        try:
+            self.SetSelBackground(True, wx.SystemSettings.GetColour(wx.SYS_COLOUR_HIGHLIGHT))
+            self.SetSelForeground(True, wx.SystemSettings.GetColour(wx.SYS_COLOUR_HIGHLIGHTTEXT))
+        except:
+            self.SetSelBackground(True, wx.SystemSettings_GetColour(wx.SYS_COLOUR_HIGHLIGHT))
+            self.SetSelForeground(True, wx.SystemSettings_GetColour(wx.SYS_COLOUR_HIGHLIGHTTEXT))
 
         self.SetProperty("fold", "1")  # Enable folding
         self.SetProperty("fold.html", "1")  # Enable folding
@@ -227,4 +231,3 @@ class XmlStc(stc.StyledTextCtrl):
                 line += 1
 
         return line
-

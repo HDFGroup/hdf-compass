@@ -9,11 +9,10 @@
 # distribution tree.  If you do not have access to this file, you may        #
 # request a copy from help@hdfgroup.org.                                     #
 ##############################################################################
-from __future__ import absolute_import, division, print_function, unicode_literals
 
-from .model import get_stores, push, Store, Node, Container, KeyValue, \
-    GeoArray, GeoSurface, Array, Text, Xml, Image, Unknown
+from hdf_compass.compass_model.model import get_stores, push, Store, Node, \
+    Container, KeyValue, GeoArray, GeoSurface, Array, Text, Xml, Image, Unknown
 
 import logging
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())

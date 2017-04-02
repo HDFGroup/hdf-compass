@@ -97,7 +97,7 @@ setup_args['install_requires'] =\
         "numpy",
         "matplotlib>=1.5",
         "h5py",
-        "wxPython==3.0.2",
+        "wxPython-Phoenix",
         "requests"
     ]
 setup_args['extras_require'] =\

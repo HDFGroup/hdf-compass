@@ -5,12 +5,24 @@ branches:
   - develop
 
 environment:
-  global:
-    MINICONDA: "C:\\Miniconda"
 
   matrix:
-    - PYTHON_VERSION: 2.7
-    # - PYTHON_VERSION: 3.4
+
+    - PYTHON_VERSION: 3.6
+      PYTHON_ARCH: x86
+      MINICONDA: C:\Miniconda3
+
+    - PYTHON_VERSION: 3.6
+      PYTHON_ARCH: x64
+      MINICONDA: C:\Miniconda3-x64
+
+matrix:
+
+  allow_failures:
+
+    - PYTHON_VERSION: 3.6
+      PYTHON_ARCH: x86
+      MINICONDA: C:\Miniconda3
 
 install:
   # Install miniconda using a powershell script.
@@ -51,7 +63,7 @@ test_script:
   - "python -m unittest hdf_compass.bag_model.test"
   - "python -m unittest hdf_compass.filesystem_model.test"
   - "python -m unittest hdf_compass.hdf5_model.test"
-  - "python -m unittest hdf_compass.opendap_model.test"
+#  - "python -m unittest hdf_compass.opendap_model.test"
 
 after_test:
     # If tests are successful, create a whl package for the project.

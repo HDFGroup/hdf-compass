@@ -11,10 +11,8 @@
 # distribution tree.  If you do not have access to this file, you may        #
 # request a copy from help@hdfgroup.org.                                     #
 ##############################################################################
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-from .model import ADIOSStore, ADIOSGroup, ADIOSDataset, ADIOSKV
+from hdf_compass.adios_model.model import ADIOSStore, ADIOSGroup, ADIOSDataset, ADIOSKV
 
 import logging
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())

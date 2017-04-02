@@ -13,13 +13,12 @@
 """
 Defines a small number of custom events, which are useful for the GUI.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import wx
 from wx.lib.newevent import NewCommandEvent
 
 import logging
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 ID_COMPASS_OPEN = wx.NewId()
 

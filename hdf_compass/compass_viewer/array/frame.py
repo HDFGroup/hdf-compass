@@ -12,8 +12,6 @@
 """
 Implements a viewer frame for compass_model.Array.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import wx
 import wx.grid
 from wx.lib.newevent import NewCommandEvent
@@ -24,10 +22,10 @@ import os
 import logging
 import numpy
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
-from ..frame import NodeFrame
-from .plot import LinePlotFrame, ContourPlotFrame
+from hdf_compass.compass_viewer.frame import NodeFrame
+from hdf_compass.compass_viewer.array.plot import LinePlotFrame, ContourPlotFrame
 
 
 # Indicates that the slicing selection may have changed.
@@ -40,12 +38,14 @@ ID_VIS_MENU_PLOT = wx.NewId()
 ID_VIS_MENU_COPY = wx.NewId()
 ID_VIS_MENU_EXPORT = wx.NewId()
 
+
 def gen_csv(data, delimiters):
     """ converts any N-dimensional array to a CSV-string """
     if(type(data) == numpy.ndarray or type(data) == list):
         return delimiters[0].join(map(lambda x: gen_csv(x,delimiters[1:]), data))
     else:
         return str(data)
+
 
 class ArrayFrame(NodeFrame):
     """
@@ -125,16 +125,13 @@ class ArrayFrame(NodeFrame):
             
         self.toolbar.AddStretchableSpace()
 
-        self.toolbar.AddLabelTool(ID_VIS_MENU_COPY, "Copy", copy_bmp)
-        self.toolbar.AddLabelTool(ID_VIS_MENU_EXPORT, "Export", export_bmp)
+        self.toolbar.AddTool(ID_VIS_MENU_COPY, "Copy", copy_bmp)
+        self.toolbar.AddTool(ID_VIS_MENU_EXPORT, "Export", export_bmp)
         if self.node.is_plottable():
-            self.toolbar.AddLabelTool(ID_VIS_MENU_PLOT, "Plot Data", plot_bmp,
-                                      shortHelp="Plot data in a popup window",
-                                      longHelp="Plot the array data in a popup window")
+            self.toolbar.AddTool(ID_VIS_MENU_PLOT, "Plot Data", plot_bmp)
 
         self.toolbar.Realize()
 
-        
     def on_selected(self, evt):
         """ User has chosen to display a different part of the dataset. """
         idx = 0
@@ -152,6 +149,7 @@ class ArrayFrame(NodeFrame):
             names: name array for plots
             line: bool-value, True if 1D-Line, False if 2D
         """
+
         cols = self.grid.GetSelectedCols()
         rows = self.grid.GetSelectedRows()
         rank = len(self.node.shape)
@@ -163,7 +161,7 @@ class ArrayFrame(NodeFrame):
         # Get data currently in the grid
         if rank > 1 and self.node.dtype.names is None:
             args = []
-            for x in xrange(rank):
+            for x in range(rank):
                 if x == self.row:
                     args.append(slice(None, None, None))
                 elif x == self.col:
@@ -435,17 +433,18 @@ class ArrayGrid(wx.grid.Grid):
         self.SetTable(table, True)
 
         # Column selection is always allowed
-        selmode = wx.grid.Grid.wxGridSelectColumns
+        selmode = 2  # wx.grid.Grid.SelectColumns
         
         # Row selection is forbidden for compound types, and for
         # scalar/1-D datasets
         if node.dtype.names is None and len(node.shape) > 1:
-            selmode |= wx.grid.Grid.wxGridSelectRows
-        
+            selmode |= 1  # wx.grid.Grid.SelectRows
+
         self.SetSelectionMode(selmode)
            
     def ResetView(self):
             """Trim/extend the grid if needed"""
+
             rowChange = self.GetTable().GetRowsCount() - self.GetNumberRows()
             colChange = self.GetTable().GetColsCount() - self.GetNumberCols()
             if rowChange != 0 or colChange != 0:
@@ -550,7 +549,7 @@ class LRUTileCache(object):
         return tile[tile_data_index]
 
 
-class ArrayTable(wx.grid.PyGridTableBase):
+class ArrayTable(wx.grid.GridTableBase):
     """
     "Table" class which provides data and metadata for the grid to display.
 
@@ -565,7 +564,7 @@ class ArrayTable(wx.grid.PyGridTableBase):
         slicer:   An instance of SlicerPanel, so we can see what indices the
                   user has requested.
         """
-        wx.grid.PyGridTableBase.__init__(self)
+        wx.grid.GridTableBase.__init__(self)
 
         self.node = parent.node
         self.selecter = parent
@@ -602,26 +601,27 @@ class ArrayTable(wx.grid.PyGridTableBase):
 
         row, col:   Integers giving row and column position (0-based).
         """
+
         # Scalar case
         if self.rank == 0:
             data = self.node[()]
             if self.names is None:
-                return data
-            return data[col]
+                return "%s" % data
+            return "%s" % data[col]
 
         # 1D case
         if self.rank == 1:
             data = self.cache[row]
             if self.names is None:
-                return data
-            return data[self.names[col]]
+                return "%s" % data
+            return "%s" % data[self.names[col]]
 
         # ND case.  Watch out for compound mode!
         if self.names is not None:
             args = self.slicer.indices + (row,)
         else:
             l = []
-            for x in xrange(self.rank):
+            for x in range(self.rank):
                 if x == self.selecter.row:
                     l.append(row)
                 elif x == self.selecter.col:
@@ -637,8 +637,8 @@ class ArrayTable(wx.grid.PyGridTableBase):
         
         data = self.cache[args]
         if self.names is None:
-            return data
-        return data[self.names[col]]
+            return "%s" % data
+        return "%s" % data[self.names[col]]
 
     def GetRowLabelValue(self, row):
         """ Callback for row labels.

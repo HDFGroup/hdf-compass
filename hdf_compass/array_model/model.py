@@ -12,17 +12,15 @@
 
 """ Testing model for array types. """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import numpy as np
 import os.path as op
 
 import logging
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 from hdf_compass import compass_model
 
-DT_CMP = np.dtype([(b'a', b'i'), (b'b', b'f')])
+DT_CMP = np.dtype([('a', 'i'), ('b', 'f')])
 
 DATA = {'array://localhost/a_0d': np.array(1),
         'array://localhost/a_1d': np.arange(10),
@@ -43,10 +41,9 @@ DATA = {'array://localhost/a_0d': np.array(1),
         'array://localhost/U_2d': np.array([["Hello", "Ciao"], ["Hello", "Ciao"]]),
         'array://localhost/U_3d': np.array([[["Hello", "Ciao"], ["Hello", "Ciao"]],
                                             [["Hello", "Ciao"], ["Hello", "Ciao"]]]),
-        'array://localhost/v_0d': np.array('\x01', dtype='|V1'),
+        'array://localhost/v_0d': np.array(b'\x01', dtype='|V1'),
         'array://localhost/non_square': np.arange(5 * 10).reshape((5, 10)),
         }
-
 
 class ArrayStore(compass_model.Store):
     """
@@ -65,7 +62,7 @@ class ArrayStore(compass_model.Store):
 
     def __contains__(self, key):
         if (key == '/') or (key is None):
-            log.debug("is root: %s" % key)
+            logger.debug("is root: %s" % key)
             return True
         return key in DATA
 
@@ -88,9 +85,9 @@ class ArrayStore(compass_model.Store):
     @staticmethod
     def can_handle(url):
         if url == "array://localhost":
-            log.debug("able to handle %s? yes" % url)
+            logger.debug("able to handle %s? yes" % url)
             return True
-        log.debug("able to handle %s? no" % url)
+        logger.debug("able to handle %s? no" % url)
         return False
 
     def __init__(self, url):
@@ -195,10 +192,10 @@ class Array(compass_model.Array):
 
     def is_plottable(self):
         if self.dtype.kind == 'S':
-            log.debug("Not plottable since ASCII String (characters: %d)" % self.dtype.itemsize)
+            logger.debug("Not plottable since ASCII String (characters: %d)" % self.dtype.itemsize)
             return False
         if self.dtype.kind == 'U':
-            log.debug("Not plottable since Unicode String (characters: %d)" % self.dtype.itemsize)
+            logger.debug("Not plottable since Unicode String (characters: %d)" % self.dtype.itemsize)
             return False
         return True
 

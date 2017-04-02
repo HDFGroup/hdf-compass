@@ -8,12 +8,13 @@
 # the file COPYING, which can be found at the root of the source code        #
 # distribution tree.  If you do not have access to this file, you may        #
 # request a copy from help@hdfgroup.org.                                     #
+#                                                                            #
+# author: gmasetti@ccom.unh.edu                                              #
 ##############################################################################
 
 """
 Matplotlib window with toolbar.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import numpy as np
 import wx
@@ -31,9 +32,9 @@ from matplotlib import cm
 from matplotlib.colors import LightSource
 
 import logging
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
-from ..frame import BaseFrame
+from hdf_compass.compass_viewer.frame import BaseFrame
 
 np.seterr(divide='ignore', invalid='ignore')
 
@@ -56,7 +57,7 @@ class PlotFrame(BaseFrame):
     def __init__(self, data, title="a title"):
         """ Create a new Matplotlib plotting window for a 1D line plot """
 
-        log.debug(self.__class__.__name__)
+        logger.debug(self.__class__.__name__)
         BaseFrame.__init__(self, id=wx.ID_ANY, title=title, size=(800, 400))
 
         self.data = data
@@ -99,7 +100,7 @@ class LinePlotFrame(PlotFrame):
 class ContourPlotFrame(PlotFrame):
     def __init__(self, data, extent, names=None, title="Surface Map"):
         self.geo_extent = extent
-        log.debug("Extent: %f, %f, %f, %f" % self.geo_extent)
+        logger.debug("Extent: %f, %f, %f, %f" % self.geo_extent)
         # need to be set before calling the parent (need for plotting)
         self.colormap = LinearSegmentedColormap.from_list("BAG",
                                                           ["#63006c", "#2b4ef4", "#2f73ff", "#4b8af4", "#bee2bf"])
@@ -140,42 +141,42 @@ class ContourPlotFrame(PlotFrame):
         self.canvas.Bind(wx.EVT_ENTER_WINDOW, self.change_cursor)
 
     def on_cmap_bag(self, evt):
-        log.debug("cmap: bag")
+        logger.debug("cmap: bag")
         self.colormap = cm.get_cmap("BAG")
         self._refresh_plot()
 
     def on_cmap_jet(self, evt):
-        log.debug("cmap: jet")
+        logger.debug("cmap: jet")
         self.colormap = cm.get_cmap("jet")
         self._refresh_plot()
 
     def on_cmap_bone(self, evt):
-        log.debug("cmap: bone")
+        logger.debug("cmap: bone")
         self.colormap = cm.get_cmap("bone")
         self._refresh_plot()
 
     def on_cmap_gist_earth(self, evt):
-        log.debug("cmap: gist_earth")
+        logger.debug("cmap: gist_earth")
         self.colormap = cm.get_cmap("gist_earth")
         self._refresh_plot()
 
     def on_cmap_ocean(self, evt):
-        log.debug("cmap: ocean")
+        logger.debug("cmap: ocean")
         self.colormap = cm.get_cmap("ocean")
         self._refresh_plot()
 
     def on_cmap_rainbow(self, evt):
-        log.debug("cmap: rainbow")
+        logger.debug("cmap: rainbow")
         self.colormap = cm.get_cmap("rainbow")
         self._refresh_plot()
 
     def on_cmap_rdylgn(self, evt):
-        log.debug("cmap: RdYlGn")
+        logger.debug("cmap: RdYlGn")
         self.colormap = cm.get_cmap("RdYlGn")
         self._refresh_plot()
 
     def on_cmap_winter(self, evt):
-        log.debug("cmap: winter")
+        logger.debug("cmap: winter")
         self.colormap = cm.get_cmap("winter")
         self._refresh_plot()
 
@@ -189,7 +190,7 @@ class ContourPlotFrame(PlotFrame):
 
         # try to plot the whole array
         try:
-            blended_surface = ls.shade(self.surf, cmap=self.colormap, vert_exag=5, blend_mode=b"overlay",
+            blended_surface = ls.shade(self.surf, cmap=self.colormap, vert_exag=5, blend_mode="overlay",
                                        vmin=np.nanmin(self.surf), vmax=np.nanmax(self.surf))
         # too big, two attempts for sub-sampling
         except MemoryError:
@@ -202,7 +203,7 @@ class ContourPlotFrame(PlotFrame):
                 row_stride = rows // max_elements + 1
                 col_stride = cols // max_elements + 1
                 self.surf = self.data[::row_stride, ::col_stride]
-                blended_surface = ls.shade(self.surf, cmap=self.colormap, vert_exag=5, blend_mode=b"overlay",
+                blended_surface = ls.shade(self.surf, cmap=self.colormap, vert_exag=5, blend_mode="overlay",
                                            vmin=np.nanmin(self.surf), vmax=np.nanmax(self.surf))
 
             except MemoryError:
@@ -211,11 +212,11 @@ class ContourPlotFrame(PlotFrame):
                 row_stride = rows // max_elements + 1
                 col_stride = cols // max_elements + 1
                 self.surf = self.data[::row_stride, ::col_stride]
-                blended_surface = ls.shade(self.surf, cmap=self.colormap, vert_exag=5, blend_mode=b"overlay",
+                blended_surface = ls.shade(self.surf, cmap=self.colormap, vert_exag=5, blend_mode="overlay",
                                            vmin=np.nanmin(self.surf), vmax=np.nanmax(self.surf))
 
-            log.debug("too big: %s x %s > subsampled to %s x %s"
-                      % (self.data.shape[0], self.data.shape[1], self.surf.shape[0], self.surf.shape[1]))
+            logger.debug("too big: %s x %s > subsampled to %s x %s"
+                         % (self.data.shape[0], self.data.shape[1], self.surf.shape[0], self.surf.shape[1]))
 
         self.axes.coastlines(resolution='50m', color='gray', linewidth=1)
         img = self.axes.imshow(blended_surface, origin='lower', cmap=self.colormap,
@@ -237,7 +238,7 @@ class ContourPlotFrame(PlotFrame):
         self.cb.ax.tick_params(labelsize=8)
 
     def change_cursor(self, event):
-        self.canvas.SetCursor(wx.StockCursor(wx.CURSOR_CROSS))
+        self.canvas.SetCursor(wx.Cursor(wx.CURSOR_CROSS))
 
     def update_status_bar(self, event):
         msg = str()

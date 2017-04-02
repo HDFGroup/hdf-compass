@@ -15,8 +15,6 @@
 """
 Implementation of compass_model classes for ADIOS files.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 from itertools import groupby
 import sys
 import os.path as op
@@ -25,8 +23,8 @@ import posixpath as pp
 import adios
 
 import logging
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 # Py2App can't successfully import otherwise
 from hdf_compass import compass_model
@@ -82,13 +80,13 @@ class ADIOSStore(compass_model.Store):
     @staticmethod
     def can_handle(url):
         if(not url.startswith('file://')):
-            log.debug("able to handle %s? no, not starting with file://" % url)
+            logger.debug("able to handle %s? no, not starting with file://" % url)
             return False
         if(not url.endswith('.bp')):
-            log.debug("able to handle %s? no, missing .bp ending" % url)
+            logger.debug("able to handle %s? no, missing .bp ending" % url)
             return False
 
-        log.debug("able to handle %s? yes" % url)
+        logger.debug("able to handle %s? yes" % url)
         return True
 
     def __init__(self, url):
@@ -133,16 +131,16 @@ class ADIOSGroup(compass_model.Container):
         if self._xnames is None:
             self._xnames = []
             c = self._key.count('/')
-            if(self._key != "/"):
+            if self._key != "/":
                 c = c + 1
 
             keylist = self._store.f.var.keys()
             for k in keylist:
-                if(not k.startswith("/")):
+                if not k.startswith("/"):
                     k = "/%s" % k
 
-                while(k != self._key and k != "/"):
-                    if(k.startswith(self._key) and k.count('/') == c and not k in self._xnames):
+                while k != self._key and k != "/":
+                    if k.startswith(self._key) and k.count('/') == c and not k in self._xnames:
                         self._xnames.append(k)
                     k = pp.dirname(k)
 
@@ -156,7 +154,7 @@ class ADIOSGroup(compass_model.Container):
     def __init__(self, store, key):
         self._store = store
         self._xnames = None
-        if((not key.startswith("/")) and key != ""):
+        if (not key.startswith("/")) and key != "":
             key = "/%s" % key
         self._key = key
 
@@ -195,6 +193,7 @@ class ADIOSGroup(compass_model.Container):
         key = op.join(self._key, name).encode("ascii")
         return self._store[key]
 
+
 class ADIOSDataset(compass_model.Array):
     """ Represents an ADIOS dataset. """
 
@@ -202,7 +201,7 @@ class ADIOSDataset(compass_model.Array):
 
     @staticmethod
     def can_handle(store, key):
-        return (key in store and isinstance(store.f[key.encode("ascii")], adios.var))
+        return key in store and isinstance(store.f[key.encode("ascii")], adios.var)
 
     def __init__(self, store, key):
         self._store = store
@@ -238,12 +237,13 @@ class ADIOSDataset(compass_model.Array):
 
     def is_plottable(self):
         if self.dtype.kind == 'S':
-            log.debug("Not plottable since ASCII String (characters: %d)" % self.dtype.itemsize)
+            logger.debug("Not plottable since ASCII String (characters: %d)" % self.dtype.itemsize)
             return False
         if self.dtype.kind == 'U':
-            log.debug("Not plottable since Unicode String (characters: %d)" % self.dtype.itemsize)
+            logger.debug("Not plottable since Unicode String (characters: %d)" % self.dtype.itemsize)
             return False
         return True
+
 
 class ADIOSText(compass_model.Text):
     """ Represents a text array (both ASCII and UNICODE). """
@@ -253,12 +253,12 @@ class ADIOSText(compass_model.Text):
     @staticmethod
     def can_handle(store, key):
         key = key.encode("ascii")
-        if(key in store and isinstance(store.f[key], adios.var)):
+        if key in store and isinstance(store.f[key], adios.var):
             if store.f[key].dtype.kind == 'S':
-                log.debug("ASCII String (characters: %d)" % DATA[key].dtype.itemsize)
+                logger.debug("ASCII String (characters: %d)" % DATA[key].dtype.itemsize)
                 return True
             if store.f[key].dtype.kind == 'U':
-                log.debug("Unicode String (characters: %d)" % DATA[key].dtype.itemsize)
+                logger.debug("Unicode String (characters: %d)" % DATA[key].dtype.itemsize)
                 return True
         return False
 
@@ -285,7 +285,8 @@ class ADIOSText(compass_model.Text):
 
     @property
     def text(self):
-        return self.data[()];
+        return self.data[()]
+
 
 class ADIOSKV(compass_model.KeyValue):
     """ A KeyValue node used for ADIOS attributes. """
@@ -299,7 +300,7 @@ class ADIOSKV(compass_model.KeyValue):
     def __init__(self, store, key):
         self._store = store
         self._obj = store.f[key.encode("ascii")]
-        if((not key.startswith("/")) and key != ""):
+        if (not key.startswith("/")) and key != "":
             key = "/%s" % key
         self._key = key
         self._names = list(filter(lambda k: '/' not in k, self._obj.attrs.keys()))
@@ -336,4 +337,3 @@ ADIOSStore.push(ADIOSDataset)
 ADIOSStore.push(ADIOSText)
 
 compass_model.push(ADIOSStore)
-

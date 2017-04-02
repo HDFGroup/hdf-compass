@@ -16,7 +16,6 @@ Example data model which represents the file system.
 Subclasses just two node types: Container and Array, representing
 directories and files respectively.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
 import os.path as op
@@ -24,7 +23,7 @@ import os.path as op
 import numpy as np
 
 import logging
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 from hdf_compass import compass_model
 
@@ -66,9 +65,9 @@ class Filesystem(compass_model.Store):
     @staticmethod
     def can_handle(url):
         if url == "file://localhost":
-            log.debug("able to handle %s? yes" % url)
+            logger.debug("able to handle %s? yes" % url)
             return True
-        log.debug("able to handle %s? no" % url)
+        logger.debug("able to handle %s? no" % url)
         return False
 
     def __init__(self, url):

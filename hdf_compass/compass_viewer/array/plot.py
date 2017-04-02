@@ -13,7 +13,6 @@
 """
 Matplotlib window with toolbar.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import numpy as np
 import wx
@@ -23,9 +22,9 @@ from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
 from matplotlib.backends.backend_wx import NavigationToolbar2Wx as NavigationToolbar
 
 import logging
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
-from ..frame import BaseFrame
+from hdf_compass.compass_viewer.frame import BaseFrame
 
 ID_VIEW_CMAP_JET = wx.NewId()  # default
 ID_VIEW_CMAP_BONE = wx.NewId()
@@ -45,7 +44,7 @@ class PlotFrame(BaseFrame):
     def __init__(self, data, title="a title"):
         """ Create a new Matplotlib plotting window for a 1D line plot """
 
-        log.debug(self.__class__.__name__)
+        logger.debug(self.__class__.__name__)
         BaseFrame.__init__(self, id=wx.ID_ANY, title=title, size=(800, 400))
 
         self.data = data
@@ -119,37 +118,37 @@ class ContourPlotFrame(PlotFrame):
         self.canvas.Bind(wx.EVT_ENTER_WINDOW, self.change_cursor)
 
     def on_cmap_jet(self, evt):
-        log.debug("cmap: jet")
+        logger.debug("cmap: jet")
         self.colormap = "jet"
         self._refresh_plot()
 
     def on_cmap_bone(self, evt):
-        log.debug("cmap: bone")
+        logger.debug("cmap: bone")
         self.colormap = "bone"
         self._refresh_plot()
 
     def on_cmap_gist_earth(self, evt):
-        log.debug("cmap: gist_earth")
+        logger.debug("cmap: gist_earth")
         self.colormap = "gist_earth"
         self._refresh_plot()
 
     def on_cmap_ocean(self, evt):
-        log.debug("cmap: ocean")
+        logger.debug("cmap: ocean")
         self.colormap = "ocean"
         self._refresh_plot()
 
     def on_cmap_rainbow(self, evt):
-        log.debug("cmap: rainbow")
+        logger.debug("cmap: rainbow")
         self.colormap = "rainbow"
         self._refresh_plot()
 
     def on_cmap_rdylgn(self, evt):
-        log.debug("cmap: RdYlGn")
+        logger.debug("cmap: RdYlGn")
         self.colormap = "RdYlGn"
         self._refresh_plot()
 
     def on_cmap_winter(self, evt):
-        log.debug("cmap: winter")
+        logger.debug("cmap: winter")
         self.colormap = "winter"
         self._refresh_plot()
 

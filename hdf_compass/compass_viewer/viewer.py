@@ -15,8 +15,6 @@ Main module for HDFCompass.
 
 Defines the App class, along with supporting infrastructure.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 # Must be at the top, to ensure we're the first to call matplotlib.use.
 import matplotlib
 matplotlib.use('WXAgg')
@@ -25,13 +23,12 @@ import sys
 import wx
 
 import logging
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 from hdf_compass import compass_model
 from hdf_compass import utils
-
-from .events import ID_COMPASS_OPEN
-from . import container, array, geo_surface, geo_array, keyvalue, image, frame, text
+from hdf_compass.compass_viewer.events import ID_COMPASS_OPEN
+from hdf_compass.compass_viewer import container, array, geo_surface, geo_array, keyvalue, image, frame, text
 
 __version__ = utils.__version__
 
@@ -113,9 +110,9 @@ def open_node(node, pos=None):
         # you have to manually cast entries to int or it silently fails.
         new_pos =(int(pos[0])+40, int(pos[1])+40)
     else:
-        new_pos = None
+        new_pos = wx.DefaultPosition
 
-    log.debug("Top-level open called for %s" % node)
+    logger.debug("Top-level open called for %s" % node)
 
     if isinstance(node, compass_model.Container):
         f = container.ContainerFrame(node, pos=new_pos)
@@ -186,68 +183,68 @@ def load_plugins():
 
     # provide some info about the env in use
     import platform
-    log.debug("Python %s %s on %s %s (%s)" % (platform.python_version(), platform.architecture()[0],
-                                              platform.uname()[0], platform.uname()[2], platform.uname()[4]))
+    logger.debug("Python %s %s on %s %s (%s)" % (platform.python_version(), platform.architecture()[0],
+                                                 platform.uname()[0], platform.uname()[2], platform.uname()[4]))
     import numpy
-    log.debug("numpy %s" % numpy.__version__)
-    log.debug("matplotlib %s" % matplotlib.__version__)
-    log.debug("wxPython %s" % wx.__version__)
+    logger.debug("numpy %s" % numpy.__version__)
+    logger.debug("matplotlib %s" % matplotlib.__version__)
+    logger.debug("wxPython %s" % wx.__version__)
 
     from hdf_compass import compass_model
 
     try:
         from hdf_compass import filesystem_model
     except ImportError:
-        log.warning("Filesystem plugin: NOT loaded")
+        logger.warning("Filesystem plugin: NOT loaded")
 
     try:
         from hdf_compass import array_model
     except ImportError:
-        log.warning("Array plugin: NOT loaded")
+        logger.warning("Array plugin: NOT loaded")
 
     try:
         from hdf_compass import hdf5_model
         import h5py
-        log.debug("h5py %s" % h5py.__version__)
-    except ImportError:
-        log.warning("HDF5 plugin: NOT loaded")
+        logger.debug("h5py %s" % h5py.__version__)
+    except ImportError as e:
+        logger.info(e)
+        logger.warning("HDF5 plugin: NOT loaded")
 
     try:
         from hdf_compass import bag_model
         from hydroffice import bag
         from lxml import etree
-        log.debug("hydroffice.bag %s" % bag.__version__)
-        log.debug("lxml %s (libxml %s, libxslt %s)"
-                  % (etree.__version__, ".".join(str(i) for i in etree.LIBXML_VERSION),
-                     ".".join(str(i) for i in etree.LIBXSLT_VERSION)))
+        logger.debug("hydroffice.bag %s" % bag.__version__)
+        logger.debug("lxml %s (libxml %s, libxslt %s)"
+                     % (etree.__version__, ".".join(str(i) for i in etree.LIBXML_VERSION),
+                        ".".join(str(i) for i in etree.LIBXSLT_VERSION)))
     except (ImportError, OSError):
-        log.warning("BAG plugin: NOT loaded")
+        logger.warning("BAG plugin: NOT loaded")
 
     try:
         from hdf_compass import asc_model
     except ImportError:
-        log.warning("Ascii grid plugin: NOT loaded")
+        logger.warning("Ascii grid plugin: NOT loaded")
 
     try:
         from hdf_compass import opendap_model
         from pydap import lib
-        log.debug("pydap %s (protocol %s)"
-                  % (".".join(str(i) for i in lib.__version__), ".".join(str(i) for i in lib.__dap__)))
+        logger.debug("pydap %s (protocol %s)"
+                     % (".".join(str(i) for i in lib.__version__), ".".join(str(i) for i in lib.__dap__)))
     except ImportError:
-        log.warning("Opendap plugin: NOT loaded")
-    
-    from hdf_compass import hdf5rest_model    
+        logger.warning("Opendap plugin: NOT loaded")
+
     try:
         from hdf_compass import hdf5rest_model
     except ImportError:
-        log.warning("HDF5 REST plugin: NOT loaded")
+        logger.warning("HDF5 REST plugin: NOT loaded")
 
     try:
         from hdf_compass import adios_model
         import adios
-        log.debug("ADIOS %s" % adios.__version__)
+        logger.debug("ADIOS %s" % adios.__version__)
     except ImportError:
-        log.warning("ADIOS plugin: NOT loaded")
+        logger.warning("ADIOS plugin: NOT loaded")
 
 
 def run():
@@ -266,7 +263,7 @@ def run():
             # assumed to be file path
             url = utils.path2url(op.abspath(url))
         if not open_store(url):
-            log.warning('Failed to open "%s"; no handlers' % url)
+            logger.warning('Failed to open "%s"; no handlers' % url)
 
     f = frame.InitFrame()
 

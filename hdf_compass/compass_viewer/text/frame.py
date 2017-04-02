@@ -8,22 +8,23 @@
 # the file COPYING, which can be found at the root of the source code        #
 # distribution tree.  If you do not have access to this file, you may        #
 # request a copy from help@hdfgroup.org.                                     #
+#                                                                            #
+# author: gmasetti@ccom.unh.edu                                              #
 ##############################################################################
 
 """
 Implements a viewer frame for compass_model.Array.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
 import logging
 
 import wx
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
-from .text_ctrl import TextViewerFrame, XmlStc
-from ..frame import NodeFrame
+from hdf_compass.compass_viewer.text.text_ctrl import TextViewerFrame, XmlStc
+from hdf_compass.compass_viewer.frame import NodeFrame
 
 
 # Menu and button IDs
@@ -47,7 +48,7 @@ class TextFrame(NodeFrame):
     def __init__(self, node, pos=None):
         """ Create a new array viewer, to display *node*. """
         super(TextFrame, self).__init__(node, size=(800, 400), title=node.display_name, pos=pos)
-        log.debug("init")
+        logger.debug("init")
 
         self.node = node
 
@@ -83,7 +84,7 @@ class TextFrame(NodeFrame):
 
     def on_save(self, evt):
         """ User has chosen to save the current Text """
-        log.debug("saving: %s" % self.node.key)
+        logger.debug("saving: %s" % self.node.key)
 
         save_file_dialog = wx.FileDialog(self, "Save XML file", "", "text.txt",
                                          "Text files (*.txt)|*.txt", wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
@@ -111,7 +112,7 @@ class XmlFrame(NodeFrame):
     def __init__(self, node, pos=None):
         """ Create a new array viewer, to display *node*. """
         super(XmlFrame, self).__init__(node, size=(800, 400), title=node.display_name, pos=pos)
-        log.debug("init")
+        logger.debug("init")
 
         self.node = node
 
@@ -143,6 +144,7 @@ class XmlFrame(NodeFrame):
         """ Set up the toolbar at the top of the window. """
         t_size = (24, 24)
         save_bmp = wx.Bitmap(os.path.join(self.icon_folder, "save_24.png"), wx.BITMAP_TYPE_ANY)
+        validate_bmp = None
         if self.node.has_validation():
             validate_bmp = wx.Bitmap(os.path.join(self.icon_folder, "xml_validate_24.png"), wx.BITMAP_TYPE_ANY)
 
@@ -150,25 +152,23 @@ class XmlFrame(NodeFrame):
 
         self.toolbar.SetToolBitmapSize(t_size)
         self.toolbar.AddStretchableSpace()
-        self.toolbar.AddLabelTool(ID_SAVE_XML_MENU, "Save", save_bmp,
-                                  shortHelp="Save XML", longHelp="Extract and save XML on disk")
+        self.toolbar.AddTool(ID_SAVE_XML_MENU, "Save", save_bmp)
         if self.node.has_validation():
-            self.toolbar.AddLabelTool(ID_VALIDATE_XML_MENU, "Validate", validate_bmp,
-                                      shortHelp="Validate XML", longHelp="Validate XML in a popup window")
+            self.toolbar.AddTool(ID_VALIDATE_XML_MENU, "Validate", validate_bmp)
         self.toolbar.Realize()
 
     def on_validate(self, evt):
         """ User has chosen to validate the current XML """
         if self.node.has_validation():
-            log.debug("validating: %s" % self.node.key)
+            logger.debug("validating: %s" % self.node.key)
             self.text_viewer = TextViewerFrame(self.node.validation)
             self.text_viewer.Show()
         else:
-            log.warning("this node type has not validation: %s" % self.node)
+            logger.warning("this node type has not validation: %s" % self.node)
 
     def on_save(self, evt):
         """ User has chosen to save the current XML """
-        log.debug("saving: %s" % self.node.key)
+        logger.debug("saving: %s" % self.node.key)
 
         save_file_dialog = wx.FileDialog(self, "Save XML file", "", "text.xml",
                                          "Xml files (*.xml)|*.xml", wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)

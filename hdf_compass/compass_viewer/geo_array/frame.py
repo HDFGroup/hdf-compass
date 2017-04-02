@@ -8,12 +8,12 @@
 # the file COPYING, which can be found at the root of the source code        #
 # distribution tree.  If you do not have access to this file, you may        #
 # request a copy from help@hdfgroup.org.                                     #
+#                                                                            #
+# author: gmasetti@ccom.unh.edu                                              #
 ##############################################################################
 """
 Implements a viewer frame for compass_model.Array.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import wx
 import wx.grid
 from wx.lib.newevent import NewCommandEvent
@@ -21,10 +21,10 @@ from wx.lib.newevent import NewCommandEvent
 import os
 import logging
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
-from ..frame import NodeFrame
-from .plot import LinePlotFrame, ContourPlotFrame
+from hdf_compass.compass_viewer.frame import NodeFrame
+from hdf_compass.compass_viewer.geo_array.plot import LinePlotFrame, ContourPlotFrame
 
 
 # Indicates that the slicing selection may have changed.
@@ -90,9 +90,7 @@ class GeoArrayFrame(NodeFrame):
         self.toolbar.SetToolBitmapSize(t_size)
         self.toolbar.AddStretchableSpace()
         if self.node.is_plottable():
-            self.toolbar.AddLabelTool(ID_VIS_MENU_PLOT, "Map Data", plot_bmp,
-                                      shortHelp="Map geographic data in a popup window",
-                                      longHelp="Map the geographic array data in a popup window")
+            self.toolbar.AddTool(ID_VIS_MENU_PLOT, "Map Data", plot_bmp)
         self.toolbar.Realize()
 
     def on_sliced(self, evt):
@@ -253,12 +251,12 @@ class ArrayGrid(wx.grid.Grid):
         self.SetTable(table, True)
 
         # Column selection is always allowed
-        selmode = wx.grid.Grid.wxGridSelectColumns
+        selmode = 2  # wx.grid.Grid.SelectColumns
 
         # Row selection is forbidden for compound types, and for
         # scalar/1-D datasets
         if node.dtype.names is None and len(node.shape) > 1:
-            selmode |= wx.grid.Grid.wxGridSelectRows
+            selmode |= 1  # wx.grid.Grid.SelectRows
 
         self.SetSelectionMode(selmode)
 
@@ -322,7 +320,7 @@ class LRUTileCache(object):
         return tile[tile_data_index]
 
 
-class ArrayTable(wx.grid.PyGridTableBase):
+class ArrayTable(wx.grid.GridTableBase):
     """
     "Table" class which provides data and metadata for the grid to display.
 
@@ -337,7 +335,7 @@ class ArrayTable(wx.grid.PyGridTableBase):
         slicer:   An instance of SlicerPanel, so we can see what indices the
                   user has requested.
         """
-        wx.grid.PyGridTableBase.__init__(self)
+        wx.grid.GridTableBase.__init__(self)
 
         self.node = node
         self.slicer = slicer
@@ -373,15 +371,15 @@ class ArrayTable(wx.grid.PyGridTableBase):
         if self.rank == 0:
             data = self.node[()]
             if self.names is None:
-                return data
-            return data[col]
+                return "%s" % data
+            return "%s" % data[col]
 
         # 1D case
         if self.rank == 1:
             data = self.cache[row]
             if self.names is None:
-                return data
-            return data[self.names[col]]
+                return "%s" % data
+            return "%s" % data[self.names[col]]
 
         # ND case.  Watch out for compound mode!
         if self.names is None:
@@ -391,8 +389,8 @@ class ArrayTable(wx.grid.PyGridTableBase):
 
         data = self.cache[args]
         if self.names is None:
-            return data
-        return data[self.names[col]]
+            return "%s" %  data
+        return "%s" % data[self.names[col]]
 
     def GetRowLabelValue(self, row):
         """ Callback for row labels.

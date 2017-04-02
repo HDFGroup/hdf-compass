@@ -13,8 +13,6 @@
 """
 Implementation of compass_model classes for HDF5 files.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 from itertools import groupby
 import sys
 import os.path as op
@@ -23,8 +21,8 @@ import posixpath as pp
 import h5py
 
 import logging
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 # Py2App can't successfully import otherwise
 from hdf_compass import compass_model
@@ -36,7 +34,7 @@ def sort_key(name):
 
     We provide "natural" sort order; e.g. "7" comes before "12".
     """
-    return [(int(''.join(g)) if k else ''.join(g)) for k, g in groupby(name, key=unicode.isdigit)]
+    return [(int(''.join(g)) if k else ''.join(g)) for k, g in groupby(name, key=str.isdigit)]
 
 
 class HDF5Store(compass_model.Store):
@@ -77,13 +75,13 @@ class HDF5Store(compass_model.Store):
     @staticmethod
     def can_handle(url):
         if not url.startswith('file://'):
-            log.debug("able to handle %s? no, not starting with file://" % url)
+            logger.debug("able to handle %s? no, not starting with file://" % url)
             return False
         path = url2path(url)
         if not h5py.is_hdf5(path):
-            log.debug("able to handle %s? no, not hdf5 file" % url)
+            logger.debug("able to handle %s? no, not hdf5 file" % url)
             return False
-        log.debug("able to handle %s? yes" % url)
+        logger.debug("able to handle %s? yes" % url)
         return True
 
     def __init__(self, url):
@@ -213,10 +211,10 @@ class HDF5Dataset(compass_model.Array):
 
     def is_plottable(self):
         if self.dtype.kind == 'S':
-            log.debug("Not plottable since ASCII String (characters: %d)" % self.dtype.itemsize)
+            logger.debug("Not plottable since ASCII String (characters: %d)" % self.dtype.itemsize)
             return False
         if self.dtype.kind == 'U':
-            log.debug("Not plottable since Unicode String (characters: %d)" % self.dtype.itemsize)
+            logger.debug("Not plottable since Unicode String (characters: %d)" % self.dtype.itemsize)
             return False
         return True
 
@@ -321,7 +319,7 @@ class HDF5KV(compass_model.KeyValue):
 
     @property
     def keys(self):
-        return self._names[:]
+        return self._names
 
     def __getitem__(self, name):
         return self._obj.attrs[name]

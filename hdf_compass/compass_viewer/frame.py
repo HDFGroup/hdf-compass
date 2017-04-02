@@ -17,8 +17,6 @@ displayed by HDFCompass.
 Much of the common functionality (e.g. "Open File..." menu item) is implemented
 here.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 import os
 from datetime import date
@@ -27,9 +25,9 @@ import wx
 import wx.richtext as rtc
 from wx.lib.pubsub import pub
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
-from .info import InfoPanel
+from hdf_compass.compass_viewer.info import InfoPanel
 
 ID_OPEN_RESOURCE = wx.NewId()
 ID_CLOSE_FILE = wx.NewId()
@@ -69,14 +67,14 @@ class BaseFrame(wx.Frame):
         wx.Frame.__init__(self, None, **kwds)
 
         BaseFrame.open_frames += 1
-        log.debug("new frame -> open frames: %s" % BaseFrame.open_frames)
+        logger.debug("new frame -> open frames: %s" % BaseFrame.open_frames)
 
         # Frame icon
         ib = wx.IconBundle()
-        icon_32 = wx.EmptyIcon()
+        icon_32 = wx.Icon()
         icon_32.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "favicon_32.png"), wx.BITMAP_TYPE_ANY))
         ib.AddIcon(icon_32)
-        icon_48 = wx.EmptyIcon()
+        icon_48 = wx.Icon()
         icon_48.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "favicon_48.png"), wx.BITMAP_TYPE_ANY))
         ib.AddIcon(icon_48)
         self.SetIcons(ib)
@@ -86,7 +84,7 @@ class BaseFrame(wx.Frame):
             import ctypes
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('HDFCompass')
         self.urlhistory = wx.FileHistory(MAX_RECENT_FILES)
-        self.config = wx.Config("HDFCompass", style=wx.CONFIG_USE_LOCAL_FILE)
+        self.config = wx.Config("HDFCompass")
         self.urlhistory.Load(self.config)
         menubar = wx.MenuBar()
 
@@ -100,7 +98,7 @@ class BaseFrame(wx.Frame):
 
         fm.Append(wx.ID_OPEN, "&Open...\tCtrl-O")
         fm.Append(ID_OPEN_RESOURCE, "Open &Resource...\tCtrl-R")
-        fm.AppendMenu(wx.ID_ANY, "O&pen Recent", recent)
+        fm.Append(wx.ID_ANY, "O&pen Recent", recent)
 
         fm.AppendSeparator()
 
@@ -134,15 +132,15 @@ class BaseFrame(wx.Frame):
     def on_close(self, evt):
         """ Called on frame closing """
         BaseFrame.open_frames -= 1
-        log.debug("close frame -> open frames: %s" % BaseFrame.open_frames)
+        logger.debug("close frame -> open frames: %s" % BaseFrame.open_frames)
         self.Destroy()
         if isinstance(self, InitFrame):
             self.on_exit(evt)
 
     def on_exit(self, evt):
         """ Called on "exit" event from the menu """
-        log.debug("exit app -> closing all open frames: %s" % BaseFrame.open_frames)
-        wx.GetApp().Exit()
+        logger.debug("exit app -> closing all open frames: %s" % BaseFrame.open_frames)
+        wx.Exit()
 
     def on_manual(self, evt):
         """ Open the url with the online documentation """
@@ -156,14 +154,14 @@ class BaseFrame(wx.Frame):
 
     def on_about(self, evt):
         """ Display an "About" dialog """
-        info = wx.AboutDialogInfo()
+        info = wx.adv.AboutDialogInfo()
         info.Name = "HDF Compass"
         info.Version = __version__
         info.Copyright = "(c) 2014-%d The HDF Group" % date.today().year
-        icon_48 = wx.EmptyIcon()
+        icon_48 = wx.Icon()
         icon_48.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "favicon_48.png"), wx.BITMAP_TYPE_ANY))
         info.SetIcon(icon_48)
-        wx.AboutBox(info)
+        wx.adv.AboutBox(info)
 
     def on_file_open(self, evt):
         """ Request to open a file via the Open entry in the File menu """
@@ -350,9 +348,8 @@ class NodeFrame(BaseFrame):
         if self.__view is None:
             self.__sizer.Add(window, 1, wx.EXPAND)
         else:
-            self.__sizer.Remove(self.__view)
+            self.__sizer.Replace(self.__view, window)
             self.__view.Destroy()
-            self.__sizer.Add(window, 1, wx.EXPAND)
         self.__view = window
         self.Layout()
 
@@ -407,8 +404,9 @@ class NodeFrame(BaseFrame):
 
     def on_notification_closefile(self):
         """ Pubsub notification that a file (any file) has been closed """
-        if not self.node.store.valid:
-            self.Destroy()
+        # if not self.node.store.valid:
+        #     self.Destroy()
+        pass
 
     def on_close_evt(self, evt):
         """ Window is about to be closed """
@@ -434,7 +432,7 @@ class NodeFrame(BaseFrame):
         # The requested Node subclass to instantiate.
         h = self._menu_handlers[id_]
 
-        log.debug('opening: %s %s' % (node_being_opened.store, node_being_opened.key))
+        logger.debug('opening: %s %s' % (node_being_opened.store, node_being_opened.key))
         # Brand new Node instance of the requested type
         node_new = h(node_being_opened.store, node_being_opened.key)
 
@@ -457,10 +455,10 @@ class PluginInfoFrame(wx.Frame):
 
         # Frame icon
         ib = wx.IconBundle()
-        icon_32 = wx.EmptyIcon()
+        icon_32 = wx.Icon()
         icon_32.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "favicon_32.png"), wx.BITMAP_TYPE_ANY))
         ib.AddIcon(icon_32)
-        icon_48 = wx.EmptyIcon()
+        icon_48 = wx.Icon()
         icon_48.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "favicon_48.png"), wx.BITMAP_TYPE_ANY))
         ib.AddIcon(icon_48)
         self.SetIcons(ib)
@@ -502,7 +500,7 @@ class PluginInfoFrame(wx.Frame):
 
             except NotImplementedError:
                 # skip not implemented plugin name/description
-                log.debug("Not implemented name/description for %s" % store)
+                logger.debug("Not implemented name/description for %s" % store)
 
         sizer = wx.BoxSizer()
         sizer.Add(nb, 1, wx.ALL | wx.EXPAND, 3)

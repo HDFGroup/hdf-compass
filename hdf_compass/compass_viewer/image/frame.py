@@ -13,15 +13,13 @@
 """
 Implements a simple true-color image viewer.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import wx
 import wx.grid
 
 import logging
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
-from ..frame import NodeFrame
+from hdf_compass.compass_viewer.frame import NodeFrame
 
 
 class ImageFrame(NodeFrame):

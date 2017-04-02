@@ -389,9 +389,9 @@ def createBaseDataType(typeItem):
         if 'base' not in typeItem:
             raise KeyError("'base' not provided") 
         if typeItem['base'] == 'H5T_STD_REF_OBJ':
-        	dtRet = special_dtype(ref=Reference)
+            dtRet = special_dtype(ref=Reference)
         elif typeItem['base'] == 'H5T_STD_REF_DSETREG':
-        	dtRet = special_dtype(ref=RegionReference)
+            dtRet = special_dtype(ref=RegionReference)
         else:
             raise TypeError("Invalid base type for reference type")
         
@@ -411,8 +411,7 @@ def createDataType(typeItem):
         
     if type(typeItem) != dict:
         raise TypeError("invalid type")
-        
-        
+
     if 'class' not in typeItem:
         raise KeyError("'class' not provided")
     typeClass = typeItem['class']
@@ -450,9 +449,3 @@ def createDataType(typeItem):
     else:
         dtRet = createBaseDataType(typeItem)  # create non-compound dt
     return dtRet
-        
-                
-    
-        
-            
-   
