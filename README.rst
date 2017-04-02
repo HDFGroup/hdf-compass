@@ -13,8 +13,8 @@ HDF Compass
     :target: http://hdf-compass.readthedocs.org/en/latest/?badge=latest
     :alt: Latest Documentation Status
     
-.. image:: https://ci.appveyor.com/api/projects/status/tfg350xo8t7h70ix?svg=true
-    :target: https://ci.appveyor.com/project/giumas/hdf-compass
+.. image:: https://ci.appveyor.com/api/projects/status/1vhkbqf921f1cwod/branch/py3?svg=true
+    :target: https://ci.appveyor.com/project/giumas/hdf-compass-8fj8h
     :alt: AppVeyor Status
 
 .. image:: https://travis-ci.org/giumas/hdf-compass.svg?branch=develop
