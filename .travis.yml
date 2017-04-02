@@ -17,7 +17,7 @@ env:
 
 matrix:
   allow_failures:
-  - os: osx
+  - os: linux  # because of wx Phoenix
 
 cache:
   apt: true
