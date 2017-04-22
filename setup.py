@@ -98,7 +98,7 @@ setup_args['install_requires'] =\
 setup_args['extras_require'] =\
     {
         "GeoNodes": ["cartopy[plotting]", ],  # required for visualization of GeoArray and GeoSurface nodes
-        "BAG": ["hydroffice.bag", ],  # required by BAG plugin
+        "BAG": ["hyo.bag", ],  # required by BAG plugin
         "OpenDAP": ["pydap>=3.2", ],  # required by OpenDAP plugin, there is an issue
                                       # with pydap 3.2: https://github.com/pydap/pydap/issues/66
         "ADIOS": ["adios>=1.9.1b19", ],  # required by ADIOS plugin

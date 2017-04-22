@@ -42,7 +42,7 @@ install:
 
   # Install dependencies
   - conda install -q h5py lxml numpy matplotlib pydap requests shapely proj4 geos cartopy setuptools gdal
-  - pip install --no-dependencies hydroffice.bag
+  - pip install --no-deps hyo.bag
   - pip install wxPython
 
   # Add to path the current folder
@@ -61,6 +61,7 @@ test_script:
 
 after_test:
     # If tests are successful, create a whl package for the project.
+    - pip install --no-deps -e .
     - python setup.py bdist_wheel
     # Freeze the application using PyInstaller
     # - pyinstaller freeze/HDFCompass.1file.spec
