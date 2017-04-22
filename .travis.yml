@@ -71,12 +71,8 @@ install:
   - conda config --add channels conda-forge
   # python packages
   - conda install -q h5py lxml numpy matplotlib pydap requests shapely proj4 geos cartopy setuptools gdal
-  - pip install --no-deps hyo.bag
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      pip install --no-deps 'https://wxpython.org/Phoenix/snapshot-builds/wxPython_Phoenix-3.0.3.dev2832+e3fbb9f-cp36-cp36m-macosx_10_6_intel.whl';
-    else
-      pip install --no-deps 'https://wxpython.org/Phoenix/snapshot-builds/wxPython_Phoenix-3.0.3.dev2832+e3fbb9f.tar.gz';
-    fi
+  - pip install --no-deps hydroffice.bag
+  - pip install wxPython
 #  - pip install --no-deps 'git+https://github.com/ornladios/ADIOS.git#egg=adios&subdirectory=wrappers/numpy'
   - pip install --no-deps -e .
 

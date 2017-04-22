@@ -19,12 +19,8 @@ https://github.com/pypa/sampleproject
 Run `python setup.py --help-commands` for available options
 """
 
-from __future__ import absolute_import, division, print_function  # unicode_literals
-
 import os
 import sys
-# To use a consistent encoding
-from codecs import open
 
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
@@ -50,7 +46,7 @@ setup_args = dict()
 
 setup_args['name'] = 'hdf_compass'
 # The adopted versioning scheme follow PEP40
-setup_args['version'] = '0.7.0b2'
+setup_args['version'] = '0.7.b3'
 setup_args['url'] = 'https://github.com/HDFGroup/hdf-compass/'
 setup_args['license'] = 'BSD-like license'
 setup_args['author'] = 'HDFGroup'
@@ -72,10 +68,9 @@ setup_args['classifiers'] = \
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
-        # 'Programming Language :: Python :: 3',
-        # 'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Scientific/Engineering :: Information Analysis',
         'Topic :: Office/Business :: Office Suites',
         'Topic :: Utilities'
@@ -95,15 +90,15 @@ setup_args['setup_requires'] =\
 setup_args['install_requires'] =\
     [
         "numpy",
-        "matplotlib>=1.5",
+        "matplotlib",
         "h5py",
-        "wxPython-Phoenix",
+        "wxPython",
         "requests"
     ]
 setup_args['extras_require'] =\
     {
         "GeoNodes": ["cartopy[plotting]", ],  # required for visualization of GeoArray and GeoSurface nodes
-        "BAG": ["hyo.bag>=0.5.0", ],  # required by BAG plugin
+        "BAG": ["hydroffice.bag", ],  # required by BAG plugin
         "OpenDAP": ["pydap>=3.2", ],  # required by OpenDAP plugin, there is an issue
                                       # with pydap 3.2: https://github.com/pydap/pydap/issues/66
         "ADIOS": ["adios>=1.9.1b19", ],  # required by ADIOS plugin

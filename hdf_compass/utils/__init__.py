@@ -17,4 +17,4 @@ logger.addHandler(logging.NullHandler())
 from hdf_compass.utils.utils import is_darwin, is_win, is_linux, url2path, path2url, data_url
 
 
-__version__ = "0.7.0b2"
+__version__ = "0.7.b3"

@@ -2,8 +2,6 @@
 Download additional data files from AWS
 """
 
-from __future__ import absolute_import, division, print_function
-
 import os.path
 try:
     import wget

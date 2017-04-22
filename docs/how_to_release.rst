@@ -10,7 +10,6 @@ The following files need to be update for each new release:
 - HDFCompass.1folder.spec
 - setup.cfg
 - setup.py
-- setup.py2app.py
 - spec.json
 - docs/conf.py
 - hdf_compass/utils/__init__.py
