@@ -178,4 +178,4 @@ class XmlFrame(NodeFrame):
         # save the current contents in the file
         # this can be done with e.g. wxPython output streams:
         with open(save_file_dialog.GetPath(), 'w') as fod:
-            fod.write(self.node.text)
+            fod.write(self.node.text.decode())

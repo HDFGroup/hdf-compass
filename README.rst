@@ -48,7 +48,7 @@ You will need:
 * `wxPython Phoenix 3.0.3 <https://github.com/wxWidgets/Phoenix>`_ *( `>= 3.0.4 or latest snapshot <https://wxpython.org/Phoenix/snapshot-builds/>`_ )*
 * `Cartopy <https://github.com/SciTools/cartopy>`_
 * `h5py <https://github.com/h5py/h5py>`_ *[HDF plugin]*
-* `hydroffice.bag <https://bitbucket.org/ccomjhc/hyo_bag>`_ *[BAG plugin]*
+* `hyo.bag <https://bitbucket.org/ccomjhc/hyo_bag>`_ *[BAG plugin]*
 * `Pydap <https://github.com/robertodealmeida/pydap>`_ *[OPeNDAP plugin]* (>=3.3)
 * `Requests <https://github.com/kennethreitz/requests>`_ *[HDF Rest API plugin]*
 * `adios <https://github.com/ornladios/ADIOS>`_ *[ADIOS Plugin]* (Linux/OSX only)

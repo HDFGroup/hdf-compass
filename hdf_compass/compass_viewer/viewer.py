@@ -212,9 +212,9 @@ def load_plugins():
 
     try:
         from hdf_compass import bag_model
-        from hydroffice import bag
+        from hyo import bag
         from lxml import etree
-        logger.debug("hydroffice.bag %s" % bag.__version__)
+        logger.debug("hyo.bag %s" % bag.__version__)
         logger.debug("lxml %s (libxml %s, libxslt %s)"
                      % (etree.__version__, ".".join(str(i) for i in etree.LIBXML_VERSION),
                         ".".join(str(i) for i in etree.LIBXSLT_VERSION)))

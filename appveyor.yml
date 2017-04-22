@@ -42,7 +42,7 @@ install:
 
   # Install dependencies
   - conda install -q h5py lxml numpy matplotlib pydap requests shapely proj4 geos cartopy setuptools gdal
-  - pip install --no-dependencies hydroffice.bag
+  - pip install --no-dependencies hyo.bag
   - pip install --no-dependencies https://wxpython.org/Phoenix/snapshot-builds/wxPython_Phoenix-3.0.3.dev2832+e3fbb9f-cp36-cp36m-win_amd64.whl
 
   # Add to path the current folder

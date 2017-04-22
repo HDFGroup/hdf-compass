@@ -143,7 +143,8 @@ class XmlStc(stc.StyledTextCtrl):
         self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_VLINE, "white", "black")
         self.MarkerDefine(stc.STC_MARKNUM_FOLDER, stc.STC_MARK_BOXPLUS, "white", "#cccccc")
         self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN, stc.STC_MARK_BOXMINUS, "white", "black")
-        stc.EVT_STC_MARGINCLICK(self, -1, self.on_margin_click)
+
+        self.Bind(stc.EVT_STC_MARGINCLICK, self.on_margin_click)
 
         self.SetText(xml_string)
         self.SetEditable(False)
