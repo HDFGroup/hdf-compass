@@ -91,12 +91,10 @@ def get_stores():
 icon_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), 'icons'))
 
 
-class Store(object):
+class Store(object, metaclass=ABCMeta):
     """
     Represents a data store (i.e. a file or remote resource).
     """
-
-    __metaclass__ = ABCMeta
 
     # -------------------------------------------------------------------------
     # Plugin support
@@ -164,7 +162,8 @@ class Store(object):
     # file kinds to lists of extensions, e.g. {'HDF5 File': ['*.hdf5', '*.h5']}
     file_extensions = {}
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def url(self):
         """ Identifies the file or Web resource (string).
 
@@ -173,7 +172,8 @@ class Store(object):
         """
         raise NotImplementedError
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def display_name(self):
         """ Short name for display purposes.
 
@@ -182,7 +182,8 @@ class Store(object):
         """
         raise NotImplementedError
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def root(self):
         """ The root node.
 
@@ -200,7 +201,8 @@ class Store(object):
         """
         raise NotImplementedError
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def valid(self):
         """ True if the store is open and ready for use, False otherwise.
         """
@@ -229,7 +231,7 @@ class Store(object):
         pass
 
 
-class Node(object):
+class Node(object, metaclass=ABCMeta):
     """
     Base class for all objects which live in a data store.
 
@@ -238,14 +240,11 @@ class Node(object):
     do anything interesting in the GUI; all they do is show up in the browser.
     """
 
-    __metaclass__ = ABCMeta
-
     # Class attribute containing a dict for icon support.
     # Keys should be paths to icon files.
     # Example:      icons = {16: png_16, 32: png_32}
 
     icons = NotImplemented
-
 
     # A short string (2 or 3 words) describing what the class represents.
     # This will show up in e.g. the "Open As" context menu.
@@ -304,14 +303,12 @@ class Node(object):
         return None
 
 
-class Container(Node):
+class Container(Node, metaclass=ABCMeta):
     """
     Represents an object which holds other objects (like an HDF5 group).
 
     Subclasses will be displayed using the browser view.
     """
-
-    __metaclass__ = ABCMeta
 
     icons = {16:    os.path.join(icon_folder, "folder_16.png"),
              64:    os.path.join(icon_folder, "folder_64.png")}
@@ -335,7 +332,7 @@ class Container(Node):
         raise NotImplementedError
 
 
-class KeyValue(Node):
+class KeyValue(Node, metaclass=ABCMeta):
     """
     Represents an object which contains a sequence of key: value attributes.
 
@@ -343,8 +340,6 @@ class KeyValue(Node):
 
     Subclasses will be displayed using a list-like control.
     """
-
-    __metaclass__ = ABCMeta
 
     icons = {16:    os.path.join(icon_folder, "kv_16.png"),
              64:    os.path.join(icon_folder, "kv_64.png")}
@@ -359,14 +354,12 @@ class KeyValue(Node):
         raise NotImplementedError
 
 
-class Array(Node):
+class Array(Node, metaclass=ABCMeta):
     """
     Represents a NumPy-style regular, rectangular array.
 
     Subclasses will be displayed in a spreadsheet-style viewer.
     """
-
-    __metaclass__ = ABCMeta
 
     icons = {16:    os.path.join(icon_folder, "array_16.png"),
              64:    os.path.join(icon_folder, "array_64.png")}
@@ -390,10 +383,8 @@ class Array(Node):
         return True
 
 
-class GeoArray(Node):
+class GeoArray(Node, metaclass=ABCMeta):
     """ Represents a NumPy-style regular, rectangular array with a known geographic extent. """
-
-    __metaclass__ = ABCMeta
 
     icons = {16:    os.path.join(icon_folder, "array_16.png"),
              64:    os.path.join(icon_folder, "array_64.png")}
@@ -422,10 +413,8 @@ class GeoArray(Node):
         return True
 
 
-class GeoSurface(Node):
+class GeoSurface(Node, metaclass=ABCMeta):
     """ Represents a NumPy-style regular, rectangular surface with a known geographic extent. """
-
-    __metaclass__ = ABCMeta
 
     icons = {16:    os.path.join(icon_folder, "array_16.png"),
              64:    os.path.join(icon_folder, "array_64.png")}
@@ -449,10 +438,8 @@ class GeoSurface(Node):
         return True
 
 
-class Image(Node):
+class Image(Node, metaclass=ABCMeta):
     """ A single raster image. """
-
-    __metaclass__ = ABCMeta
 
     icons = {16:    os.path.join(icon_folder, "image_16.png"),
              64:    os.path.join(icon_folder, "image_64.png")}
@@ -477,10 +464,8 @@ class Image(Node):
         """ Image data """
 
 
-class Text(Node):
+class Text(Node, metaclass=ABCMeta):
     """ A text. """
-
-    __metaclass__ = ABCMeta
 
     icons = {16:    os.path.join(icon_folder, "text_16.png"),
              64:    os.path.join(icon_folder, "text_64.png")}
@@ -490,10 +475,8 @@ class Text(Node):
         """ Text data """
 
 
-class Xml(Text):
+class Xml(Text, metaclass=ABCMeta):
     """ A XML text. """
-
-    __metaclass__ = ABCMeta
 
     icons = {16:    os.path.join(icon_folder, "xml_16.png"),
              64:    os.path.join(icon_folder, "xml_64.png")}
