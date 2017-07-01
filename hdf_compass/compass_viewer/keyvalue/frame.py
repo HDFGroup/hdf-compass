@@ -64,7 +64,7 @@ class KeyValueList(wx.ListCtrl):
         self.InsertColumn(2, "Type")
         self.InsertColumn(3, "Shape")
 
-        names = node.keys
+        names = list(node.keys)
         values = [self.node[n] for n in names]
 
         def itemtext(item, col_id):
@@ -88,9 +88,9 @@ class KeyValueList(wx.ListCtrl):
             return text
 
         for n in names:
-            row = self.InsertStringItem(9999, n)
+            row = self.InsertItem(9999, n)
             for col in range(1, 4):
-                self.SetStringItem(row, col, itemtext(row, col))
+                self.SetItem(row, col, itemtext(row, col))
 
         self.SetColumnWidth(0, 200)
         self.SetColumnWidth(1, wx.LIST_AUTOSIZE)
