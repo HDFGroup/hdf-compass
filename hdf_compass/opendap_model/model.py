@@ -14,7 +14,6 @@ import posixpath as pp
 import numpy as np
 import pydap as dap
 from pydap.client import open_url
-from pydap.proxy import ArrayProxy
 
 import logging
 logger = logging.getLogger(__name__)
@@ -209,8 +208,6 @@ class Base(compass_model.Array):
         return np.dtype(self._dtype.typecode)
 
     def __getitem__(self, index):
-        if self._data is None:
-            self._data = ArrayProxy(self._id, self._url, self._shape)[:]
         return self._data[index]
 
     @staticmethod
@@ -229,8 +226,7 @@ class Base(compass_model.Array):
         self._shape = new_dset[new_key].shape
         self._dtype = new_dset[new_key].type
         self._name = new_dset[new_key].name
-
-        self._data = None
+        self._data = new_dset[new_key].data
 
     @property
     def key(self):
