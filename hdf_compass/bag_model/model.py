@@ -15,7 +15,6 @@
 Implementation of compass_model classes for BAG files.
 """
 from itertools import groupby
-import sys
 import os.path as op
 import posixpath as pp
 import h5py
@@ -93,6 +92,7 @@ class BAGStore(compass_model.Store):
         return True
 
     def __init__(self, url):
+        super().__init__(url=url)
         if not self.can_handle(url):
             raise ValueError(url)
         self._url = url
@@ -129,12 +129,14 @@ class BAGGroup(compass_model.Container):
             self._xnames = list(self._group)
 
             # Natural sort is expensive
+            # noinspection PyTypeChecker
             if len(self._xnames) < 1000:
                 self._xnames.sort(key=sort_key)
 
         return self._xnames
 
     def __init__(self, store, key):
+        super().__init__(store=store, key=key)
         self._store = store
         self._key = key
         self._group = store.f[key]
@@ -167,6 +169,7 @@ class BAGGroup(compass_model.Container):
         return len(self._group)
 
     def __iter__(self):
+        # noinspection PyTypeChecker
         for name in self._names:
             yield self.store[pp.join(self.key, name)]
 
@@ -192,12 +195,14 @@ class BAGRoot(compass_model.Container):
             self._xnames = list(self._group)
 
             # Natural sort is expensive
+            # noinspection PyTypeChecker
             if len(self._xnames) < 1000:
                 self._xnames.sort(key=sort_key)
 
         return self._xnames
 
     def __init__(self, store, key):
+        super().__init__(store=store, key=key)
         self._store = store
         self._key = key
         self._group = store.f[key]
@@ -228,6 +233,7 @@ class BAGRoot(compass_model.Container):
         return len(self._group)
 
     def __iter__(self):
+        # noinspection PyTypeChecker
         for name in self._names:
             yield self.store[pp.join(self.key, name)]
 
@@ -245,6 +251,7 @@ class BAGDataset(compass_model.Array):
         return key in store and isinstance(store.f[key], h5py.Dataset)
 
     def __init__(self, store, key):
+        super().__init__(store=store, key=key)
         self._store = store
         self._key = key
         self._dset = store.f[key]
@@ -295,6 +302,7 @@ class BAGElevationArray(compass_model.Array):
         return (key == "/BAG_root/elevation") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
 
     def __init__(self, store, key):
+        super().__init__(store=store, key=key)
         self._store = store
         self._key = key
         self._dset = store.f.elevation(mask_nan=True)
@@ -341,6 +349,7 @@ class BAGElevationGeoArray(compass_model.GeoArray):
         return (key == "/BAG_root/elevation") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
 
     def __init__(self, store, key):
+        super().__init__(store=store, key=key)
         self._store = store
         self._key = key
         self._dset = store.f.elevation(mask_nan=True)
@@ -398,6 +407,7 @@ class BAGElevation(compass_model.GeoSurface):
         return (key == "/BAG_root/elevation") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
 
     def __init__(self, store, key):
+        super().__init__(store=store, key=key)
         self._store = store
         self._key = key
         self._dset = store.f.elevation(mask_nan=True)
@@ -436,47 +446,6 @@ class BAGElevation(compass_model.GeoSurface):
         return self._dset[args]
 
 
-class BAGUncertaintyArray(compass_model.Array):
-    """ Represents an uncertainty array. """
-    class_kind = "BAG Uncertainty [array]"
-
-    @staticmethod
-    def can_handle(store, key):
-        return (key == "/BAG_root/uncertainty") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
-
-    def __init__(self, store, key):
-        self._store = store
-        self._key = key
-        self._dset = store.f.uncertainty(mask_nan=True)
-
-    @property
-    def key(self):
-        return self._key
-
-    @property
-    def store(self):
-        return self._store
-
-    @property
-    def display_name(self):
-        return pp.basename(self.key)
-
-    @property
-    def description(self):
-        return 'Dataset "%s"' % (self.display_name,)
-
-    @property
-    def shape(self):
-        return self._dset.shape
-
-    @property
-    def dtype(self):
-        return self._dset.dtype
-
-    def __getitem__(self, args):
-        return self._dset[args]
-
-
 class BAGTrackinList(compass_model.Array):
     """ Represents a BAG tracking list. """
     class_kind = "BAG Tracking List"
@@ -486,6 +455,7 @@ class BAGTrackinList(compass_model.Array):
         return (key == "/BAG_root/tracking_list") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
 
     def __init__(self, store, key):
+        super().__init__(store=store, key=key)
         self._store = store
         self._key = key
         self._dset = store.f.tracking_list()
@@ -527,6 +497,7 @@ class BAGMetadataRaw(compass_model.Array):
         return (key == "/BAG_root/metadata") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
 
     def __init__(self, store, key):
+        super().__init__(store=store, key=key)
         self._store = store
         self._key = key
         self._dset = store.f.metadata(as_string=False, as_pretty_xml=False)
@@ -578,6 +549,7 @@ class BAGMetadataText(compass_model.Text):
         return (key == "/BAG_root/metadata") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
 
     def __init__(self, store, key):
+        super().__init__(store=store, key=key)
         self._store = store
         self._key = key
         try:
@@ -621,6 +593,7 @@ class BAGMetadataXml(compass_model.Xml):
         return True
 
     def __init__(self, store, key):
+        super().__init__(store=store, key=key)
         self._store = store
         self._key = key
         try:
@@ -664,6 +637,7 @@ class BAGUncertaintyArray(compass_model.Array):
         return (key == "/BAG_root/uncertainty") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
 
     def __init__(self, store, key):
+        super().__init__(store=store, key=key)
         self._store = store
         self._key = key
         self._dset = store.f.uncertainty(mask_nan=True)
@@ -710,6 +684,7 @@ class BAGUncertainty(compass_model.GeoArray):
         return (key == "/BAG_root/uncertainty") and (key in store) and (isinstance(store.f[key], h5py.Dataset))
 
     def __init__(self, store, key):
+        super().__init__(store=store, key=key)
         self._store = store
         self._key = key
         self._dset = store.f.uncertainty(mask_nan=True)
@@ -757,7 +732,8 @@ class BAGKV(compass_model.KeyValue):
         return key in store.f
 
     def __init__(self, store, key):
-        logger.debug("init")
+        super().__init__(store=store, key=key)
+        # logger.debug("init")
         self._store = store
         self._key = key
         self._obj = store.f[key]
@@ -806,6 +782,7 @@ class BAGImage(compass_model.Image):
         return True
 
     def __init__(self, store, key):
+        super().__init__(store=store, key=key)
         logger.debug("init")
         self._store = store
         self._key = key

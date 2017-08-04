@@ -147,7 +147,7 @@ class GeoArrayFrame(NodeFrame):
 
             # The data is compound
             if self.node.dtype.names is not None:
-                names = [self.grid.GetColLabelValue(x) for x in xrange(self.grid.GetNumberCols())]
+                names = [self.grid.GetColLabelValue(x) for x in range(self.grid.GetNumberCols())]
                 data = [data[n] for n in names]
                 f = LinePlotFrame(data, names)
                 f.Show()
@@ -213,7 +213,7 @@ class SlicerPanel(wx.Panel):
             infotext = wx.StaticText(self, wx.ID_ANY, "Array Indexing: ")
             sizer.Add(infotext, 0, flag=wx.EXPAND | wx.ALL, border=10)
 
-            for idx in xrange(rank - visible_rank):
+            for idx in range(rank - visible_rank):
                 sc = wx.SpinCtrl(self, max=shape[idx] - 1, value="0", min=0)
                 sizer.Add(sc, 0, flag=wx.EXPAND | wx.ALL, border=10)
                 sc.Disable()

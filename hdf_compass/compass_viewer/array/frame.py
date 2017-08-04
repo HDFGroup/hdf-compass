@@ -206,7 +206,7 @@ class ArrayFrame(NodeFrame):
         else:
             # The data is compound
             if self.node.dtype.names is not None:
-                names = [self.grid.GetColLabelValue(x) for x in xrange(self.grid.GetNumberCols())]
+                names = [self.grid.GetColLabelValue(x) for x in range(self.grid.GetNumberCols())]
                 data = [data[n] for n in names]
                 return data, names, True
 
@@ -308,7 +308,7 @@ class ArrayFrame(NodeFrame):
 
         """
         l = []
-        for x in xrange(len(self.node.shape)):
+        for x in range(len(self.node.shape)):
             if x == self.row or x == self.col:
                 continue    
             l.append(x)
@@ -389,7 +389,7 @@ class SlicerPanel(wx.Panel):
             infotext = wx.StaticText(self, wx.ID_ANY, "Array Indexing: ")
             sizer.Add(infotext, 0, flag=wx.EXPAND | wx.ALL, border=10)
 
-            for idx in xrange(rank - visible_rank):
+            for idx in range(rank - visible_rank):
                 maxVal = shape[idx] - 1
                 if not hasfields:
                     maxVal = shape[self.parent.indices[idx]] - 1

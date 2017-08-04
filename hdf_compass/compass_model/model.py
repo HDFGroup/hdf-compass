@@ -212,7 +212,7 @@ class Store(object, metaclass=ABCMeta):
     def __init__(self, url):
         """ Open the resource.
         """
-        raise NotImplementedError
+        pass
 
     def close(self):
         """ Discontinue access to the resource.
@@ -260,12 +260,13 @@ class Node(object, metaclass=ABCMeta):
         """
         raise NotImplementedError
 
+    @abstractmethod
     def __init__(self, store, key):
         """ Create an instance of this class.
 
         Subclasses must not modify the signature.
         """
-        raise NotImplementedError
+        pass
 
     @property
     def key(self):

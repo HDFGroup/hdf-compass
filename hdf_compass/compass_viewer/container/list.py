@@ -182,7 +182,7 @@ class ContainerIconList(ContainerList):
         self.il = wx.GetApp().imagelists[64]
         self.SetImageList(self.il, wx.IMAGE_LIST_NORMAL)
 
-        for item in xrange(len(self.node)):
+        for item in range(len(self.node)):
             subnode = self.node[item]
             image_index = self.il.get_index(type(subnode))
             self.InsertImageStringItem(item, subnode.display_name, image_index)

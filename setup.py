@@ -46,7 +46,7 @@ setup_args = dict()
 
 setup_args['name'] = 'hdf_compass'
 # The adopted versioning scheme follow PEP40
-setup_args['version'] = '0.7.b3'
+setup_args['version'] = '0.7.b5'
 setup_args['url'] = 'https://github.com/HDFGroup/hdf-compass/'
 setup_args['license'] = 'BSD-like license'
 setup_args['author'] = 'HDFGroup'

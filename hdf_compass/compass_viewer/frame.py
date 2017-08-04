@@ -154,14 +154,15 @@ class BaseFrame(wx.Frame):
 
     def on_about(self, evt):
         """ Display an "About" dialog """
-        info = wx.adv.AboutDialogInfo()
+        from wx import adv
+        info = adv.AboutDialogInfo()
         info.Name = "HDF Compass"
         info.Version = __version__
         info.Copyright = "(c) 2014-%d The HDF Group" % date.today().year
         icon_48 = wx.Icon()
         icon_48.CopyFromBitmap(wx.Bitmap(os.path.join(self.icon_folder, "favicon_48.png"), wx.BITMAP_TYPE_ANY))
         info.SetIcon(icon_48)
-        wx.adv.AboutBox(info)
+        adv.AboutBox(info)
 
     def on_file_open(self, evt):
         """ Request to open a file via the Open entry in the File menu """
