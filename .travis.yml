@@ -15,10 +15,6 @@ env:
   matrix:
     - PYTHON_VERSION=3.6
 
-matrix:
-  allow_failures:
-  - os: linux  # because of wx Phoenix
-
 cache:
   apt: true
   brew: true
@@ -72,7 +68,11 @@ install:
   # python packages
   - conda install -q h5py lxml numpy matplotlib pydap requests shapely proj4 geos cartopy setuptools gdal
   - pip install --no-deps hyo.bag
-  - pip install wxPython
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+        pip install wxPython;
+    else
+        pip install -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-14.04 wxPython;
+    fi
 #  - pip install --no-deps 'git+https://github.com/ornladios/ADIOS.git#egg=adios&subdirectory=wrappers/numpy'
   - pip install --no-deps -e .
 
@@ -100,3 +100,8 @@ addons:
   apt:
     packages:
     - libmxml-dev
+    - libgtk-3-dev
+    - libgstreamer0.10-dev
+    - libgstreamer-plugins-base0.10-dev
+    - gir1.2-gstreamer-0.10
+    - gir1.2-gst-plugins-base-0.10
