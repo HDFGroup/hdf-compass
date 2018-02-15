@@ -13,12 +13,12 @@ HDF Compass
     :target: http://hdf-compass.readthedocs.org/en/latest/?badge=latest
     :alt: Latest Documentation Status
     
-.. image:: https://ci.appveyor.com/api/projects/status/1vhkbqf921f1cwod/branch/py3?svg=true
-    :target: https://ci.appveyor.com/project/giumas/hdf-compass-8fj8h
+.. image:: https://ci.appveyor.com/api/projects/status/57urski9r319li6o/branch/py3?svg=true
+    :target: https://ci.appveyor.com/project/giumas/hdf-compass
     :alt: AppVeyor Status
 
-.. image:: https://travis-ci.org/giumas/hdf-compass.svg?branch=develop
-    :target: https://travis-ci.org/giumas/hdf-compass
+.. image:: https://travis-ci.org/HDFGroup/hdf-compass.svg?branch=py3
+    :target: https://travis-ci.org/HDFGroup/hdf-compass/branches
     :alt: Travis-CI Status
         
 Welcome to the project!  HDF Compass is an experimental viewer program for
