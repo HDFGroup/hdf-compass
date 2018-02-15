@@ -19,6 +19,7 @@ from itertools import groupby
 import sys
 import os.path as op
 import posixpath as pp
+import six
 
 import adios
 
@@ -51,12 +52,14 @@ class ADIOSStore(compass_model.Store):
         if(self.valid):
             if(not key.startswith("/") and key != ""):
                 key = "/%s" % key
-            key = key.encode("ascii")
+            if six.PY2:
+                key = key.encode("ascii")
             keylist = self.f.var.keys()
             for k in keylist:
                 if(not k.startswith("/") and k != ""):
                     k = "/%s" % k
-                k = k.encode("ascii")
+                if six.PY2:
+                    k = k.encode("ascii")
                 if(k.startswith(key)):
                     return True
         return False
@@ -90,14 +93,19 @@ class ADIOSStore(compass_model.Store):
         return True
 
     def __init__(self, url):
+        #try:
+        self._url = url
+        path = url2path(url)
+        if six.PY2:
+            path = path.encode("ascii")
         try:
-            self._url = url
-            path = url2path(url).encode("ascii")
             self.f = adios.file(path)
             self._valid = True
         except:
+            log.debug("ADIOSStore: Init failed")
             self._valid = False
-    
+            self.f = None
+
     def close(self):
         if(self.valid):
             self.f.close()
@@ -123,8 +131,11 @@ class ADIOSGroup(compass_model.Container):
 
     @staticmethod
     def can_handle(store, key):
-        return (key in store and isinstance(store.f[key.encode("ascii")], adios.group))
- 
+        if six.PY2:
+            return (key in store and isinstance(store.f[key.encode("ascii")], adios.group))
+        else:
+            return (key in store and isinstance(store.f[key], adios.group))
+
     @property
     def _names(self):
         # Lazily build the list of names; this helps when browsing big files
@@ -186,11 +197,16 @@ class ADIOSGroup(compass_model.Container):
 
     def __iter__(self):
         for name in self._names:
-            yield self.store[pp.join(self._key, name).encode("ascii")]
+            if six.PY2:
+                yield self.store[pp.join(self._key, name).encode("ascii")]
+            else:
+                yield self.store[pp.join(self._key, name)]
 
     def __getitem__(self, idx):
         name = self._names[idx]
-        key = op.join(self._key, name).encode("ascii")
+        key = op.join(self._key, name)
+        if six.PY2:
+            key = key.encode('ascii')
         return self._store[key]
 
 
@@ -201,12 +217,17 @@ class ADIOSDataset(compass_model.Array):
 
     @staticmethod
     def can_handle(store, key):
-        return key in store and isinstance(store.f[key.encode("ascii")], adios.var)
+        if six.PY2:
+            return key in store and isinstance(store.f[key.encode("ascii")], adios.var)
+        else:
+            return key in store and isinstance(store.f[key], adios.var)
 
     def __init__(self, store, key):
         self._store = store
         self._key = key
-        self._dset = store.f[key.encode("ascii")]
+        if six.PY2:
+            key = key.encode('ascii')
+        self._dset = store.f[key]
 
     @property
     def key(self):
@@ -252,7 +273,8 @@ class ADIOSText(compass_model.Text):
 
     @staticmethod
     def can_handle(store, key):
-        key = key.encode("ascii")
+        if six.PY2:
+            key = key.encode("ascii")
         if key in store and isinstance(store.f[key], adios.var):
             if store.f[key].dtype.kind == 'S':
                 logger.debug("ASCII String (characters: %d)" % DATA[key].dtype.itemsize)
@@ -265,7 +287,9 @@ class ADIOSText(compass_model.Text):
     def __init__(self, store, key):
         self._store = store
         self._key = key
-        self.data = store.f[key.encode("ascii")]
+        if six.PY2:
+            key = key.encode("ascii")
+        self.data = store.f[key]
 
     @property
     def key(self):
@@ -299,7 +323,9 @@ class ADIOSKV(compass_model.KeyValue):
 
     def __init__(self, store, key):
         self._store = store
-        self._obj = store.f[key.encode("ascii")]
+        if six.PY2:
+            key = key.encode("ascii")
+        self._obj = store.f[key]
         if (not key.startswith("/")) and key != "":
             key = "/%s" % key
         self._key = key
@@ -327,7 +353,9 @@ class ADIOSKV(compass_model.KeyValue):
         return self._names
 
     def __getitem__(self, name):
-        a = self._obj.attrs[name.encode("ascii")]
+        if six.PY2:
+            name = name.encode("ascii")
+        a = self._obj.attrs[name]
         return a.value
 
 # Register handlers
