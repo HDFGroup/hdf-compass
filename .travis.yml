@@ -81,7 +81,7 @@ script:
   - "python -m unittest hdf_compass.asc_model.test"
 #  - "python -m unittest hdf_compass.bag_model.test"
   - "python -m unittest hdf_compass.filesystem_model.test"
-#  - "python -m unittest hdf_compass.hdf5_model.test"
+  - "python -m unittest hdf_compass.hdf5_model.test"
 #  - "python -m unittest hdf_compass.opendap_model.test"
   - "python -m unittest hdf_compass.adios_model.test"
 
