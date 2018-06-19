@@ -225,7 +225,7 @@ class ArrayFrame(NodeFrame):
     def on_plot(self, evt):
         """ User has chosen to plot the current selection """
         data, names, line = self.get_selected_data()
-        if data != None:
+        if data is not None:
             if line:
                 f = LinePlotFrame(data, names)
                 f.Show()
