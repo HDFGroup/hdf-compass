@@ -45,7 +45,7 @@ You will need:
 * `Python 3.6 <https://www.python.org/downloads/>`_
 * `NumPy <https://github.com/numpy/numpy>`_
 * `Matplotlib <https://github.com/matplotlib/matplotlib>`_
-* `wxPython Phoenix 3.0.3 <https://github.com/wxWidgets/Phoenix>`_ *( `>= 3.0.4 or latest snapshot <https://wxpython.org/Phoenix/snapshot-builds/>`_ )*
+* `wxPython Phoenix 4.0.0+ <https://github.com/wxWidgets/Phoenix>`_ (`PyPI <https://pypi.python.org/pypi/wxPython>`_ and `extra wheels for Linux <https://wxpython.org/pages/downloads/>`_)
 * `Cartopy <https://github.com/SciTools/cartopy>`_
 * `h5py <https://github.com/h5py/h5py>`_ *[HDF plugin]*
 * `hyo.bag <https://bitbucket.org/ccomjhc/hyo_bag>`_ *[BAG plugin]*
