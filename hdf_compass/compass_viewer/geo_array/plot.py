@@ -95,6 +95,13 @@ class ContourPlotFrame(PlotFrame):
     def __init__(self, data, extent, names=None, title="Contour Map"):
         self.geo_extent = extent
         logger.debug("Extent: %f, %f, %f, %f" % self.geo_extent)
+        if (self.geo_extent[0] > self.geo_extent[1]) or (self.geo_extent[2] > self.geo_extent[3]):
+            msg = "Invalid geographic extent! Check values:\n" \
+                  "- West: %f, East: %f\n" \
+                  "- South: %f, North: %f" % self.geo_extent
+            dlg = wx.MessageDialog(None, msg, "Geographic Bounding Box", wx.OK | wx.ICON_WARNING)
+            dlg.ShowModal()
+
         # need to be set before calling the parent (need for plotting)
         self.colormap = "jet"
         self.cb = None  # matplotlib color-bar
@@ -193,6 +200,8 @@ class ContourPlotFrame(PlotFrame):
         grl.ylabel_style = {'size': 8}
         grl.ylabels_right = False
         grl.xlabels_top = False
+
+        self.axes.set_extent(self.geo_extent, crs=ccrs.PlateCarree())
 
         if self.cb:
             self.cb.on_mappable_changed(img)

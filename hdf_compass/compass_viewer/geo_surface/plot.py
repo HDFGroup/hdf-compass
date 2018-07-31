@@ -101,6 +101,13 @@ class ContourPlotFrame(PlotFrame):
     def __init__(self, data, extent, names=None, title="Surface Map"):
         self.geo_extent = extent
         logger.debug("Extent: %f, %f, %f, %f" % self.geo_extent)
+        if (self.geo_extent[0] > self.geo_extent[1]) or (self.geo_extent[2] > self.geo_extent[3]):
+            msg = "Invalid geographic extent! Check values:\n" \
+                  "- West: %f, East: %f\n" \
+                  "- South: %f, North: %f" % self.geo_extent
+            dlg = wx.MessageDialog(None, msg, "Geographic Bounding Box", wx.OK | wx.ICON_WARNING)
+            dlg.ShowModal()
+
         # need to be set before calling the parent (need for plotting)
         self.colormap = LinearSegmentedColormap.from_list("BAG",
                                                           ["#63006c", "#2b4ef4", "#2f73ff", "#4b8af4", "#bee2bf"])
@@ -218,10 +225,10 @@ class ContourPlotFrame(PlotFrame):
             logger.debug("too big: %s x %s > subsampled to %s x %s"
                          % (self.data.shape[0], self.data.shape[1], self.surf.shape[0], self.surf.shape[1]))
 
-        self.axes.coastlines(resolution='50m', color='gray', linewidth=1)
         img = self.axes.imshow(blended_surface, origin='lower', cmap=self.colormap,
                                extent=self.geo_extent, transform=ccrs.PlateCarree())
         img.set_clim(vmin=np.nanmin(self.surf), vmax=np.nanmax(self.surf))
+        self.axes.coastlines(resolution='50m', color='gray', linewidth=1)
         # add gridlines with labels only on the left and on the bottom
         grl = self.axes.gridlines(crs=ccrs.PlateCarree(), color='gray', draw_labels=True)
         grl.xformatter = LONGITUDE_FORMATTER
@@ -230,6 +237,8 @@ class ContourPlotFrame(PlotFrame):
         grl.ylabel_style = {'size': 8}
         grl.ylabels_right = False
         grl.xlabels_top = False
+
+        self.axes.set_extent(self.geo_extent, crs=ccrs.PlateCarree())
 
         if self.cb:
             self.cb.on_mappable_changed(img)

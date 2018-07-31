@@ -37,6 +37,7 @@ def txt_read(*paths):
     with open(os.path.join(here, *paths), encoding='utf-8') as f:
         return f.read()
 
+
 # ---------------------------------------------------------------------------
 #                      Populate dictionary with settings
 # ---------------------------------------------------------------------------
@@ -46,7 +47,7 @@ setup_args = dict()
 
 setup_args['name'] = 'hdf_compass'
 # The adopted versioning scheme follow PEP40
-setup_args['version'] = '0.7.b5'
+setup_args['version'] = '0.7.b7'
 setup_args['url'] = 'https://github.com/HDFGroup/hdf-compass/'
 setup_args['license'] = 'BSD-like license'
 setup_args['author'] = 'HDFGroup'
