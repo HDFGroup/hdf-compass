@@ -73,6 +73,10 @@ build of python...".  In this case use the pythonw command:
 Note: on Mac, HDF Compass doesn't create an initial window, use the system Application
 menu to open a file or remote resource.
 
+Note: If you are using conda and see debug message like "No module anmed 'h5py'" with the h5py package installed,
+install python.app: ``$ conda install python.app``
+
+
 
 Packaging
 ---------
