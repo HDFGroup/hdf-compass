@@ -12,7 +12,7 @@
 # author: gmasetti@ccom.unh.edu                                              #
 ##############################################################################
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 
 from hdf_compass.bag_model.model import BAGStore, BAGDataset, BAGGroup, BAGImage, BAGKV
 

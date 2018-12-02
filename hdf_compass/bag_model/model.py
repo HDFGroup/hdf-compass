@@ -19,9 +19,9 @@ import os.path as op
 import posixpath as pp
 import h5py
 
-from hyo.bag import is_bag
-from hyo.bag import BAGFile
-from hyo.bag import BAGError
+from hyo2.bag import is_bag
+from hyo2.bag import BAGFile
+from hyo2.bag import BAGError
 
 from hdf_compass import compass_model
 from hdf_compass.utils import url2path

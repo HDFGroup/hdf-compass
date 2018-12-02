@@ -96,11 +96,11 @@ Compass source code.
       Original source: http://docs.h5py.org/en/latest/licenses.html
       License type: BSD-style license
 
-    HydrOffice BAG (hyo.bag)
+    HydrOffice BAG (hyo2.bag)
       Provided by: G.Masetti, B.R.Calder, and contributors
       Copyright and license information: additional_legal/hydroffice_bag_Copyrights_and_Licenses.txt
-      Original source: https://bitbucket.org/ccomjhc/hyo_bag/raw/tip/COPYING.txt
-      License type: BSD-style license
+      Original source: https://github.com/hydroffice/hyo2_bag/raw/master/COPYING
+      License type: LGPL v3 license
 
     NumPy
       Provided by: NumPy Developers

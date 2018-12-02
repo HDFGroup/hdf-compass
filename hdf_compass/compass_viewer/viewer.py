@@ -189,6 +189,11 @@ def load_plugins():
     logger.debug("numpy %s" % numpy.__version__)
     logger.debug("matplotlib %s" % matplotlib.__version__)
     logger.debug("wxPython %s" % wx.__version__)
+    try:
+        import cartopy
+        logger.debug("cartopy %s" % cartopy.__version__)
+    except ImportError:
+        logger.debug("cartopy N/A")
 
     from hdf_compass import compass_model
 
@@ -212,9 +217,9 @@ def load_plugins():
 
     try:
         from hdf_compass import bag_model
-        from hyo import bag
+        from hyo2 import bag
         from lxml import etree
-        logger.debug("hyo.bag %s" % bag.__version__)
+        logger.debug("hyo2.bag %s" % bag.__version__)
         logger.debug("lxml %s (libxml %s, libxslt %s)"
                      % (etree.__version__, ".".join(str(i) for i in etree.LIBXML_VERSION),
                         ".".join(str(i) for i in etree.LIBXSLT_VERSION)))

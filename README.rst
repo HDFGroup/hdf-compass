@@ -48,7 +48,7 @@ You will need:
 * `wxPython Phoenix 4.0.0+ <https://github.com/wxWidgets/Phoenix>`_ (`PyPI <https://pypi.python.org/pypi/wxPython>`_ and `extra wheels for Linux <https://wxpython.org/pages/downloads/>`_)
 * `Cartopy <https://github.com/SciTools/cartopy>`_
 * `h5py <https://github.com/h5py/h5py>`_ *[HDF plugin]*
-* `hyo.bag <https://bitbucket.org/ccomjhc/hyo_bag>`_ *[BAG plugin]*
+* `hyo2.bag <https://bitbucket.org/ccomjhc/hyo_bag>`_ *[BAG plugin]*
 * `Pydap <https://github.com/robertodealmeida/pydap>`_ *[OPeNDAP plugin]* (>=3.3)
 * `Requests <https://github.com/kennethreitz/requests>`_ *[HDF Rest API plugin]*
 * `adios <https://github.com/ornladios/ADIOS>`_ *[ADIOS Plugin]* (Linux/OSX only)
@@ -73,7 +73,7 @@ build of python...".  In this case use the pythonw command:
 Note: on Mac, HDF Compass doesn't create an initial window, use the system Application
 menu to open a file or remote resource.
 
-Note: If you are using conda and see debug message like "No module anmed 'h5py'" with the h5py package installed,
+Note: If you are using conda and see debug message like "No module named 'h5py'" with the h5py package installed,
 install python.app: ``$ conda install python.app``
 
 
