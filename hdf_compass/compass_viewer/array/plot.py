@@ -13,6 +13,7 @@
 """
 Matplotlib window with toolbar.
 """
+from math import ceil
 
 import numpy as np
 import wx
@@ -25,6 +26,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 from hdf_compass.compass_viewer.frame import BaseFrame
+
+ID_VIEW_INCREASE_BINS = wx.NewId()
+ID_VIEW_DECREASE_BINS = wx.NewId()
+ID_VIEW_INCREASE_OPACITY = wx.NewId()
+ID_VIEW_DECREASE_OPACITY = wx.NewId()
 
 ID_VIEW_CMAP_JET = wx.NewId()  # default
 ID_VIEW_CMAP_BONE = wx.NewId()
@@ -82,6 +88,133 @@ class LinePlotFrame(PlotFrame):
         if self.names is not None:
             for n in self.names:
                 self.axes.legend(tuple(lines), tuple(self.names))
+
+
+class HistogramPlotFrame(PlotFrame):
+    def __init__(self, data, names=None, title="Line Plot"):
+        self.names = names
+        self.bins = []
+        self.opacity = 1.0
+
+        PlotFrame.__init__(self, data, title)
+
+        self.hist_menu = wx.Menu()
+
+        self.hist_menu.Append(ID_VIEW_INCREASE_BINS,
+                              "Increase bins x10\tCtrl++")
+        self.hist_menu.Append(ID_VIEW_DECREASE_BINS,
+                              "Decrease bins x10\tCtrl+-")
+        self.hist_menu.Append(ID_VIEW_INCREASE_OPACITY,
+                              "Increase opacity\tCtrl+0")
+        self.hist_menu.Append(ID_VIEW_DECREASE_OPACITY,
+                              "Decrease opacity\tCtrl+9")
+
+        self.add_menu(self.hist_menu, "Bins")
+
+        self.Bind(wx.EVT_MENU, self.on_increase_bins, id=ID_VIEW_INCREASE_BINS)
+        self.Bind(wx.EVT_MENU, self.on_decrease_bins, id=ID_VIEW_DECREASE_BINS)
+        self.Bind(wx.EVT_MENU, self.on_increase_opacity, id=ID_VIEW_INCREASE_OPACITY)
+        self.Bind(wx.EVT_MENU, self.on_decrease_opacity, id=ID_VIEW_DECREASE_OPACITY)
+
+    def draw_figure(self):
+        for _i, d in enumerate(self.data):
+
+            # color = matplotlib.colors.to_rgb(
+            #     self.axes._get_patches_for_fill.prop_cycler)
+            self.bins.append(ceil(np.sqrt(d.size)))
+            if self.names is not None:
+                _, bins, _ = self.axes.hist(d, bins=ceil(self.bins[_i]),
+                                            label=self.names[_i],
+                                            alpha=self.opacity)
+            else:
+                _, bins, _ = self.axes.hist(d, bins=ceil(self.bins[_i]),
+                                            alpha=self.opacity)
+
+        if self.names is not None:
+            self.axes.legend()
+
+    def on_increase_bins(self, evt):
+        logger.debug("increasing bins")
+
+        self.axes.clear()
+
+        for _i, d in enumerate(self.data):
+            self.bins[_i] *= 10.0
+            if self.names is not None:
+                self.axes.hist(d, bins=ceil(self.bins[_i]),
+                               label=self.names[_i], alpha=self.opacity)
+            else:
+                self.axes.hist(d, bins=ceil(self.bins[_i]), alpha=self.opacity)
+
+        if self.names is not None:
+            self.axes.legend()
+
+        self._refresh_plot()
+
+    def on_decrease_bins(self, evt):
+        logger.debug("decreasing bins")
+
+        self.axes.clear()
+
+        for _i, d in enumerate(self.data):
+            self.bins[_i] /= 10.0
+            if self.names is not None:
+                self.axes.hist(d, bins=ceil(self.bins[_i]),
+                               label=self.names[_i], alpha=self.opacity)
+            else:
+                self.axes.hist(d, bins=ceil(self.bins[_i]), alpha=self.opacity)
+
+        if self.names is not None:
+            self.axes.legend()
+
+        self._refresh_plot()
+
+    def on_decrease_opacity(self, evt):
+        if self.opacity >= 0.2:
+            logger.debug("decreasing opacity")
+            self.opacity -= 0.1
+            self.axes.clear()
+        else:
+            logger.debug("opacity is at minimum")
+            return 0
+
+        for _i, d in enumerate(self.data):
+            if self.names is not None:
+                self.axes.hist(d, bins=ceil(self.bins[_i]),
+                               label=self.names[_i], alpha=self.opacity)
+            else:
+                self.axes.hist(d, bins=ceil(self.bins[_i]), alpha=self.opacity)
+
+        if self.names is not None:
+            self.axes.legend()
+
+        self._refresh_plot()
+
+    def on_increase_opacity(self, evt):
+        if self.opacity <= 0.9:
+            logger.debug("increasing opacity")
+            self.opacity += 0.1
+            self.axes.clear()
+        else:
+            logger.debug("opacity is at maximum")
+            return 0
+
+        for _i, d in enumerate(self.data):
+            if self.names is not None:
+                self.axes.hist(d, bins=ceil(self.bins[_i]),
+                               label=self.names[_i], alpha=self.opacity)
+            else:
+                self.axes.hist(d, bins=ceil(self.bins[_i]), alpha=self.opacity)
+
+        if self.names is not None:
+            self.axes.legend()
+
+        self._refresh_plot()
+
+    def _refresh_plot(self):
+        self.axes.relim()  # make sure all the data fits
+        self.axes.autoscale()  # auto-scale
+        self.canvas.draw()
 
 
 class ContourPlotFrame(PlotFrame):

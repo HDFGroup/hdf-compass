@@ -25,7 +25,7 @@ import numpy
 logger = logging.getLogger(__name__)
 
 from hdf_compass.compass_viewer.frame import NodeFrame
-from hdf_compass.compass_viewer.array.plot import LinePlotFrame, ContourPlotFrame
+from hdf_compass.compass_viewer.array.plot import LinePlotFrame, ContourPlotFrame, HistogramPlotFrame
 
 
 # Indicates that the slicing selection may have changed.
@@ -35,6 +35,7 @@ ArraySelectionEvent, EVT_ARRAY_SELECTED = NewCommandEvent()
 
 # Menu and button IDs
 ID_VIS_MENU_PLOT = wx.NewId()
+ID_VIS_MENU_HIST = wx.NewId()
 ID_VIS_MENU_COPY = wx.NewId()
 ID_VIS_MENU_EXPORT = wx.NewId()
 
@@ -72,7 +73,9 @@ class ArrayFrame(NodeFrame):
         vis_menu = wx.Menu()
         if self.node.is_plottable():
             vis_menu.Append(ID_VIS_MENU_PLOT, "Plot Data\tCtrl-D")
+            vis_menu.Append(ID_VIS_MENU_HIST, "Histogram\tCtrl-H")
             self.add_menu(vis_menu, "Visualize")
+
         # Initialize the toolbar
         self.init_toolbar()
 
@@ -91,6 +94,7 @@ class ArrayFrame(NodeFrame):
         self.Bind(EVT_ARRAY_SELECTED, self.on_selected)
         if self.node.is_plottable():
             self.Bind(wx.EVT_MENU, self.on_plot, id=ID_VIS_MENU_PLOT)
+            self.Bind(wx.EVT_MENU, self.on_hist, id=ID_VIS_MENU_HIST)
 
         self.Bind(wx.EVT_MENU, self.on_copy, id=ID_VIS_MENU_COPY)
         self.Bind(wx.EVT_MENU, self.on_export, id=ID_VIS_MENU_EXPORT)
@@ -105,13 +109,14 @@ class ArrayFrame(NodeFrame):
         """ Set up the toolbar at the top of the window. """
         t_size = (24, 24)
         plot_bmp = wx.Bitmap(os.path.join(self.icon_folder, "viz_plot_24.png"), wx.BITMAP_TYPE_ANY)
+        hist_bmp = wx.Bitmap(os.path.join(self.icon_folder, "viz_hist_24.png"), wx.BITMAP_TYPE_ANY)
         copy_bmp = wx.Bitmap(os.path.join(self.icon_folder, "viz_copy_24.png"), wx.BITMAP_TYPE_ANY)
         export_bmp = wx.Bitmap(os.path.join(self.icon_folder, "save_24.png"), wx.BITMAP_TYPE_ANY)
 
         self.toolbar = self.CreateToolBar(wx.TB_HORIZONTAL | wx.NO_BORDER | wx.TB_FLAT | wx.TB_TEXT)
 
         self.toolbar.SetToolBitmapSize(t_size)
-        
+
         # Rank of the underlying array
         rank = len(self.node.shape)
         if rank > 1 and self.node.dtype.fields is None:
@@ -122,13 +127,14 @@ class ArrayFrame(NodeFrame):
             self.colSpin = wx.SpinCtrl(self.toolbar, max=rank - 1, size=(55, 25), value=str(1), min=0, name="colSpin")
             self.toolbar.AddControl(self.colSpin)
             self.Bind(wx.EVT_SPINCTRL, self.on_dimSpin)
-            
+
         self.toolbar.AddStretchableSpace()
 
         self.toolbar.AddTool(ID_VIS_MENU_COPY, "Copy", copy_bmp)
         self.toolbar.AddTool(ID_VIS_MENU_EXPORT, "Export", export_bmp)
         if self.node.is_plottable():
             self.toolbar.AddTool(ID_VIS_MENU_PLOT, "Plot Data", plot_bmp)
+            self.toolbar.AddTool(ID_VIS_MENU_HIST, "Histogram", hist_bmp)
 
         self.toolbar.Realize()
 
@@ -138,7 +144,7 @@ class ArrayFrame(NodeFrame):
         for x in self.indices:
             self.slicer.set_spin_max(idx, self.node.shape[x]-1)
             idx = idx + 1
-        
+
         self.grid.ResetView()
 
     def get_selected_data(self):
@@ -153,7 +159,7 @@ class ArrayFrame(NodeFrame):
         cols = self.grid.GetSelectedCols()
         rows = self.grid.GetSelectedRows()
         rank = len(self.node.shape)
-        
+
         # Scalar data can't be line-plotted.
         if rank == 0:
             return None, None, True
@@ -197,12 +203,12 @@ class ArrayFrame(NodeFrame):
 
         # Rows in view are selected
         elif len(rows) != 0:
-            
+
             data = [data[(r,)] for r in rows]
             names = ["Row %d" % r for r in rows] if len(data) > 1 else None
             return data, names, True
-        
-        # No row or column selection.  Plot everything  
+
+        # No row or column selection.  Plot everything
         else:
             # The data is compound
             if self.node.dtype.names is not None:
@@ -232,6 +238,13 @@ class ArrayFrame(NodeFrame):
             else:
                 f = ContourPlotFrame(data)
                 f.Show()
+
+    def on_hist(self, evt):
+        """ User has chosen to plot the current selection """
+        data, names, line = self.get_selected_data()
+        if data is not None:
+            f = HistogramPlotFrame(data, names)
+            f.Show()
 
     def on_copy(self, evt):
         """ User has chosen to copy the current selection to the clipboard """
@@ -310,28 +323,28 @@ class ArrayFrame(NodeFrame):
         l = []
         for x in range(len(self.node.shape)):
             if x == self.row or x == self.col:
-                continue    
+                continue
             l.append(x)
         return tuple(l)
-        
+
     @property
     def row(self):
         """ The dimension selected for the row
         """
         return self.rowSpin.GetValue()
-        
+
     @property
     def col(self):
         """ The dimension selected for the column
         """
         return self.colSpin.GetValue()
-        
-        
+
+
     def on_dimSpin(self, evt):
         """ Dimmension Spinbox value changed; notify parent to refresh the grid. """
         pos = evt.GetPosition()
         otherSpinner = self.rowSpin
-        
+
         if evt.GetEventObject() == self.rowSpin :
             otherSpinner = self.colSpin
 
@@ -341,7 +354,7 @@ class ArrayFrame(NodeFrame):
             else:
                 pos = pos + 1
             otherSpinner.SetValue(pos)
-        
+
         wx.PostEvent(self, ArraySelectionEvent(self.GetId()))
 
 class SlicerPanel(wx.Panel):
@@ -384,7 +397,7 @@ class SlicerPanel(wx.Panel):
         visible_rank = 1 if hasfields else 2
 
         sizer = wx.BoxSizer(wx.HORIZONTAL)  # Will arrange the SpinCtrls
-                
+
         if rank > visible_rank:
             infotext = wx.StaticText(self, wx.ID_ANY, "Array Indexing: ")
             sizer.Add(infotext, 0, flag=wx.EXPAND | wx.ALL, border=10)
@@ -414,7 +427,7 @@ class SlicerPanel(wx.Panel):
 
     def set_spin_max(self, idx, max):
         self.spincontrols[idx].SetRange(0, max)
-        
+
     def on_spin(self, evt):
         """ Spinbox value changed; notify parent to refresh the grid. """
         wx.PostEvent(self, ArraySlicedEvent(self.GetId()))
@@ -434,14 +447,14 @@ class ArrayGrid(wx.grid.Grid):
 
         # Column selection is always allowed
         selmode = 2  # wx.grid.Grid.SelectColumns
-        
+
         # Row selection is forbidden for compound types, and for
         # scalar/1-D datasets
         if node.dtype.names is None and len(node.shape) > 1:
             selmode |= 1  # wx.grid.Grid.SelectRows
 
         self.SetSelectionMode(selmode)
-           
+
     def ResetView(self):
             """Trim/extend the grid if needed"""
 
@@ -465,7 +478,7 @@ class ArrayGrid(wx.grid.Grid):
                         -rowChange
                     )
                     self.ProcessTableMessage(msg)
-                    
+
                 if colChange > 0:
                     msg = wx.grid.GridTableMessage(
                         self.GetTable(),
@@ -634,7 +647,7 @@ class ArrayTable(wx.grid.GridTableBase):
                             break
                         idx = idx + 1
             args = tuple(l)
-        
+
         data = self.cache[args]
         if self.names is None:
             return "%s" % data
