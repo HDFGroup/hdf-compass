@@ -51,7 +51,7 @@ class HDF5Store(compass_model.Store):
     def plugin_description():
         return "A plugin used to browse HDF5 files."
 
-    file_extensions = {'HDF5 File': ['*.hdf5', '*.h5']}
+    file_extensions = {'HDF5 File': ['*.hdf5', '*.h5', '*.nc']}
 
     def __contains__(self, key):
         return key in self.f
@@ -267,16 +267,16 @@ class HDF5Text(compass_model.Text):
 
         if len(self.shape) == 0:
             # print(type(self.data))
-            txt += str(self.data[()])
+            txt += self.data[()].decode()
 
         elif len(self.shape) == 1:
             for el in self.data:
-                txt += el + ", \n"
+                txt += el.decode()
 
         elif len(self.shape) == 2:
             for i in range(self.shape[0]):
                 for j in range(self.shape[1]):
-                    txt += self.data[i, j] + ", "
+                    txt += self.data[i, j].decode()
                 txt += "\n"
 
         else:
