@@ -27,7 +27,7 @@ import numpy
 log = logging.getLogger(__name__)
 
 from ..frame import NodeFrame
-from .plot import LinePlotFrame, ContourPlotFrame
+from .plot import LinePlotFrame, LineXYPlotFrame, ContourPlotFrame
 
 
 # Indicates that the slicing selection may have changed.
@@ -37,6 +37,7 @@ ArraySelectionEvent, EVT_ARRAY_SELECTED = NewCommandEvent()
 
 # Menu and button IDs
 ID_VIS_MENU_PLOT = wx.NewId()
+ID_VIS_MENU_PLOTXY = wx.NewId()
 ID_VIS_MENU_COPY = wx.NewId()
 ID_VIS_MENU_EXPORT = wx.NewId()
 
@@ -72,6 +73,7 @@ class ArrayFrame(NodeFrame):
         vis_menu = wx.Menu()
         if self.node.is_plottable():
             vis_menu.Append(ID_VIS_MENU_PLOT, "Plot Data\tCtrl-D")
+            vis_menu.Append(ID_VIS_MENU_PLOTXY, "Plot XY\tCtrl-T")
             self.add_menu(vis_menu, "Visualize")
         # Initialize the toolbar
         self.init_toolbar()
@@ -91,6 +93,7 @@ class ArrayFrame(NodeFrame):
         self.Bind(EVT_ARRAY_SELECTED, self.on_selected)
         if self.node.is_plottable():
             self.Bind(wx.EVT_MENU, self.on_plot, id=ID_VIS_MENU_PLOT)
+            self.Bind(wx.EVT_MENU, self.on_plotxy, id=ID_VIS_MENU_PLOTXY)
 
         self.Bind(wx.EVT_MENU, self.on_copy, id=ID_VIS_MENU_COPY)
         self.Bind(wx.EVT_MENU, self.on_export, id=ID_VIS_MENU_EXPORT)
@@ -105,6 +108,7 @@ class ArrayFrame(NodeFrame):
         """ Set up the toolbar at the top of the window. """
         t_size = (24, 24)
         plot_bmp = wx.Bitmap(os.path.join(self.icon_folder, "viz_plot_24.png"), wx.BITMAP_TYPE_ANY)
+        plot_xy_bmp = wx.Bitmap(os.path.join(self.icon_folder, "viz_plot_xy_24.png"), wx.BITMAP_TYPE_ANY)
         copy_bmp = wx.Bitmap(os.path.join(self.icon_folder, "viz_copy_24.png"), wx.BITMAP_TYPE_ANY)
         export_bmp = wx.Bitmap(os.path.join(self.icon_folder, "save_24.png"), wx.BITMAP_TYPE_ANY)
 
@@ -131,7 +135,9 @@ class ArrayFrame(NodeFrame):
             self.toolbar.AddLabelTool(ID_VIS_MENU_PLOT, "Plot Data", plot_bmp,
                                       shortHelp="Plot data in a popup window",
                                       longHelp="Plot the array data in a popup window")
-
+            self.toolbar.AddLabelTool(ID_VIS_MENU_PLOTXY, "Plot XY", plot_xy_bmp,
+                                      shortHelp="Plot data against first row",
+                                      longHelp="Plot data against first selected row in a popup window")
         self.toolbar.Realize()
 
         
@@ -233,6 +239,14 @@ class ArrayFrame(NodeFrame):
                 f.Show()
             else:
                 f = ContourPlotFrame(data)
+                f.Show()
+
+    def on_plotxy(self, evt):
+        """ User has chosen to plot the current selection against first selected row"""
+        data, names, line = self.get_selected_data()
+        if data != None and len(data) != 1:
+            if line:
+                f = LineXYPlotFrame(data, names)
                 f.Show()
 
     def on_copy(self, evt):
