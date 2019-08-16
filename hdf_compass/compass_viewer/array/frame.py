@@ -25,7 +25,7 @@ import numpy
 logger = logging.getLogger(__name__)
 
 from hdf_compass.compass_viewer.frame import NodeFrame
-from hdf_compass.compass_viewer.array.plot import LinePlotFrame, ContourPlotFrame, HistogramPlotFrame
+from hdf_compass.compass_viewer.array.plot import LinePlotFrame, LineXYPlotFrame, ContourPlotFrame, HistogramPlotFrame
 
 
 # Indicates that the slicing selection may have changed.
@@ -35,6 +35,7 @@ ArraySelectionEvent, EVT_ARRAY_SELECTED = NewCommandEvent()
 
 # Menu and button IDs
 ID_VIS_MENU_PLOT = wx.NewId()
+ID_VIS_MENU_PLOTXY = wx.NewId()
 ID_VIS_MENU_HIST = wx.NewId()
 ID_VIS_MENU_COPY = wx.NewId()
 ID_VIS_MENU_EXPORT = wx.NewId()
@@ -74,6 +75,7 @@ class ArrayFrame(NodeFrame):
         if self.node.is_plottable():
             vis_menu.Append(ID_VIS_MENU_PLOT, "Plot Data\tCtrl-D")
             vis_menu.Append(ID_VIS_MENU_HIST, "Histogram\tCtrl-H")
+            vis_menu.Append(ID_VIS_MENU_PLOTXY, "Plot XY\tCtrl-T")
             self.add_menu(vis_menu, "Visualize")
 
         # Initialize the toolbar
@@ -95,6 +97,7 @@ class ArrayFrame(NodeFrame):
         if self.node.is_plottable():
             self.Bind(wx.EVT_MENU, self.on_plot, id=ID_VIS_MENU_PLOT)
             self.Bind(wx.EVT_MENU, self.on_hist, id=ID_VIS_MENU_HIST)
+            self.Bind(wx.EVT_MENU, self.on_plotxy, id=ID_VIS_MENU_PLOTXY)
 
         self.Bind(wx.EVT_MENU, self.on_copy, id=ID_VIS_MENU_COPY)
         self.Bind(wx.EVT_MENU, self.on_export, id=ID_VIS_MENU_EXPORT)
@@ -110,6 +113,7 @@ class ArrayFrame(NodeFrame):
         t_size = (24, 24)
         plot_bmp = wx.Bitmap(os.path.join(self.icon_folder, "viz_plot_24.png"), wx.BITMAP_TYPE_ANY)
         hist_bmp = wx.Bitmap(os.path.join(self.icon_folder, "viz_hist_24.png"), wx.BITMAP_TYPE_ANY)
+        plot_xy_bmp = wx.Bitmap(os.path.join(self.icon_folder, "viz_plot_xy_24.png"), wx.BITMAP_TYPE_ANY)
         copy_bmp = wx.Bitmap(os.path.join(self.icon_folder, "viz_copy_24.png"), wx.BITMAP_TYPE_ANY)
         export_bmp = wx.Bitmap(os.path.join(self.icon_folder, "save_24.png"), wx.BITMAP_TYPE_ANY)
 
@@ -135,6 +139,9 @@ class ArrayFrame(NodeFrame):
         if self.node.is_plottable():
             self.toolbar.AddTool(ID_VIS_MENU_PLOT, "Plot Data", plot_bmp)
             self.toolbar.AddTool(ID_VIS_MENU_HIST, "Histogram", hist_bmp)
+            self.toolbar.AddLabelTool(ID_VIS_MENU_PLOTXY, "Plot XY", plot_xy_bmp,
+                                      shortHelp="Plot data against first row",
+                                      longHelp="Plot data against first selected row in a popup window")
 
         self.toolbar.Realize()
 
@@ -231,19 +238,49 @@ class ArrayFrame(NodeFrame):
     def on_plot(self, evt):
         """ User has chosen to plot the current selection """
         data, names, line = self.get_selected_data()
-        if data is not None:
-            if line:
-                f = LinePlotFrame(data, names)
-                f.Show()
-            else:
-                f = ContourPlotFrame(data)
-                f.Show()
+        if data is None:
+            logger.info("unable to retrieve data")
+            return
+
+        if line:
+            f = LinePlotFrame(data, names)
+            f.Show()
+        else:
+            if isinstance(data, np.ndarray):
+                if (data.shape[0] < 2) or (data.shape[1] < 2):
+                    logger.info("unable to contour data for shape: %s" % (data.shape, ))
+                    return
+
+            f = ContourPlotFrame(data)
+            f.Show()
 
     def on_hist(self, evt):
         """ User has chosen to plot the current selection """
         data, names, line = self.get_selected_data()
-        if data is not None:
-            f = HistogramPlotFrame(data, names)
+        if data is None:
+            logger.info("unable to retrieve data")
+            return
+        if len(data) < 1:
+            logger.info("first select data")
+            return
+
+        logger.debug("%s %s %s" % (data.shape, names, line))
+
+        f = HistogramPlotFrame(data, names)
+        f.Show()
+
+    def on_plotxy(self, evt):
+        """ User has chosen to plot the current selection against first selected row"""
+        data, names, line = self.get_selected_data()
+
+        if data is None:
+            logger.info("unable to retrieve data")
+            return
+        if len(data) == 1:
+            logger.info("select two or more columns")
+            return
+        if line:
+            f = LineXYPlotFrame(data, names)
             f.Show()
 
     def on_copy(self, evt):

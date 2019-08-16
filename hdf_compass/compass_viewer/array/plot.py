@@ -62,6 +62,8 @@ class PlotFrame(BaseFrame):
         self.canvas = FigCanvas(self.panel, -1, self.fig)
 
         self.axes = self.fig.add_subplot(111)
+        self.axes.set_xlabel('')
+        self.axes.set_ylabel('')
         self.toolbar = NavigationToolbar(self.canvas)
 
         self.vbox = wx.BoxSizer(wx.VERTICAL)
@@ -117,12 +119,19 @@ class HistogramPlotFrame(PlotFrame):
         self.Bind(wx.EVT_MENU, self.on_decrease_opacity, id=ID_VIEW_DECREASE_OPACITY)
 
     def draw_figure(self):
+        with_labels = True
+        if self.names is None:
+            with_labels = False
+        else:
+            if len(self.names) == 0:
+                with_labels = False
+
         for _i, d in enumerate(self.data):
 
             # color = matplotlib.colors.to_rgb(
             #     self.axes._get_patches_for_fill.prop_cycler)
             self.bins.append(ceil(np.sqrt(d.size)))
-            if self.names is not None:
+            if with_labels:
                 _, bins, _ = self.axes.hist(d, bins=ceil(self.bins[_i]),
                                             label=self.names[_i],
                                             alpha=self.opacity)
@@ -130,7 +139,7 @@ class HistogramPlotFrame(PlotFrame):
                 _, bins, _ = self.axes.hist(d, bins=ceil(self.bins[_i]),
                                             alpha=self.opacity)
 
-        if self.names is not None:
+        if with_labels:
             self.axes.legend()
 
     def on_increase_bins(self, evt):
@@ -215,6 +224,23 @@ class HistogramPlotFrame(PlotFrame):
         self.axes.relim()  # make sure all the data fits
         self.axes.autoscale()  # auto-scale
         self.canvas.draw()
+
+
+class LineXYPlotFrame(PlotFrame):
+    def __init__(self, data, names=None, title="Line XY Plot"):
+        self.names = names
+        PlotFrame.__init__(self, data, title)
+
+    def draw_figure(self):
+        self.axes.set_xlabel(self.names[0])
+        if len(self.data)==2:
+            # a simple X-Y plot using 2 columns
+            self.axes.set_ylabel(self.names[1])
+
+        lines = [self.axes.plot(self.data[0], d)[0] for d in self.data[1::]]
+        if self.names is not None:
+            for n in self.names:
+                self.axes.legend(tuple(lines), tuple(self.names[1::]))
 
 
 class ContourPlotFrame(PlotFrame):
