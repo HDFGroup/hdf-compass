@@ -191,7 +191,8 @@ class ContourPlotFrame(PlotFrame):
         self.yy = np.linspace(self.geo_extent[2], self.geo_extent[3], self.surf.shape[0])
         img = self.axes.contourf(self.xx, self.yy, self.surf, 25, cmap=plt.cm.get_cmap(self.colormap),
                                  transform=ccrs.PlateCarree())
-        self.axes.coastlines(resolution='50m', color='gray', linewidth=1)
+        # TODO: cartopy bug -> https://github.com/SciTools/cartopy/issues/1348
+        # self.axes.coastlines(resolution='50m', color='gray', linewidth=1)
         # add gridlines with labels only on the left and on the bottom
         grl = self.axes.gridlines(crs=ccrs.PlateCarree(), color='gray', draw_labels=True)
         grl.xformatter = LONGITUDE_FORMATTER

@@ -19,9 +19,8 @@ import os.path as op
 import posixpath as pp
 import h5py
 
-from hyo2.bag import is_bag
-from hyo2.bag import BAGFile
-from hyo2.bag import BAGError
+from hyo2.bag.bag import BAGFile
+from hyo2.bag.bag import BAGError
 
 from hdf_compass import compass_model
 from hdf_compass.utils import url2path
@@ -84,7 +83,7 @@ class BAGStore(compass_model.Store):
             return False
 
         path = url2path(url)
-        if not is_bag(path):
+        if not BAGFile.is_bag(path):
             logger.debug("able to handle %s? no, not a BAG" % url)
             return False
 
@@ -555,7 +554,7 @@ class BAGMetadataText(compass_model.Text):
         try:
             self._dset = store.f.metadata(as_string=True, as_pretty_xml=True)
         except BAGError as e:
-            logger.warning("unable to retrieve metadata as xml")
+            logger.warning("unable to retrieve metadata as xml (%s)" % e)
             self._dset = ""
 
     @property
@@ -599,7 +598,7 @@ class BAGMetadataXml(compass_model.Xml):
         try:
             self._dset = store.f.metadata(as_string=True, as_pretty_xml=True)
         except BAGError as e:
-            logger.warning("unable to retrieve metadata as xml")
+            logger.warning("unable to retrieve metadata as xml (%s)" % e)
             self._dset = ""
 
     @property
