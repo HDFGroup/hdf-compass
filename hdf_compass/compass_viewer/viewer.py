@@ -19,6 +19,7 @@ Defines the App class, along with supporting infrastructure.
 import matplotlib
 matplotlib.use('WXAgg')
 
+import traceback
 import sys
 import wx
 
@@ -224,7 +225,8 @@ def load_plugins():
                      % (etree.__version__, ".".join(str(i) for i in etree.LIBXML_VERSION),
                         ".".join(str(i) for i in etree.LIBXSLT_VERSION)))
     except (ImportError, OSError):
-        logger.warning("BAG plugin: NOT loaded")
+        traceback.print_exc()
+        logger.warning("BAG plugin: NOT loaded (%s)")
 
     try:
         from hdf_compass import asc_model
