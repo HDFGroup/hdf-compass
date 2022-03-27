@@ -115,8 +115,6 @@ class HDF5RestStore(compass_model.Store):
             # todo - verify it is a 404
             logger.debug("invalid key:"+key)
         return contains
-        
-     
 
     @property
     def url(self):
@@ -136,7 +134,6 @@ class HDF5RestStore(compass_model.Store):
     @property
     def valid(self):
         return '/' in self.f
-        
 
     @staticmethod
     def can_handle(url):
@@ -200,10 +197,6 @@ class HDF5RestStore(compass_model.Store):
     @property
     def domain(self):
         return self._domain
-        
-    @property
-    def objid(self):
-        return self._objid
         
     def get(self, uri):
         

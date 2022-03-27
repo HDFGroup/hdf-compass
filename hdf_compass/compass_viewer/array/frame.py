@@ -139,9 +139,8 @@ class ArrayFrame(NodeFrame):
         if self.node.is_plottable():
             self.toolbar.AddTool(ID_VIS_MENU_PLOT, "Plot Data", plot_bmp)
             self.toolbar.AddTool(ID_VIS_MENU_HIST, "Histogram", hist_bmp)
-            self.toolbar.AddLabelTool(ID_VIS_MENU_PLOTXY, "Plot XY", plot_xy_bmp,
-                                      shortHelp="Plot data against first row",
-                                      longHelp="Plot data against first selected row in a popup window")
+            self.toolbar.AddTool(ID_VIS_MENU_PLOTXY, "Plot XY", plot_xy_bmp,
+                                 shortHelp="Plot data against first row")
 
         self.toolbar.Realize()
 
@@ -263,8 +262,11 @@ class ArrayFrame(NodeFrame):
         if len(data) < 1:
             logger.info("first select data")
             return
-
-        logger.debug("%s %s %s" % (data.shape, names, line))
+        if np.isnan(np.nanmin(data)):
+            logger.info("all nan values")
+            return
+        
+        logger.debug("%s; names: %s; line: %s" % (data, names, line))
 
         f = HistogramPlotFrame(data, names)
         f.Show()

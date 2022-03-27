@@ -23,7 +23,7 @@ from datetime import date
 
 import wx
 import wx.richtext as rtc
-from wx.lib.pubsub import pub
+from pubsub import pub
 
 logger = logging.getLogger(__name__)
 
