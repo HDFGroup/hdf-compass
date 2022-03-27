@@ -236,8 +236,8 @@ class ContourPlotFrame(PlotFrame):
         grl.yformatter = LATITUDE_FORMATTER
         grl.xlabel_style = {'size': 8}
         grl.ylabel_style = {'size': 8}
-        grl.ylabels_right = False
-        grl.xlabels_top = False
+        grl.right_labels = False
+        grl.top_labels = False
 
         self.axes.set_extent(self.geo_extent, crs=ccrs.PlateCarree())
 
