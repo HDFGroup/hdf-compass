@@ -72,6 +72,8 @@ setup_args['classifiers'] = \
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Scientific/Engineering :: Information Analysis',
         'Topic :: Office/Business :: Office Suites',
         'Topic :: Utilities'
@@ -93,6 +95,7 @@ setup_args['install_requires'] =\
         "numpy",
         "matplotlib",
         "h5py",
+        "pypubsub",
         "wxPython",
         "requests"
     ]
