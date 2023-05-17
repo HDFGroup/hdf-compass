@@ -17,9 +17,6 @@ HDF Compass
     :target: https://ci.appveyor.com/project/giumas/hdf-compass
     :alt: AppVeyor Status
 
-.. image:: https://travis-ci.org/HDFGroup/hdf-compass.svg?branch=develop
-    :target: https://travis-ci.org/HDFGroup/hdf-compass
-    :alt: Travis-CI Status
         
 Welcome to the project!  HDF Compass is an experimental viewer program for
 HDF5 and related formats, designed to complement other more complex
