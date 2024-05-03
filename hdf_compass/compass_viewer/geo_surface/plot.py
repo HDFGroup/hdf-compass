@@ -242,7 +242,7 @@ class ContourPlotFrame(PlotFrame):
         self.axes.set_extent(self.geo_extent, crs=ccrs.PlateCarree())
 
         if self.cb:
-            self.cb.on_mappable_changed(img)
+            self.cb.update_normal(img)
         else:
             self.cb = plt.colorbar(img, ax=self.axes)
         self.cb.ax.tick_params(labelsize=8)

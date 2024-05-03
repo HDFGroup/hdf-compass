@@ -327,7 +327,7 @@ class ContourPlotFrame(PlotFrame):
         img = self.axes.contourf(xx, yy, data, 25, cmap=plt.cm.get_cmap(self.colormap))
         self.axes.set_aspect('equal')
         if self.cb:
-            self.cb.on_mappable_changed(img)
+            self.cb.update_normal(img)
         else:
             self.cb = plt.colorbar(img, ax=self.axes)
         self.cb.ax.tick_params(labelsize=8)
