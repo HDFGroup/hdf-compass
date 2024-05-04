@@ -1,0 +1,46 @@
+name: HDF Compass on Linux
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 5
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+    - name: setup-conda
+      uses: s-weigand/setup-conda@v1.2.1
+      with:
+        update-conda: true
+        python-version: 3.11
+    - name: Install dependencies
+      run: |
+        conda config --add channels conda-forge
+        conda install appdirs cartopy gdal matplotlib-base numpy psutil pyproj qt-material
+        conda install h5py python-dateutil lxml
+        conda install pypubsub wxPython requests
+        pip install PySide6
+        sudo apt-get install -y libegl1
+        pip install hyo2.bag
+        pip install --no-deps .
+    - name: Lint with flake8
+      run: |
+        conda install flake8
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 ./hdf-compass --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 ./hdf-compass --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      continue-on-error: true
+    - name: Test with pytest
+      run: |
+        pip install coveralls PyYAML pytest pytest-cov
+        py.test --cov
+        coverage report -m
+        coveralls
+      continue-on-error: false

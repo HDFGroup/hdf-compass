@@ -13,13 +13,13 @@ HDF Compass
     :target: http://hdf-compass.readthedocs.org/en/latest/?badge=latest
     :alt: Latest Documentation Status
     
-.. image:: https://ci.appveyor.com/api/projects/status/57urski9r319li6o/branch/py3?svg=true
-    :target: https://ci.appveyor.com/project/giumas/hdf-compass
-    :alt: AppVeyor Status
+.. image:: https://github.com/HDFGroup/hdf-compass/actions/workflows/hdf-compass_on_windows.yml/badge.svg
+    :target: https://github.com/HDFGroup/hdf-compassg/actions/workflows/hdf-compass_on_windows.yml
+    :alt: Windows
 
-.. image:: https://travis-ci.org/HDFGroup/hdf-compass.svg?branch=py3
-    :target: https://travis-ci.org/HDFGroup/hdf-compass/branches
-    :alt: Travis-CI Status
+.. image:: https://github.com/HDFGroup/hdf-compass/actions/workflows/hdf-compass_on_linux.yml/badge.svg
+    :target: https://github.com/HDFGroup/hdf-compass/actions/workflows/hdf-compass_on_linux.yml
+    :alt: Linux
         
 Welcome to the project!  HDF Compass is an experimental viewer program for
 HDF5 and related formats, designed to complement other more complex
