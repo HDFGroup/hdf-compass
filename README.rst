@@ -21,6 +21,10 @@ HDF Compass
     :target: https://github.com/HDFGroup/hdf-compass/actions/workflows/hdf-compass_on_linux.yml
     :alt: Linux
 
+.. image:: https://coveralls.io/repos/github/HDFGroup/hdf-compass/badge.svg?branch=py3
+    :target: https://coveralls.io/github/HDFGroup/hdf-compass?branch=py3
+    :alt: coverall
+
 
 Welcome to the project!  HDF Compass is an experimental viewer program for
 HDF5 and related formats, designed to complement other more complex
