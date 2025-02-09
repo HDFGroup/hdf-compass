@@ -94,7 +94,7 @@ class ADIOSStore(compass_model.Store):
             self.f = adios.file(path)
             self._valid = True
         except:
-            log.debug("ADIOSStore: Init failed")
+            logger.debug("ADIOSStore: Init failed")
             self._valid = False
             self.f = None
 
@@ -254,10 +254,10 @@ class ADIOSText(compass_model.Text):
     def can_handle(store, key):
         if key in store and isinstance(store.f[key], adios.var):
             if store.f[key].dtype.kind == 'S':
-                logger.debug("ASCII String (characters: %d)" % DATA[key].dtype.itemsize)
+                logger.debug("ASCII String (characters: %d)" % store.f[key].dtype.itemsize)
                 return True
             if store.f[key].dtype.kind == 'U':
-                logger.debug("Unicode String (characters: %d)" % DATA[key].dtype.itemsize)
+                logger.debug("Unicode String (characters: %d)" % store.f[key].dtype.itemsize)
                 return True
         return False
 

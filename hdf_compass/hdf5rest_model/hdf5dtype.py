@@ -105,12 +105,12 @@ def getTypeElement(dt):
         h5t_check = check_dtype(vlen=dt)
         if h5t_check is not None:
             
-            if h5t_check == str:
+            if h5t_check == bytes:
                 type_info['class'] = 'H5T_STRING'
                 type_info['length'] = 'H5T_VARIABLE'
                 type_info['charSet'] = 'H5T_CSET_ASCII'
                 type_info['strPad'] = 'H5T_STR_NULLTERM'
-            elif h5t_check == unicode:
+            elif h5t_check == str:
                 type_info['class'] = 'H5T_STRING'
                 type_info['length'] = 'H5T_VARIABLE'
                 type_info['charSet'] = 'H5T_CSET_UTF8'
@@ -292,7 +292,7 @@ def getNumpyTypename(hdf5TypeName, typeClass=None):
 def createBaseDataType(typeItem):
 
     dtRet = None
-    if type(typeItem) == str or type(typeItem) == unicode:
+    if type(typeItem) == bytes or type(typeItem) == str:
         # should be one of the predefined types
         dtName = getNumpyTypename(typeItem)
         dtRet = np.dtype(dtName)
@@ -337,9 +337,9 @@ def createBaseDataType(typeItem):
             if dims:
                 raise TypeError("ArrayType is not supported for variable len types")
             if typeItem['charSet'] == 'H5T_CSET_ASCII':
-                dtRet = special_dtype(vlen=str)
+                dtRet = special_dtype(vlen=bytes)
             elif typeItem['charSet'] == 'H5T_CSET_UTF8':
-                dtRet = special_dtype(vlen=unicode)
+                dtRet = special_dtype(vlen=str)
             else:
                 raise TypeError("unexpected 'charSet' value")
         else:
@@ -403,7 +403,7 @@ def createBaseDataType(typeItem):
     
 def createDataType(typeItem):
     dtRet = None
-    if type(typeItem) == str or type(typeItem) == unicode:
+    if type(typeItem) == bytes or type(typeItem) == str:
         # should be one of the predefined types
         dtName = getNumpyTypename(typeItem)
         dtRet = np.dtype(dtName)
@@ -434,7 +434,7 @@ def createDataType(typeItem):
             if 'type' not in field:
                 raise KeyError("'type' missing from field")
             field_name = field['name']
-            if type(field_name) == unicode:
+            if type(field_name) == str:
                 # convert to ascii
                 ascii_name = field_name.encode('ascii')
                 if ascii_name != field_name:

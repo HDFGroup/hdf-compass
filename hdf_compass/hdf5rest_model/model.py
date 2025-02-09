@@ -58,7 +58,7 @@ def sort_key(name):
 
     We provide "natural" sort order; e.g. "7" comes before "12".
     """
-    return [(int(''.join(g)) if k else ''.join(g)) for k, g in groupby(name, key=unicode.isdigit)]
+    return [(int(''.join(g)) if k else ''.join(g)) for k, g in groupby(name, key=str.isdigit)]
 
 
 class HDF5RestStore(compass_model.Store):
