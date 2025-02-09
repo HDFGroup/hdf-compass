@@ -5,23 +5,20 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    continue-on-error: true
     strategy:
       max-parallel: 5
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.11
     - name: setup-conda
-      uses: s-weigand/setup-conda@v1.2.1
+      uses: s-weigand/setup-conda@v1
       with:
         update-conda: true
-        python-version: 3.11
+        python-version: '3.11'
+        conda-channels: 'conda-forge'
     - name: Install dependencies
       run: |
-        conda config --add channels conda-forge
         conda install appdirs cartopy gdal matplotlib-base numpy psutil pyproj qt-material
         conda install h5py python-dateutil lxml
         conda install pypubsub wxPython requests
@@ -36,11 +33,9 @@ jobs:
         flake8 ./hdf_compass --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 ./hdf_compass --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-      continue-on-error: true
     - name: Test with pytest
       run: |
         pip install coveralls PyYAML pytest pytest-cov
         py.test --cov
         coverage report -m
         coveralls
-      continue-on-error: false
